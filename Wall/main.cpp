@@ -8,6 +8,12 @@
 //  Created by sheep on 16/5/14.
 //  Copyright © 2016年 nadp. All rights reserved.
 //
+//  Created by Andre Kalisch on 30.08.16.
+//  Copyright © 2016 aKalisch. All rights reserved.
+//
+//  This project is a fork from csgoGlow published by iseekwonderful:
+//  https://github.com/iseekwonderful/csgoGlow
+//
 //  Edited by Fricker95 on 1/1/20.
 
 /*
@@ -20,7 +26,7 @@
  -o			        : Get new offsets (only use with -insecure launch option flag in CSGO)
  -h			        : Display this message
  
- Stop by typing "stop", "exit" or terminating csgo
+ Stop by typing "stop", "exit", "quit", "q" or terminating csgo
 */
 
 #include "Wall.hpp"
