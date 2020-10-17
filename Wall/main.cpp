@@ -94,6 +94,7 @@ int main(int argc, char** argv) {
 	
 	// removes macOS mouse acceleration
 	std::system("defaults write .GlobalPreferences com.apple.mouse.scaling -1");
+	std::system("clear");
 	
 	Wall wall(refreshRate, maxFlash, noTeammates);
 

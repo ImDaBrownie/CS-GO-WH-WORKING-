@@ -24,8 +24,8 @@ public:
 		
 		uint64_t m_dwEntityStructSize					= 0x20;
 		uint64_t m_dwGlowStructSize						= 0x40;
-		uint64_t m_dwGlowColorStruct					= 0x8;
-		uint64_t m_dwGlowEnable							= 0x28;
+		// uint64_t m_dwGlowColorStruct					= 0x8;
+		// uint64_t m_dwGlowEnable							= 0x28;
 		uint64_t m_bDormant								= 0x125;
 		uint64_t m_iTeam								= 0x12C;
 		uint64_t m_iHealth								= 0x138;
