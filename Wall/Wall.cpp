@@ -23,7 +23,7 @@ Wall::Wall(double refreshRate, double maxFlash, bool noTeammates)
 	g_cProc = new Process;
 	mem = new MemMngr(g_cProc);
 	off = new sOffsets;
-	glow = new sGlowEntity;
+	glow = new GlowObjectDefinition_t;
 	
 	g_cProc->mainPid() = g_cProc->get("csgo_osx64");
 	
@@ -194,22 +194,24 @@ void Wall::applyEntityGlow(int iTeamNum)
 			glowPointer = off->client.m_dwGlowObjectLoopStartBase + (off->client.m_dwGlowStructSize * mem->read<int>(entityPointer + off->client.m_iGlowIndex));
 			
 			if (glowPointer != 0x0) {
-				*glow = mem->read<sGlowEntity>(glowPointer);
+				*glow = mem->read<GlowObjectDefinition_t>(glowPointer);
 				
 				if (glow->isValidGlowEntity(entityPointer)) {
 					
 					cmp = team != iTeamNum;
 					
 					// Glow Colors
-					glow->r = float((100 - health)/100.0);
-					glow->g = cmp ? float((health)/100.0) : 0.0f;
-					glow->b = cmp ? 0.0f : float((health)/100.0);
-					glow->a = 0.5f;
+					glow->m_vGlowColor = GlowObjectDefinition_t::Vector{
+						float((100 - health)/100.0),
+						cmp ? float((health)/100.0) : 0.0f,
+						cmp ? 0.0f : float((health)/100.0)
+					};
+					glow->m_flGlowAlpha = 0.5f;
 					
 					// Enables Glow
-					glow->RenderWhenOccluded = true;
-					glow->RenderWhenUnoccluded = false;
-					mem->write<sGlowEntity>(glowPointer, *glow);
+					glow->m_bRenderWhenOccluded = true;
+					glow->m_bRenderWhenUnoccluded = false;
+					mem->write<GlowObjectDefinition_t>(glowPointer, *glow);
 				}
 			}
 		}
@@ -326,14 +328,14 @@ void Wall::stopThread()
 	}
 }
 
-bool Wall::sGlowEntity::isValidGlowEntity()
+bool Wall::GlowObjectDefinition_t::isValidGlowEntity()
 {
-	return entityPointer != 0x0;
+	return m_hEntity != 0x0;
 }
 
-bool Wall::sGlowEntity::isValidGlowEntity(uint64_t ptr)
+bool Wall::GlowObjectDefinition_t::isValidGlowEntity(uint64_t ptr)
 {
-	return entityPointer != 0x0 && entityPointer == ptr;
+	return m_hEntity != 0x0 && m_hEntity == ptr;
 }
 
 std::atomic<bool> Wall::stop{false};

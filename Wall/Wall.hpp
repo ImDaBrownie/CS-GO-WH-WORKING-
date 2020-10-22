@@ -23,16 +23,19 @@
 #include <thread>
 
 class Wall {
-	struct sGlowEntity {
+	struct GlowObjectDefinition_t {
+		struct Vector {
+			float r;
+			float g;
+			float b;
+		};
 	public:
-		uint64_t entityPointer;
-		float r;
-		float g;
-		float b;
-		float a;
+		uint64_t m_hEntity;
+		Vector m_vGlowColor;
+		float m_flGlowAlpha;
 		char unk1[0x10];
-		bool RenderWhenOccluded;
-		bool RenderWhenUnoccluded;
+		bool m_bRenderWhenOccluded;
+		bool m_bRenderWhenUnoccluded;
 		bool FullBloom;
 		char unk2[0x15];
 		
@@ -45,7 +48,7 @@ class Wall {
 	sOffsets* off = nullptr;
 	Scanner* engineScanner = nullptr;
 	Scanner* clientScanner = nullptr;
-	sGlowEntity* glow = nullptr;
+	GlowObjectDefinition_t* glow = nullptr;
 	
 	uint64_t glowPointer;
 	uint64_t entityPointer;
