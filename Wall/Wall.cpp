@@ -164,7 +164,7 @@ void Wall::applyEntityGlow(int iTeamNum)
 	int health;
 	int team;
 	bool cmp = false;
-	
+
 	for (int i = 0; i < mem->read<int>(off->engine.m_dwCEngineClientBase + off->engine.m_iGetMaxClients); ++i){
 		
 		entityPointer = mem->read<uint64_t>(off->client.m_dwEntityList + (off->client.m_dwEntityStructSize * i));
@@ -201,7 +201,7 @@ void Wall::applyEntityGlow(int iTeamNum)
 					cmp = team != iTeamNum;
 					
 					// Glow Colors
-					glow->m_vGlowColor = GlowObjectDefinition_t::Vector{
+					glow->m_vGlowColor = {
 						float((100 - health)/100.0),
 						cmp ? float((health)/100.0) : 0.0f,
 						cmp ? 0.0f : float((health)/100.0)

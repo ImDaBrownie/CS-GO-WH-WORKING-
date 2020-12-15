@@ -23,7 +23,9 @@
 #include <thread>
 
 class Wall {
+public:
 	struct GlowObjectDefinition_t {
+	public:
 		struct Vector {
 			float r;
 			float g;
@@ -42,7 +44,7 @@ class Wall {
 		bool isValidGlowEntity();
 		bool isValidGlowEntity(uint64_t ptr);
 	};
-	
+private:
 	Process* g_cProc = nullptr;
 	MemMngr* mem = nullptr;
 	sOffsets* off = nullptr;
