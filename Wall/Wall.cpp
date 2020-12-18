@@ -12,20 +12,23 @@
 
 #include "Wall.hpp"
 
-Wall::Wall(double refreshRate, double maxFlash, bool noTeammates)
+Wall::Wall(double refreshRate, double maxFlash, bool noTeammates, bool noUtils)
 {
-	this->refreshRate = refreshRate;
-	this->maxFlash = maxFlash;
-	this->noTeammates = noTeammates;
+	this->refreshRate 	= refreshRate;
+	this->maxFlash 		= maxFlash;
+	this->noTeammates 	= noTeammates;
+	this->noUtils		= noUtils;
 	
 	stop.store(false);
 	
-	g_cProc = new Process;
-	mem = new MemMngr(g_cProc);
-	off = new sOffsets;
-	glow = new GlowObjectDefinition_t;
+	g_cProc 			= new Process;
+	mem 				= new MemMngr(g_cProc);
+	off 				= new sOffsets;
+	playerList 			= new PlayerEntityList;
+	glow 				= new GlowObjectDefinition_t;
+	entity 				= new EntityObjectDefinition_t;
 	
-	g_cProc->mainPid() = g_cProc->get("csgo_osx64");
+	g_cProc->mainPid() 	= g_cProc->get("csgo_osx64");
 	
 	if (g_cProc->mainPid() != -1){
 		printf("Found CSGO's PID\t\t= %s\n", cT::print(std::to_string(g_cProc->mainPid()).c_str(), cT::fG::green, cT::sT::bold).c_str());
@@ -104,43 +107,6 @@ Wall::~Wall()
 	deinit();
 }
 
-void Wall::run(bool getOff)
-{
-	std::thread s_thread(&Wall::stopThread, this);
-	s_thread.detach();
-	
-	int i_teamNum = 0;
-	
-	while (g_cProc->mainPid() != -1 && !stop.load()) {
-		if (off->engine.m_dwCEngineClientBase != 0x0) {
-			if (mem->read<int>(off->engine.m_dwCEngineClientBase + off->engine.m_dwIsInGame) == 6) {
-				off->client.m_dwLocalPlayerBase = mem->read<uint64_t>(off->client.m_dwLocalPlayer);
-				if (off->client.m_dwLocalPlayerBase != 0x0 && off->client.m_dwGlowObjectLoopStartBase != 0x0 ) {
-					i_teamNum = mem->read<int>(off->client.m_dwLocalPlayerBase + off->client.m_iTeam);
-					if (getOff) {
-						getOffsets();
-						deinit();
-						stop.store(true);
-						exit(0);
-					}
-					applyEntityGlow(i_teamNum);
-				} else {
-					getClientPointers();
-					off->client.m_dwGlowObjectLoopStartBase = mem->read<uint64_t>(off->client.m_dwGlowManager);
-				}
-			}
-		} else {
-			getEnginePointers();
-			off->engine.m_dwCEngineClientBase = mem->read<uint64_t>(off->engine.m_dwCEngineClient);
-		}
-		g_cProc->mainPid() = g_cProc->get("csgo_osx64");
-		usleep(refreshRate); // 800
-	}
-	
-	stop.store(true);
-	std::system("clear");
-}
-
 void Wall::deinit()
 {
 	stop.store(true);
@@ -154,68 +120,144 @@ void Wall::deinit()
 		delete engineScanner;
 	if (clientScanner)
 		delete clientScanner;
+	if (playerList) {
+		delete playerList;
+	}
 	if (glow) {
 		delete glow;
 	}
+	if (entity) {
+		delete entity;
+	}
 }
 
-void Wall::applyEntityGlow(int iTeamNum)
+void Wall::run(bool getOff)
 {
+	std::thread s_thread(&Wall::stopThread, this);
+	s_thread.detach();
+	
+	while (g_cProc->mainPid() != -1 && !stop.load()) {
+		if (off->engine.m_dwCEngineClientBase != 0x0) {
+			if (mem->read<int>(off->engine.m_dwCEngineClientBase + off->engine.m_dwIsInGame) == 6) {
+				off->client.m_dwLocalPlayerBase = mem->read<uint64_t>(off->client.m_dwLocalPlayer);
+				if (off->client.m_dwLocalPlayerBase != 0x0 && off->client.m_dwGlowObjectLoopStartBase != 0x0 ) {
+					if (getOff) {
+						getOffsets();
+						deinit();
+						stop.store(true);
+						exit(0);
+					}
+					applyGlow();
+//					applyPlayerGlow();
+				} else {
+					getClientPointers();
+					off->client.m_dwGlowObjectLoopStartBase = mem->read<uint64_t>(off->client.m_dwGlowManager);
+				}
+			}
+		} else {
+			getEnginePointers();
+			off->engine.m_dwCEngineClientBase = mem->read<uint64_t>(off->engine.m_dwCEngineClient);
+		}
+		g_cProc->mainPid() = g_cProc->get("csgo_osx64");
+		usleep(refreshRate); // 800
+	}
+	stop.store(true);
+	std::system("clear");
+}
+
+void Wall::applyGlow()
+{
+	*playerList = mem->read<PlayerEntityList>(off->client.m_dwEntityList);
+	
+	entity_ptr = off->client.m_dwEntityList;
+	base_ptr = off->client.m_dwLocalPlayerBase;
+	
+	int glowListMaxIndex = mem->read<int>(off->client.m_dwGlowManager + off->client.m_dwGlowListMaxSize);
+	
 	int health;
 	int team;
+	int i_teamNum = mem->read<int>(off->client.m_dwLocalPlayerBase + off->client.m_iTeam);
+	
 	bool cmp = false;
-
-	for (int i = 0; i < mem->read<int>(off->engine.m_dwCEngineClientBase + off->engine.m_iGetMaxClients); ++i){
+	
+	entityList.reserve(glowListMaxIndex);
+	
+	while (entity_ptr != 0x0) {
+		*entity = mem->read<EntityObjectDefinition_t>(entity_ptr);
+		entityList.emplace_back(*entity);
+		entity_ptr = entity->m_pNext;
+	}
+	
+	for (int i = 0; i < glowListMaxIndex; ++i) {
+		glow_ptr = off->client.m_dwGlowObjectLoopStartBase + (off->client.m_dwGlowStructSize * i);
+		*glow = mem->read<GlowObjectDefinition_t>(glow_ptr);
 		
-		entityPointer = mem->read<uint64_t>(off->client.m_dwEntityList + (off->client.m_dwEntityStructSize * i));
-		
-		if (entityPointer <= 0x0)
-			continue;
-		
-		// Anti flash
-		if (maxFlash != -1 && off->client.m_dwLocalPlayerBase == entityPointer) {
-			if (mem->read<double>(entityPointer + off->client.m_dFlashAlpha) > maxFlash) {
-				mem->write<double>(entityPointer + off->client.m_dFlashAlpha, maxFlash);
-			}
-			continue;
-		}
-		
-		if (!mem->read<bool>(entityPointer + off->client.m_bDormant) && !mem->read<bool>(entityPointer + off->client.m_bLifeState)) {
+		if (glow->isValidGlowEntity()) {
 			
-			team = mem->read<int>(entityPointer + off->client.m_iTeam);
-			
-			if (noTeammates && team == iTeamNum)
-				continue;
-			
-			health = mem->read<int>(entityPointer + off->client.m_iHealth);
-			
-			health += (health == 0 ? 100 : health);
-			
-			glowPointer = off->client.m_dwGlowObjectLoopStartBase + (off->client.m_dwGlowStructSize * mem->read<int>(entityPointer + off->client.m_iGlowIndex));
-			
-			if (glowPointer != 0x0) {
-				*glow = mem->read<GlowObjectDefinition_t>(glowPointer);
+			auto ent = std::find(entityList.begin(), entityList.end(), *glow);
+			if(ent != entityList.end()) {
 				
-				if (glow->isValidGlowEntity(entityPointer)) {
+				entityList.erase(ent);
+				
+				auto player = std::find(std::begin(playerList->array), std::end(playerList->array), *glow);
+				if (player != std::end(playerList->array)) {
 					
-					cmp = team != iTeamNum;
+					entity_ptr = glow->m_hEntity;
 					
+					if (base_ptr == entity_ptr) {
+						if (maxFlash != -1) {
+							if (mem->read<double>(entity_ptr + off->client.m_dFlashAlpha) > maxFlash)
+								mem->write<double>(entity_ptr + off->client.m_dFlashAlpha, maxFlash);
+						}
+						continue;
+					}
+	
+					if (!mem->read<bool>(entity_ptr + off->client.m_bDormant) && !mem->read<bool>(entity_ptr + off->client.m_bLifeState)) {
+	
+						team = mem->read<int>(entity_ptr + off->client.m_iTeam);
+	
+						if (noTeammates && team == i_teamNum)
+							continue;
+	
+						health = mem->read<int>(entity_ptr + off->client.m_iHealth);
+						health += (health == 0 ? 100 : health);
+	
+						cmp = team != i_teamNum;
+	
+						// Glow Colors
+						glow->m_vGlowColor = {
+							float((100 - health)/100.0),
+							cmp ? float((health)/100.0) : 0.0f,
+							cmp ? 0.0f : float((health)/100.0)
+						};
+						glow->m_flGlowAlpha = 0.5f;
+	
+						// Enables Glow
+						glow->m_bRenderWhenOccluded = true;
+						glow->m_bRenderWhenUnoccluded = false;
+	
+						// Write to Memory
+						mem->write<GlowObjectDefinition_t>(off->client.m_dwGlowObjectLoopStartBase + (off->client.m_dwGlowStructSize * i), *glow);
+					}
+				} else {
+					if (noUtils)
+						continue;
 					// Glow Colors
-					glow->m_vGlowColor = {
-						float((100 - health)/100.0),
-						cmp ? float((health)/100.0) : 0.0f,
-						cmp ? 0.0f : float((health)/100.0)
-					};
+					glow->m_vGlowColor = {1.0f, 1.0f, 1.0f};
 					glow->m_flGlowAlpha = 0.5f;
-					
+	
 					// Enables Glow
 					glow->m_bRenderWhenOccluded = true;
 					glow->m_bRenderWhenUnoccluded = false;
-					mem->write<GlowObjectDefinition_t>(glowPointer, *glow);
+	
+					// Write to Memory
+					mem->write<GlowObjectDefinition_t>(off->client.m_dwGlowObjectLoopStartBase + (off->client.m_dwGlowStructSize * i), *glow);
 				}
 			}
 		}
 	}
+	
+	entityList.clear();
 }
 
 void Wall::getOffsets()
@@ -326,16 +368,6 @@ void Wall::stopThread()
 		}
 		usleep(refreshRate);
 	}
-}
-
-bool Wall::GlowObjectDefinition_t::isValidGlowEntity()
-{
-	return m_hEntity != 0x0;
-}
-
-bool Wall::GlowObjectDefinition_t::isValidGlowEntity(uint64_t ptr)
-{
-	return m_hEntity != 0x0 && m_hEntity == ptr;
 }
 
 std::atomic<bool> Wall::stop{false};

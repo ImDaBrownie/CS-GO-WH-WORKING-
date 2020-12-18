@@ -14,68 +14,56 @@
 #define WALL_HPP
 
 #include "Scanner.hpp"
+#include "Objects.hpp"
 #include "Offsets.hpp"
 #include "ColorText.hpp"
 
 #include <iostream>
+#include <algorithm>
 #include <vector>
 #include <atomic>
 #include <thread>
 
 class Wall {
-public:
-	struct GlowObjectDefinition_t {
-	public:
-		struct Vector {
-			float r;
-			float g;
-			float b;
-		};
-	public:
-		uint64_t m_hEntity;
-		Vector m_vGlowColor;
-		float m_flGlowAlpha;
-		char unk1[0x10];
-		bool m_bRenderWhenOccluded;
-		bool m_bRenderWhenUnoccluded;
-		bool FullBloom;
-		char unk2[0x15];
-		
-		bool isValidGlowEntity();
-		bool isValidGlowEntity(uint64_t ptr);
-	};
-private:
-	Process* g_cProc = nullptr;
-	MemMngr* mem = nullptr;
-	sOffsets* off = nullptr;
-	Scanner* engineScanner = nullptr;
-	Scanner* clientScanner = nullptr;
-	GlowObjectDefinition_t* glow = nullptr;
+	std::vector<EntityObjectDefinition_t> entityList;
 	
-	uint64_t glowPointer;
-	uint64_t entityPointer;
+	Process* g_cProc 					= nullptr;
+	MemMngr* mem 						= nullptr;
+	sOffsets* off 						= nullptr;
+	Scanner* engineScanner 				= nullptr;
+	Scanner* clientScanner 				= nullptr;
+	
+	PlayerEntityList* playerList 		= nullptr;
+
+	GlowObjectDefinition_t* glow 		= nullptr;
+	EntityObjectDefinition_t* entity 	= nullptr;
+	
+	uint64_t glow_ptr;
+	uint64_t entity_ptr;
+	uint64_t base_ptr;
 	
 	mach_vm_address_t engine_moduleStartAddress;
-	off_t engine_moduleLength = 0;
+	off_t engine_moduleLength 			= 0;
 	
 	mach_vm_address_t client_moduleStartAddress;
-	off_t client_moduleLength = 0;
+	off_t client_moduleLength 			= 0;
 	
-	double refreshRate = 1000.0f;
-	double maxFlash = 100.0f;
-	bool noTeammates = false;
+	double refreshRate 					= 1000.0f;
+	double maxFlash 					= 100.0f;
+	bool noTeammates 					= false;
+	bool noUtils 						= false;
 	
 	static std::atomic<bool> stop;
 	
 public:
-	explicit Wall(double refreshRate = 1000.0f, double maxFlash = 100.0f, bool noTeammates = false);
+	explicit Wall(double refreshRate = 1000.0f, double maxFlash = 100.0f, bool noTeammates = false, bool noUtils = false);
 	~Wall();
 	
 	void run(bool getOff = false);
 
 private:
 	void deinit();
-	void applyEntityGlow(int iTeamNum);
+	void applyGlow();
 	void getOffsets();
 	void getEnginePointers();
 	void getClientPointers();

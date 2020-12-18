@@ -22,10 +22,12 @@ public:
 		uint64_t m_dwRadarManager;
 		uint64_t m_dwRadarBase;
 		
+		uint64_t m_dwGlowListMaxSize					= 0x8;
+		uint64_t m_dwGlowListSize 						= 0x10;
 		uint64_t m_dwEntityStructSize					= 0x20;
 		uint64_t m_dwGlowStructSize						= 0x40;
 		// uint64_t m_dwGlowColorStruct					= 0x8;
-		// uint64_t m_dwGlowEnable							= 0x28;
+		// uint64_t m_dwGlowEnable						= 0x28;
 		uint64_t m_bDormant								= 0x125;
 		uint64_t m_iTeam								= 0x12C;
 		uint64_t m_iHealth								= 0x138;
@@ -38,6 +40,9 @@ public:
 		uint64_t m_fFlashDuration						= 0xAD50; // 0xAD30
 		uint64_t m_iGlowIndex							= 0xAD68; // 0xAD48 // 0xAD2C
 		
+		// m_dwEntityList - ...
+//		uint64_t m_iMaxPlayers							= 0xDC00;
+//		uint64_t m_iNumPlayersAlive						= 0xDBF8;
 		/*
 		 // radar base needs new sig
 		 uint64_t m_dwRadarStructBase            		= 0x108;
@@ -71,7 +76,7 @@ public:
 		//uint64_t m_iLocalPlayer                         = 0x210;
 		//uint64_t m_szMapFile                            = 0x218;
 		uint64_t m_szMapName                            = 0x32C; // 0x31C
-		uint64_t m_iGetMaxClients                      = 0x428; // 0x3A0;
+		uint64_t m_iGetMaxClients                      	= 0x428; // 0x3A0;
 		//uint64_t m_setViewAngle                         = 0x8E20;
 	} engine;
 	

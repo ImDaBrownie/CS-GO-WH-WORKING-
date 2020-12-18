@@ -18,13 +18,14 @@
 
 /*
  Usage:
- sudo ./Wall [-f <max flash alpha>] [-r <refresh rate>] [-t] [-o] [-h]
+ sudo ./Wall [-f <max flash alpha>] [-r <refresh rate>] [-t] [-u] [-o] [-h]
  
  -f <flash alpha>	: Antiflash alpha max amount (default: 100.0, disable: -1, range: [0-2700])
  -r <refresh rate>	: Refresh rate in microseconds (default: 1000.0)
- -t			        : Disables teammate glow
- -o			        : Get new offsets (only use with -insecure launch option flag in CSGO)
- -h			        : Display this message
+ -t			: Disables teammate glow
+ -u			: Disables weapons/utility/bomb/chicken glow
+ -o			: Get new offsets (only use with -insecure launch option flag in CSGO)
+ -h			: Display this message
  
  Stop by typing "stop", "exit", "quit", "q" or terminating csgo
 */
@@ -38,23 +39,28 @@
 
 void usage(const char* exec) {
 	printf("%s\n", cT::print("\nUsage:", cT::fG::green).c_str());
-	printf("\tsudo %s [-f <max flash alpha>] [-r <refresh rate>] [-t] [-o] [-h]\n\n", cT::print(exec, cT::fG::yellow).c_str());
+	printf("\tsudo %s [-f <max flash alpha>] [-r <refresh rate>] [-t] [-u] [-o] [-h]\n\n", cT::print(exec, cT::fG::yellow).c_str());
 	printf("\t-f <flash alpha>\t: Antiflash alpha max amount (default: 100.0, disable: -1, range: [0-2700])\n");
 	printf("\t-r <refresh rate>\t: Refresh rate in microseconds (default: 1000.0)\n");
 	printf("\t-t\t\t\t: Disables teammate glow\n");
+	printf("\t-u\t\t\t: Disables weapons/utility/bomb/chicken glow\n");
+	
 	printf("\t-o\t\t\t: Get new offsets (only use with -insecure launch option flag in CSGO)\n");
 	printf("\t-h\t\t\t: Display this message\n\n");
 }
 
 int main(int argc, char** argv) {
 	
-	double refreshRate = 1000.0f;
-	double maxFlash = 100.0f;
+	double refreshRate 	= 1000.0f;
+	double maxFlash 	= 100.0f;
+
 	int opt;
-	bool getOffsets = false;
-	bool noTeammates = false;
+
+	bool getOffsets 	= false;
+	bool noTeammates 	= false;
+	bool noUtils 		= false;
 	
-	while ((opt =  getopt(argc, argv, "f:r:toh")) != -1) {
+	while ((opt =  getopt(argc, argv, "f:r:tuoh")) != -1) {
 		switch (opt) {
 			case 'f':
 				try {
@@ -83,6 +89,9 @@ int main(int argc, char** argv) {
 			case 't':
 				noTeammates = true;
 				break;
+			case 'u':
+				noUtils = true;
+				break;
 			case 'o':
 				getOffsets = true;
 				break;
@@ -96,7 +105,7 @@ int main(int argc, char** argv) {
 	std::system("defaults write .GlobalPreferences com.apple.mouse.scaling -1");
 	std::system("clear");
 	
-	Wall wall(refreshRate, maxFlash, noTeammates);
+	Wall wall(refreshRate, maxFlash, noTeammates, noUtils);
 
 	wall.run(getOffsets);
 	
