@@ -2,7 +2,7 @@
 //  Objects.hpp
 //  Wall
 //
-//  Created by Nicolas Fricker on 12/18/20.
+//  Created by Fricker95 on 12/18/20.
 //  Copyright © 2020 nadp. All rights reserved.
 //
 
