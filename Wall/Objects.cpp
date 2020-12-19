@@ -42,6 +42,8 @@ bool GlowObjectDefinition_t::operator == (const EntityObjectDefinition_t& rhs)
 	return m_hEntity == rhs.m_hEntity;
 }
 
+
+
 bool EntityObjectDefinition_t::isValidGlowEntity()
 {
 	return m_hEntity != 0x0;

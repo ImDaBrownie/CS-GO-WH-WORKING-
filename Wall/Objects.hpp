@@ -35,7 +35,7 @@ public:
 	bool isValidGlowEntity();
 	bool isValidGlowEntity(uint64_t ptr);
 	void print();
-	
+
 	bool operator == (const GlowObjectDefinition_t& rhs);
 	bool operator == (const EntityObjectDefinition_t& rhs);
 };
@@ -50,7 +50,7 @@ public:
 	bool isValidGlowEntity();
 	bool isValidGlowEntity(uint64_t ptr);
 	void print();
-	
+
 	bool operator == (const EntityObjectDefinition_t& rhs);
 	bool operator == (const GlowObjectDefinition_t& rhs);
 };

@@ -12,6 +12,8 @@
 
 #include "Wall.hpp"
 
+#include <string>
+
 Wall::Wall(double refreshRate, double maxFlash, bool noTeammates, bool noUtils)
 {
 	this->refreshRate 	= refreshRate;
@@ -147,11 +149,13 @@ void Wall::run(bool getOff)
 				} else {
 					getClientPointers();
 					off->client.m_dwGlowObjectLoopStartBase = mem->read<uint64_t>(off->client.m_dwGlowManager);
+					printf("m_dwGlowObjectLoopStartBase\t= %s0x%llx%s\n", cT::getColor(cT::fG::green).c_str(), off->client.m_dwGlowObjectLoopStartBase, cT::getStyle(cT::sT::bold).c_str());
 				}
 			}
 		} else {
 			getEnginePointers();
 			off->engine.m_dwCEngineClientBase = mem->read<uint64_t>(off->engine.m_dwCEngineClient);
+			printf("m_dwCEngineClientBase\t\t= %s0x%llx%s\n", cT::getColor(cT::fG::green).c_str(), off->engine.m_dwCEngineClientBase, cT::getStyle(cT::sT::bold).c_str());
 		}
 		g_cProc->mainPid() = g_cProc->get("csgo_osx64");
 		usleep(refreshRate); // 800
@@ -173,8 +177,6 @@ void Wall::applyGlow()
 	
 	bool cmp = false;
 	
-	entityList.reserve(glowListMaxIndex);
-	
 	while (entity_ptr != 0x0) {
 		*entity = mem->read<EntityObjectDefinition_t>(entity_ptr);
 		entityList.emplace_back(*entity);
@@ -187,26 +189,38 @@ void Wall::applyGlow()
 		*glow = mem->read<GlowObjectDefinition_t>(glow_ptr);
 
 		if (glow->isValidGlowEntity()) {
+			
 			auto ent = std::find(entityList.begin(), entityList.end(), *glow);
 			if(ent != entityList.end()) {
-				
-				entityList.erase(ent);
-				
 				entity_ptr = glow->m_hEntity;
-				
-				if (base_ptr == entity_ptr) {
-					if (maxFlash != -1) {
-						if (mem->read<double>(entity_ptr + off->client.m_dFlashAlpha) > maxFlash)
-							mem->write<double>(entity_ptr + off->client.m_dFlashAlpha, maxFlash);
-					}
-					continue;
-				}
 				
 				if (!mem->read<bool>(entity_ptr + off->client.m_bDormant) && !mem->read<bool>(entity_ptr + off->client.m_bLifeState)) {
 					
-					team = mem->read<int>(entity_ptr + off->client.m_iTeam);
+					/*
+					 uint64_t vtable = memoryManager->read<uint64_t>(entityPointer + 0x8);
+					 uint64_t fn     = memoryManager->read<uint64_t>(vtable + (0x8 * 2));
+					 uint64_t cls    = memoryManager->read<uint64_t>(fn + 0x1);
+					 
+					 int ClassID = memoryManager->read<int>(cls + 0x14);
+					 */
 					
-					if (team == 2 || team == 3) {
+					uint64_t vtable = mem->read<uint64_t>(entity_ptr + 0x8);
+					uint64_t fn = mem->read<uint64_t>(vtable - 0x8);
+					uint64_t cls = mem->read<uint64_t>(fn + 0x8);
+					std::string clsName = mem->readString(cls);
+					std::cout << clsName << "\n";
+					
+					if (std::find(std::begin(off->playerClass), std::end(off->playerClass), clsName) != std::end(off->playerClass)) {
+						if (base_ptr == entity_ptr) {
+							if (maxFlash != -1) {
+								if (mem->read<double>(entity_ptr + off->client.m_dFlashAlpha) > maxFlash)
+									mem->write<double>(entity_ptr + off->client.m_dFlashAlpha, maxFlash);
+							}
+							continue;
+						}
+						
+						team = mem->read<int>(entity_ptr + off->client.m_iTeam);
+						
 						if (noTeammates && team == i_teamNum)
 							continue;
 						
@@ -229,12 +243,12 @@ void Wall::applyGlow()
 						
 						// Write to Memory
 						mem->write<GlowObjectDefinition_t>(off->client.m_dwGlowObjectLoopStartBase + (off->client.m_dwGlowStructSize * i), *glow);
-					} else {
+					} else if (std::find(std::begin(off->weaponsClass), std::end(off->weaponsClass), clsName) != std::end(off->weaponsClass) || std::find(std::begin(off->bombClass), std::end(off->bombClass), clsName) != std::end(off->bombClass) || std::find(std::begin(off->utilityClass), std::end(off->utilityClass), clsName) != std::end(off->utilityClass) || std::find(std::begin(off->chickenClass), std::end(off->chickenClass), clsName) != std::end(off->chickenClass)) {
 						if (noUtils)
 							continue;
 						// Glow Colors
 						glow->m_vGlowColor = {1.0f, 1.0f, 1.0f};
-						glow->m_flGlowAlpha = 0.5f;
+						glow->m_flGlowAlpha = 0.8f;
 						
 						// Enables Glow
 						glow->m_bRenderWhenOccluded = true;
@@ -242,12 +256,15 @@ void Wall::applyGlow()
 						
 						// Write to Memory
 						mem->write<GlowObjectDefinition_t>(off->client.m_dwGlowObjectLoopStartBase + (off->client.m_dwGlowStructSize * i), *glow);
+					} else {
+						// enable glow for dynamic props
 					}
 				}
 			}
 		}
 	}
 	
+	stop.store(true);
 	entityList.clear();
 }
 
