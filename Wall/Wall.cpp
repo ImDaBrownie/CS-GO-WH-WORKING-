@@ -121,12 +121,10 @@ void Wall::deinit()
 		delete engineScanner;
 	if (clientScanner)
 		delete clientScanner;
-	if (glow) {
+	if (glow)
 		delete glow;
-	}
-	if (entity) {
+	if (entity)
 		delete entity;
-	}
 }
 
 void Wall::run(bool getOff)
