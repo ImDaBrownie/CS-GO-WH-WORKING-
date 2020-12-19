@@ -51,7 +51,7 @@ void usage(const char* exec) {
 
 int main(int argc, char** argv) {
 	
-	double refreshRate 	= 10009.0f;
+	double refreshRate 	= 10000.0f;
 	double maxFlash 	= 100.0f;
 
 	int opt;
