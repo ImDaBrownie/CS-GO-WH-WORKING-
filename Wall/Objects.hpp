@@ -47,15 +47,12 @@ public:
 	uint64_t m_pPrevious;
 	uint64_t m_pNext;
 	
+	bool isValidGlowEntity();
+	bool isValidGlowEntity(uint64_t ptr);
 	void print();
 	
 	bool operator == (const EntityObjectDefinition_t& rhs);
 	bool operator == (const GlowObjectDefinition_t& rhs);
-};
-
-struct PlayerEntityList {
-public:
-	EntityObjectDefinition_t array[0x40];
 };
 
 #endif /* Objects_hpp */

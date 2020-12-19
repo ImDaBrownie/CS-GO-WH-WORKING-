@@ -42,6 +42,16 @@ bool GlowObjectDefinition_t::operator == (const EntityObjectDefinition_t& rhs)
 	return m_hEntity == rhs.m_hEntity;
 }
 
+bool EntityObjectDefinition_t::isValidGlowEntity()
+{
+	return m_hEntity != 0x0;
+}
+
+bool EntityObjectDefinition_t::isValidGlowEntity(uint64_t ptr)
+{
+	return m_hEntity != 0x0 && m_hEntity == ptr;
+}
+
 void EntityObjectDefinition_t::print()
 {
 	printf("0x%llx\n", m_hEntity);

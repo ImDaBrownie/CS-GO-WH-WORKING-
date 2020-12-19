@@ -24,7 +24,6 @@ Wall::Wall(double refreshRate, double maxFlash, bool noTeammates, bool noUtils)
 	g_cProc 			= new Process;
 	mem 				= new MemMngr(g_cProc);
 	off 				= new sOffsets;
-	playerList 			= new PlayerEntityList;
 	glow 				= new GlowObjectDefinition_t;
 	entity 				= new EntityObjectDefinition_t;
 	
@@ -120,9 +119,6 @@ void Wall::deinit()
 		delete engineScanner;
 	if (clientScanner)
 		delete clientScanner;
-	if (playerList) {
-		delete playerList;
-	}
 	if (glow) {
 		delete glow;
 	}
@@ -148,7 +144,6 @@ void Wall::run(bool getOff)
 						exit(0);
 					}
 					applyGlow();
-//					applyPlayerGlow();
 				} else {
 					getClientPointers();
 					off->client.m_dwGlowObjectLoopStartBase = mem->read<uint64_t>(off->client.m_dwGlowManager);
@@ -166,9 +161,7 @@ void Wall::run(bool getOff)
 }
 
 void Wall::applyGlow()
-{
-	*playerList = mem->read<PlayerEntityList>(off->client.m_dwEntityList);
-	
+{	
 	entity_ptr = off->client.m_dwEntityList;
 	base_ptr = off->client.m_dwLocalPlayerBase;
 	
@@ -189,41 +182,39 @@ void Wall::applyGlow()
 	}
 	
 	for (int i = 0; i < glowListMaxIndex; ++i) {
+
 		glow_ptr = off->client.m_dwGlowObjectLoopStartBase + (off->client.m_dwGlowStructSize * i);
 		*glow = mem->read<GlowObjectDefinition_t>(glow_ptr);
-		
+
 		if (glow->isValidGlowEntity()) {
-			
 			auto ent = std::find(entityList.begin(), entityList.end(), *glow);
 			if(ent != entityList.end()) {
 				
 				entityList.erase(ent);
 				
-				auto player = std::find(std::begin(playerList->array), std::end(playerList->array), *glow);
-				if (player != std::end(playerList->array)) {
-					
-					entity_ptr = glow->m_hEntity;
-					
-					if (base_ptr == entity_ptr) {
-						if (maxFlash != -1) {
-							if (mem->read<double>(entity_ptr + off->client.m_dFlashAlpha) > maxFlash)
-								mem->write<double>(entity_ptr + off->client.m_dFlashAlpha, maxFlash);
-						}
-						continue;
+				entity_ptr = glow->m_hEntity;
+				
+				if (base_ptr == entity_ptr) {
+					if (maxFlash != -1) {
+						if (mem->read<double>(entity_ptr + off->client.m_dFlashAlpha) > maxFlash)
+							mem->write<double>(entity_ptr + off->client.m_dFlashAlpha, maxFlash);
 					}
-	
-					if (!mem->read<bool>(entity_ptr + off->client.m_bDormant) && !mem->read<bool>(entity_ptr + off->client.m_bLifeState)) {
-	
-						team = mem->read<int>(entity_ptr + off->client.m_iTeam);
-	
+					continue;
+				}
+				
+				if (!mem->read<bool>(entity_ptr + off->client.m_bDormant) && !mem->read<bool>(entity_ptr + off->client.m_bLifeState)) {
+					
+					team = mem->read<int>(entity_ptr + off->client.m_iTeam);
+					
+					if (team == 2 || team == 3) {
 						if (noTeammates && team == i_teamNum)
 							continue;
-	
+						
 						health = mem->read<int>(entity_ptr + off->client.m_iHealth);
 						health += (health == 0 ? 100 : health);
-	
+						
 						cmp = team != i_teamNum;
-	
+						
 						// Glow Colors
 						glow->m_vGlowColor = {
 							float((100 - health)/100.0),
@@ -231,27 +222,27 @@ void Wall::applyGlow()
 							cmp ? 0.0f : float((health)/100.0)
 						};
 						glow->m_flGlowAlpha = 0.5f;
-	
+						
 						// Enables Glow
 						glow->m_bRenderWhenOccluded = true;
 						glow->m_bRenderWhenUnoccluded = false;
-	
+						
+						// Write to Memory
+						mem->write<GlowObjectDefinition_t>(off->client.m_dwGlowObjectLoopStartBase + (off->client.m_dwGlowStructSize * i), *glow);
+					} else {
+						if (noUtils)
+							continue;
+						// Glow Colors
+						glow->m_vGlowColor = {1.0f, 1.0f, 1.0f};
+						glow->m_flGlowAlpha = 0.5f;
+						
+						// Enables Glow
+						glow->m_bRenderWhenOccluded = true;
+						glow->m_bRenderWhenUnoccluded = false;
+						
 						// Write to Memory
 						mem->write<GlowObjectDefinition_t>(off->client.m_dwGlowObjectLoopStartBase + (off->client.m_dwGlowStructSize * i), *glow);
 					}
-				} else {
-					if (noUtils)
-						continue;
-					// Glow Colors
-					glow->m_vGlowColor = {1.0f, 1.0f, 1.0f};
-					glow->m_flGlowAlpha = 0.5f;
-	
-					// Enables Glow
-					glow->m_bRenderWhenOccluded = true;
-					glow->m_bRenderWhenUnoccluded = false;
-	
-					// Write to Memory
-					mem->write<GlowObjectDefinition_t>(off->client.m_dwGlowObjectLoopStartBase + (off->client.m_dwGlowStructSize * i), *glow);
 				}
 			}
 		}

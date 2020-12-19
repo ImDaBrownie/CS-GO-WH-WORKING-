@@ -32,8 +32,6 @@ class Wall {
 	sOffsets* off 						= nullptr;
 	Scanner* engineScanner 				= nullptr;
 	Scanner* clientScanner 				= nullptr;
-	
-	PlayerEntityList* playerList 		= nullptr;
 
 	GlowObjectDefinition_t* glow 		= nullptr;
 	EntityObjectDefinition_t* entity 	= nullptr;
