@@ -41,7 +41,7 @@ void usage(const char* exec) {
 	printf("%s\n", cT::print("\nUsage:", cT::fG::green).c_str());
 	printf("\tsudo %s [-f <max flash alpha>] [-r <refresh rate>] [-t] [-u] [-o] [-h]\n\n", cT::print(exec, cT::fG::yellow).c_str());
 	printf("\t-f <flash alpha>\t: Antiflash alpha max amount (default: 100.0, disable: -1, range: [0-2700])\n");
-	printf("\t-r <refresh rate>\t: Refresh rate in microseconds (default: 1000.0)\n");
+	printf("\t-r <refresh rate>\t: Refresh rate in microseconds (default: 10000.0)\n");
 	printf("\t-t\t\t\t: Disables teammate glow\n");
 	printf("\t-u\t\t\t: Disables weapons/utility/bomb/chicken glow\n");
 	
@@ -51,7 +51,7 @@ void usage(const char* exec) {
 
 int main(int argc, char** argv) {
 	
-	double refreshRate 	= 1000.0f;
+	double refreshRate 	= 10009.0f;
 	double maxFlash 	= 100.0f;
 
 	int opt;

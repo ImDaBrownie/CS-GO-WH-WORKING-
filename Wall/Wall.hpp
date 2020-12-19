@@ -46,7 +46,7 @@ class Wall {
 	mach_vm_address_t client_moduleStartAddress;
 	off_t client_moduleLength 			= 0;
 	
-	double refreshRate 					= 1000.0f;
+	double refreshRate 					= 10000.0f;
 	double maxFlash 					= 100.0f;
 	bool noTeammates 					= false;
 	bool noUtils 						= false;
