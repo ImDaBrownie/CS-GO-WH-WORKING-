@@ -208,7 +208,7 @@ void Wall::applyGlow()
 					uint64_t fn = mem->read<uint64_t>(vtable - 0x8);
 					uint64_t cls = mem->read<uint64_t>(fn + 0x8);
 					std::string clsName = mem->readString(cls);
-					std::cout << clsName << "\n";
+//					std::cout << clsName << "\n";
 					
 					if (std::find(std::begin(off->playerClass), std::end(off->playerClass), clsName) != std::end(off->playerClass)) {
 						if (base_ptr == entity_ptr) {
@@ -264,7 +264,7 @@ void Wall::applyGlow()
 		}
 	}
 	
-	stop.store(true);
+//	stop.store(true);
 	entityList.clear();
 }
 
