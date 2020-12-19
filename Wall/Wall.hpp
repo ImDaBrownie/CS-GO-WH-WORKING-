@@ -61,10 +61,14 @@ public:
 
 private:
 	void deinit();
+	
 	void applyGlow();
+	const sOffsets::EntityType entityType(uint64_t entity_ptr) const;
+	
 	void getOffsets();
 	void getEnginePointers();
 	void getClientPointers();
+	
 	void stopThread();
 };
 

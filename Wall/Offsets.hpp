@@ -102,57 +102,94 @@ public:
 		"The Global Elite"
 	};
 	
+	enum EntityType {
+		player,
+		hostage,
+		chicken,
+		C4,
+		plantedC4,
+		weapon,
+		utility,
+		props,
+		other
+	} entityType;
+	
 	const char* playerClass[1] = {
 		"10C_CSPlayer"
+	};
+	
+	const char* hostageClass[1] = {
+		"10C_CHostage"
 	};
 	
 	const char* chickenClass[1] = {
 		"10C_CChicken"
 	};
 	
-	const char* weaponsClass[30] = {
-		"6C_AK47",
-		"7C_Knife",
-		"8C_DEagle",
-		"11C_WeaponAWP",
-		"11C_WeaponMP7",
-		"11C_WeaponP90",
-		"11C_WeaponAug",
-		"11C_WeaponMP9",
-		"12C_EconEntity",
-		"12C_WeaponP250",
-		"12C_WeaponNOVA",
-		"12C_WeaponM249",
-		"12C_WeaponM4A1",
-		"12C_WeaponMag7",
-		"13C_WeaponFamas",
-		"13C_WeaponMAC10",
-		"13C_WeaponSG556",
-		"13C_WeaponG3SG1",
-		"13C_WeaponUMP45",
-		"13C_WeaponBizon",
-		"13C_WeaponSSG08",
-		"13C_WeaponGlock",
-		"13C_WeaponTaser",
-		"13C_WeaponElite",
-		"13C_WeaponNegev",
-		"14C_WeaponXM1014",
-		"14C_WeaponSCAR20",
-		"15C_WeaponHKP2000",
-		"15C_WeaponGalilAR",
-		"16C_WeaponSawedoff"
-	};
-	
-	const char* bombClass[1] = {
+	const char* C4Class[1] = {
 		"4C_C4"
 	};
 	
-	const char* utilityClass[5] = {
+	const char* plantedC4Class[1] = {
+		"11C_PlantedC4"
+	};
+	
+	const char* weaponClass[40] = {
+		"6C_AK47",
+		"11C_WeaponAug",
+		"11C_WeaponAWP",
+		"13C_WeaponBizon",
+		"13C_WeaponFamas",
+		"17C_WeaponFiveSeven",
+		"13C_WeaponG3SG1",
+		"13C_WeaponGalil",
+		"15C_WeaponGalilAR",
+		"13C_WeaponGlock",
+		"15C_WeaponHKP2000",
+		"12C_WeaponM4A1",
+		"13C_WeaponMAC10",
+		"12C_WeaponMag7",
+		"15C_WeaponMP5Navy",
+		"11C_WeaponMP7",
+		"11C_WeaponMP9",
+		"13C_WeaponNegev",
+		"12C_WeaponP228",
+		"12C_WeaponP250",
+		"11C_WeaponP90",
+		"8C_SCAR17",
+		"14C_WeaponSCAR20",
+		"13C_WeaponScout",
+		"13C_WeaponSG550",
+		"13C_WeaponSG556",
+		"13C_WeaponSSG08",
+		"12C_WeaponTec9",
+		"11C_WeaponTMP",
+		"13C_WeaponUMP45",
+		"12C_WeaponM249",
+		"11C_WeaponUSP",
+		"8C_DEagle",
+		"13C_WeaponElite",
+		"7C_Knife",
+		"9C_KnifeGG",
+		"12C_WeaponNOVA",
+		"16C_WeaponSawedoff",
+		"13C_WeaponTaser",
+		"14C_WeaponXM1014"
+	};
+	
+	const char* utilityClass[7] = {
 		"11C_Flashbang",
 		"11C_HEGrenade",
 		"14C_DecoyGrenade",
-		"14C_SmokeGrenade",
-		"16C_MolotovGrenade"
+		"16C_MolotovGrenade",
+		"19C_IncendiaryGrenade",
+		"15C_SensorGrenade",
+		"14C_SmokeGrenade"
+	};
+	
+	const char* dynamicProsClass[2] = {
+		"11C_CSRagdoll",
+		"13C_DynamicProp"
 	};
 };
 
