@@ -13,6 +13,8 @@
 #ifndef WALL_HPP
 #define WALL_HPP
 
+#define MAX_ENTITIES 16384
+
 #include "Scanner.hpp"
 #include "Objects.hpp"
 #include "Offsets.hpp"
@@ -20,6 +22,7 @@
 
 #include <iostream>
 #include <algorithm>
+#include <string>
 #include <vector>
 #include <atomic>
 #include <thread>

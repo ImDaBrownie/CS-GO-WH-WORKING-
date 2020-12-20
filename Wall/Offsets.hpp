@@ -9,6 +9,8 @@
 #ifndef OFFSETS_HPP
 #define OFFSETS_HPP
 
+#include <string>
+
 struct sOffsets {
 public:
 	struct sClient {
@@ -102,39 +104,17 @@ public:
 		"The Global Elite"
 	};
 	
-	enum EntityType {
-		player,
-		hostage,
-		chicken,
-		C4,
-		plantedC4,
-		weapon,
-		utility,
-		props,
-		other
-	} entityType;
-	
-	const char* playerClass[1] = {
-		"10C_CSPlayer"
-	};
-	
-	const char* hostageClass[1] = {
-		"10C_CHostage"
-	};
-	
-	const char* chickenClass[1] = {
-		"10C_CChicken"
-	};
-	
-	const char* C4Class[1] = {
-		"4C_C4"
-	};
-	
-	const char* plantedC4Class[1] = {
-		"11C_PlantedC4"
-	};
-	
-	const char* weaponClass[40] = {
+	const char* entityClass[54] {
+		"10C_CSPlayer",
+		
+		"10C_CHostage",
+		
+		"10C_CChicken",
+		
+		"4C_C4",
+		
+		"11C_PlantedC4",
+		
 		"6C_AK47",
 		"11C_WeaponAug",
 		"11C_WeaponAWP",
@@ -174,24 +154,57 @@ public:
 		"12C_WeaponNOVA",
 		"16C_WeaponSawedoff",
 		"13C_WeaponTaser",
-		"14C_WeaponXM1014"
-	};
-	
-	const char* utilityClass[7] = {
+		"14C_WeaponXM1014",
+		
 		"11C_Flashbang",
 		"11C_HEGrenade",
 		"14C_DecoyGrenade",
 		"16C_MolotovGrenade",
 		"19C_IncendiaryGrenade",
 		"15C_SensorGrenade",
-		"14C_SmokeGrenade"
-	};
-	
-	const char* dynamicProsClass[2] = {
+		"14C_SmokeGrenade",
+		
 		"11C_CSRagdoll",
 		"13C_DynamicProp"
 	};
+	
+	enum EntityType {
+		player,
+		hostage,
+		chicken,
+		C4,
+		plantedC4,
+		weapon,
+		utility,
+		props,
+		other = -1
+	};
+	
+	EntityType getEntityType(std::string clsName);
+	
 };
 
 #endif /*OFFSETS_HPP*/
+
+inline sOffsets::EntityType sOffsets::getEntityType(std::string clsName)
+{
+//	std::cout << clsName << std::endl;
+	
+	auto begin = std::begin(entityClass);
+	auto end = std::end(entityClass);
+	auto it = std::find(begin, end, clsName);
+	
+	bool cmp = (it == end);
+	int index = (int)(it - begin);
+	
+	return EntityType(  (int)other 			* cmp
+					  + (int)player 		* (index == 0)
+					  + (int)hostage 		* (index == 1)
+					  + (int)chicken 		* (index == 2)
+					  + (int)C4 			* (index == 3)
+					  + (int)plantedC4 		* (index == 4)
+					  + (int)weapon 		* (index > 4 && index < 46)
+					  + (int)utility 		* (index > 45 && index < 52)
+					  + (int)props 			* (index > 51 && index < 54));
+}
 

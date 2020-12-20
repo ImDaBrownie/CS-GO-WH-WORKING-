@@ -12,8 +12,6 @@
 
 #include "Wall.hpp"
 
-#include <string>
-
 Wall::Wall(double refreshRate, double maxFlash, bool noTeammates, bool noUtils)
 {
 	this->refreshRate 	= refreshRate;
@@ -136,7 +134,8 @@ void Wall::run(bool getOff)
 		if (off->engine.m_dwCEngineClientBase != 0x0) {
 			if (mem->read<int>(off->engine.m_dwCEngineClientBase + off->engine.m_dwIsInGame) == 6) {
 				off->client.m_dwLocalPlayerBase = mem->read<uint64_t>(off->client.m_dwLocalPlayer);
-				if (off->client.m_dwLocalPlayerBase != 0x0 && off->client.m_dwGlowObjectLoopStartBase != 0x0 ) {
+				off->client.m_dwGlowObjectLoopStartBase = mem->read<uint64_t>(off->client.m_dwGlowManager);
+				if (off->client.m_dwLocalPlayerBase != 0x0 && off->client.m_dwGlowObjectLoopStartBase != 0x0) {
 					if (getOff) {
 						getOffsets();
 						deinit();
@@ -146,14 +145,11 @@ void Wall::run(bool getOff)
 					applyGlow();
 				} else {
 					getClientPointers();
-					off->client.m_dwGlowObjectLoopStartBase = mem->read<uint64_t>(off->client.m_dwGlowManager);
-					printf("m_dwGlowObjectLoopStartBase\t= %s0x%llx%s\n", cT::getColor(cT::fG::green).c_str(), off->client.m_dwGlowObjectLoopStartBase, cT::getStyle(cT::sT::bold).c_str());
 				}
 			}
 		} else {
 			getEnginePointers();
 			off->engine.m_dwCEngineClientBase = mem->read<uint64_t>(off->engine.m_dwCEngineClient);
-			printf("m_dwCEngineClientBase\t\t= %s0x%llx%s\n", cT::getColor(cT::fG::green).c_str(), off->engine.m_dwCEngineClientBase, cT::getStyle(cT::sT::bold).c_str());
 		}
 		g_cProc->mainPid() = g_cProc->get("csgo_osx64");
 		usleep(refreshRate); // 800
@@ -175,9 +171,15 @@ void Wall::applyGlow()
 	
 	bool cmp = false;
 	
+	//	uint64_t mask = 0xFFFFFF10;
+	//  && (base_ptr | mask) == (entity_ptr | mask)
 	while (entity_ptr != 0x0) {
 		*entity = mem->read<EntityObjectDefinition_t>(entity_ptr);
 		entityList.emplace_back(*entity);
+		if (entityList.size() > MAX_ENTITIES) {
+			entityList.clear();
+			return;
+		}
 		entity_ptr = entity->m_pNext;
 	}
 	
@@ -202,13 +204,16 @@ void Wall::applyGlow()
 									if (mem->read<double>(entity_ptr + off->client.m_dFlashAlpha) > maxFlash)
 										mem->write<double>(entity_ptr + off->client.m_dFlashAlpha, maxFlash);
 								}
-								continue;
+								break;
+								// continue;
 							}
 							
 							team = mem->read<int>(entity_ptr + off->client.m_iTeam);
 							
-							if (noTeammates && team == i_teamNum)
-								continue;
+							if (noTeammates && team == i_teamNum) {
+								break;
+								// continue;
+							}
 							
 							health = mem->read<int>(entity_ptr + off->client.m_iHealth);
 							health += (health == 0 ? 100 : health);
@@ -231,8 +236,10 @@ void Wall::applyGlow()
 							mem->write<GlowObjectDefinition_t>(off->client.m_dwGlowObjectLoopStartBase + (off->client.m_dwGlowStructSize * i), *glow);
 							break;
 						case sOffsets::hostage:
-							if (noUtils)
-								continue;
+							if (noUtils) {
+								break;
+								// continue;
+							}
 							// Glow Colors
 							glow->m_vGlowColor = {1.0f, 1.0f, 1.0f};
 							glow->m_flGlowAlpha = 0.8f;
@@ -245,8 +252,10 @@ void Wall::applyGlow()
 							mem->write<GlowObjectDefinition_t>(off->client.m_dwGlowObjectLoopStartBase + (off->client.m_dwGlowStructSize * i), *glow);
 							break;
 						case sOffsets::chicken:
-							if (noUtils)
-								continue;
+							if (noUtils) {
+								break;
+								// continue;
+							}
 							// Glow Colors
 							glow->m_vGlowColor = {1.0f, 0.0f, 0.0f};
 							glow->m_flGlowAlpha = 0.8f;
@@ -259,8 +268,10 @@ void Wall::applyGlow()
 							mem->write<GlowObjectDefinition_t>(off->client.m_dwGlowObjectLoopStartBase + (off->client.m_dwGlowStructSize * i), *glow);
 							break;
 						case sOffsets::C4:
-							if (noUtils)
-								continue;
+							if (noUtils) {
+								break;
+								// continue;
+							}
 							// Glow Colors
 							glow->m_vGlowColor = {1.0f, 1.0f, 1.0f};
 							glow->m_flGlowAlpha = 0.8f;
@@ -273,8 +284,10 @@ void Wall::applyGlow()
 							mem->write<GlowObjectDefinition_t>(off->client.m_dwGlowObjectLoopStartBase + (off->client.m_dwGlowStructSize * i), *glow);
 							break;
 						case sOffsets::plantedC4:
-							if (noUtils)
-								continue;
+							if (noUtils) {
+								break;
+								// continue;
+							}
 							// Glow Colors
 							glow->m_vGlowColor = {1.0f, 0.0f, 0.0f};
 							glow->m_flGlowAlpha = 1.0f;
@@ -287,8 +300,10 @@ void Wall::applyGlow()
 							mem->write<GlowObjectDefinition_t>(off->client.m_dwGlowObjectLoopStartBase + (off->client.m_dwGlowStructSize * i), *glow);
 							break;
 						case sOffsets::weapon:
-							if (noUtils)
-								continue;
+							if (noUtils) {
+								break;
+								// continue;
+							}
 							// Glow Colors
 							glow->m_vGlowColor = {1.0f, 1.0f, 1.0f};
 							glow->m_flGlowAlpha = 0.8f;
@@ -301,8 +316,10 @@ void Wall::applyGlow()
 							mem->write<GlowObjectDefinition_t>(off->client.m_dwGlowObjectLoopStartBase + (off->client.m_dwGlowStructSize * i), *glow);
 							break;
 						case sOffsets::utility:
-							if (noUtils)
-								continue;
+							if (noUtils) {
+								break;
+								// continue;
+							}
 							// Glow Colors
 							glow->m_vGlowColor = {1.0f, 1.0f, 1.0f};
 							glow->m_flGlowAlpha = 0.8f;
@@ -330,42 +347,11 @@ void Wall::applyGlow()
 
 const sOffsets::EntityType Wall::entityType(uint64_t ptr) const
 {
-	/*
-	 uint64_t vtable = memoryManager->read<uint64_t>(entityPointer + 0x8);
-	 uint64_t fn     = memoryManager->read<uint64_t>(vtable + (0x8 * 2));
-	 uint64_t cls    = memoryManager->read<uint64_t>(fn + 0x1);
-	 
-	 int ClassID = memoryManager->read<int>(cls + 0x14);
-	*/
-	
 	uint64_t vtable = mem->read<uint64_t>(ptr + 0x8);
 	uint64_t fn = mem->read<uint64_t>(vtable - 0x8);
 	uint64_t cls = mem->read<uint64_t>(fn + 0x8);
-	std::string clsName = mem->readString(cls);
-//	printf("0x%llx\n", ptr);
-//	std::cout << clsName << "\n";
 	
-	if (std::find(std::begin(off->playerClass), std::end(off->playerClass), clsName) != std::end(off->playerClass)) {
-		off->entityType = sOffsets::player;
-	} else if (std::find(std::begin(off->hostageClass), std::end(off->hostageClass), clsName) != std::end(off->hostageClass)) {
-		off->entityType = sOffsets::hostage;
-	} else if (std::find(std::begin(off->chickenClass), std::end(off->chickenClass), clsName) != std::end(off->chickenClass)) {
-		off->entityType = sOffsets::chicken;
-	} else if (std::find(std::begin(off->C4Class), std::end(off->C4Class), clsName) != std::end(off->C4Class)) {
-		off->entityType = sOffsets::C4;
-	} else if (std::find(std::begin(off->plantedC4Class), std::end(off->plantedC4Class), clsName) != std::end(off->plantedC4Class)) {
-		off->entityType = sOffsets::plantedC4;
-	} else if (std::find(std::begin(off->weaponClass), std::end(off->weaponClass), clsName) != std::end(off->weaponClass)) {
-		off->entityType = sOffsets::weapon;
-	} else if (std::find(std::begin(off->utilityClass), std::end(off->utilityClass), clsName) != std::end(off->utilityClass)) {
-		off->entityType = sOffsets::utility;
-	} else if (std::find(std::begin(off->dynamicProsClass), std::end(off->dynamicProsClass), clsName) != std::end(off->dynamicProsClass)) {
-		off->entityType = sOffsets::props;
-	} else {
-		off->entityType = sOffsets::other;
-	}
-	
-	return off->entityType;
+	return off->getEntityType(mem->readString(cls));
 }
 
 void Wall::getOffsets()
