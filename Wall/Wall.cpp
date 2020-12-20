@@ -236,96 +236,72 @@ void Wall::applyGlow()
 							mem->write<GlowObjectDefinition_t>(off->client.m_dwGlowObjectLoopStartBase + (off->client.m_dwGlowStructSize * i), *glow);
 							break;
 						case sOffsets::hostage:
-							if (noUtils) {
-								break;
-								// continue;
-							}
 							// Glow Colors
 							glow->m_vGlowColor = {1.0f, 1.0f, 1.0f};
 							glow->m_flGlowAlpha = 0.8f;
 							
 							// Enables Glow
-							glow->m_bRenderWhenOccluded = true;
+							glow->m_bRenderWhenOccluded = !noUtils;
 							glow->m_bRenderWhenUnoccluded = false;
 							
 							// Write to Memory
 							mem->write<GlowObjectDefinition_t>(off->client.m_dwGlowObjectLoopStartBase + (off->client.m_dwGlowStructSize * i), *glow);
 							break;
 						case sOffsets::chicken:
-							if (noUtils) {
-								break;
-								// continue;
-							}
 							// Glow Colors
 							glow->m_vGlowColor = {1.0f, 0.0f, 0.0f};
 							glow->m_flGlowAlpha = 0.8f;
 							
 							// Enables Glow
-							glow->m_bRenderWhenOccluded = true;
+							glow->m_bRenderWhenOccluded = !noUtils;
 							glow->m_bRenderWhenUnoccluded = false;
 							
 							// Write to Memory
 							mem->write<GlowObjectDefinition_t>(off->client.m_dwGlowObjectLoopStartBase + (off->client.m_dwGlowStructSize * i), *glow);
 							break;
 						case sOffsets::C4:
-							if (noUtils) {
-								break;
-								// continue;
-							}
 							// Glow Colors
 							glow->m_vGlowColor = {1.0f, 1.0f, 1.0f};
 							glow->m_flGlowAlpha = 0.8f;
 							
 							// Enables Glow
-							glow->m_bRenderWhenOccluded = true;
+							glow->m_bRenderWhenOccluded = !noUtils;
 							glow->m_bRenderWhenUnoccluded = false;
 							
 							// Write to Memory
 							mem->write<GlowObjectDefinition_t>(off->client.m_dwGlowObjectLoopStartBase + (off->client.m_dwGlowStructSize * i), *glow);
 							break;
 						case sOffsets::plantedC4:
-							if (noUtils) {
-								break;
-								// continue;
-							}
 							// Glow Colors
 							glow->m_vGlowColor = {1.0f, 0.0f, 0.0f};
 							glow->m_flGlowAlpha = 1.0f;
 							
 							// Enables Glow
-							glow->m_bRenderWhenOccluded = true;
+							glow->m_bRenderWhenOccluded = !noUtils;
 							glow->m_bRenderWhenUnoccluded = false;
 							
 							// Write to Memory
 							mem->write<GlowObjectDefinition_t>(off->client.m_dwGlowObjectLoopStartBase + (off->client.m_dwGlowStructSize * i), *glow);
 							break;
 						case sOffsets::weapon:
-							if (noUtils) {
-								break;
-								// continue;
-							}
 							// Glow Colors
 							glow->m_vGlowColor = {1.0f, 1.0f, 1.0f};
 							glow->m_flGlowAlpha = 0.8f;
 							
 							// Enables Glow
-							glow->m_bRenderWhenOccluded = true;
+							glow->m_bRenderWhenOccluded = !noUtils;
 							glow->m_bRenderWhenUnoccluded = false;
 							
 							// Write to Memory
 							mem->write<GlowObjectDefinition_t>(off->client.m_dwGlowObjectLoopStartBase + (off->client.m_dwGlowStructSize * i), *glow);
 							break;
 						case sOffsets::utility:
-							if (noUtils) {
-								break;
-								// continue;
-							}
 							// Glow Colors
 							glow->m_vGlowColor = {1.0f, 1.0f, 1.0f};
 							glow->m_flGlowAlpha = 0.8f;
 							
 							// Enables Glow
-							glow->m_bRenderWhenOccluded = true;
+							glow->m_bRenderWhenOccluded = !noUtils;
 							glow->m_bRenderWhenUnoccluded = false;
 							
 							// Write to Memory
@@ -432,6 +408,7 @@ void Wall::getClientPointers()
 																						"xxx????x????xxxx????xxx????xxxxxxx????",
 																						0x22
 																						) + 0x4;
+	
 	/*
 	 off->client. m_dwRadarBase = client_moduleStartAddress + clientScanner->getPointer(
 	 (Byte*)"\x55\x48\x89\xE5\x41\x57\x41\x56\x41\x55\x41\x54\x53\x50\x49\x89\xFD\x49\x8B\x7D\x00\x48\x85\xFF\x74\x56\x41\x8B\x75\x00\xE8\x6D\x00\x00\x00\x41\x88\xC6\x45\x84\xF6\x75\x45\x41\x80\xF6\x00\x45\x8B\x65\x00\x45\x85\xE4\x7E\x3B\x31\xDB\x4C\x8D\x3D\x00\x00\x00\x00\x66\x66\x66\x66\x66\x66\x2E\x0F\x1F\x84\x00\x00\x00\x00\x00",
