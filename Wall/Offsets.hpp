@@ -9,6 +9,9 @@
 #ifndef OFFSETS_HPP
 #define OFFSETS_HPP
 
+#define FL_ONGROUND 	(1<<0)
+#define FL_DUCKING 		(1<<1)
+
 #include <string>
 
 struct sOffsets {
@@ -19,7 +22,7 @@ public:
 		uint64_t m_dwEntityList;
 		uint64_t m_dwLocalPlayer;
 		uint64_t m_dwLocalPlayerBase;
-		uint64_t m_dwPlayerResource;
+		uint64_t m_dwPlayerResource;					//0x164AAE8
 		uint64_t m_dwPlayerResourceBase;
 		uint64_t m_dwRadarManager;
 		uint64_t m_dwRadarBase;
@@ -33,18 +36,29 @@ public:
 		uint64_t m_bDormant								= 0x125;
 		uint64_t m_iTeam								= 0x12C;
 		uint64_t m_iHealth								= 0x138;
-		uint64_t m_iFlag								= 0x13C;
+		uint64_t m_iEFlags								= 0x13C;
+		uint64_t m_vecViewOffset						= 0x148;
+		uint64_t m_vecAbsVelocity						= 0x14C;
+		uint64_t m_angAbsRotation						= 0x164;
+		uint64_t m_vecAbsOrigin							= 0x170;
 		uint64_t m_bLifeState							= 0x297;
 		uint64_t m_bSpotted								= 0xECD;
-		uint64_t m_bSpottedByMask						= 0xF10;
+		uint64_t m_bSpottedBy							= 0xF10;
+		uint64_t m_dwBoneMatrix							= 0x2C80;
+		uint64_t m_hMyWeapons							= 0x3538;
+		uint64_t m_hActiveWeapon						= 0x3638;
+//		uint64_t m_hLocalPlayer							= 0x3700;
+//		uint64_t m_hViewModelIndex						= 0x3AE4;
+		uint64_t m_bHasMovedSinceSpawn					= 0x4245;
 		uint64_t m_iShotFired							= 0xACC0;
-		uint64_t m_dFlashAlpha							= 0xAD4C; // 0xAD2C
-		uint64_t m_fFlashDuration						= 0xAD50; // 0xAD30
+		uint64_t m_flFlashMaxAlpha						= 0xAD4C; // 0xAD2C
+		uint64_t m_flFlashDuration						= 0xAD50; // 0xAD30
 		uint64_t m_iGlowIndex							= 0xAD68; // 0xAD48 // 0xAD2C
+//		uint64_t m_dwCrosshairID               		 	= 0xBC08;
 		
 		// m_dwEntityList - ...
-//		uint64_t m_iMaxPlayers							= 0xDC00;
-//		uint64_t m_iNumPlayersAlive						= 0xDBF8;
+		uint64_t m_iMaxPlayers							= 0xDC00;
+		uint64_t m_iNumPlayersAlive						= 0xDBF8;
 		/*
 		 // radar base needs new sig
 		 uint64_t m_dwRadarStructBase            		= 0x108;
@@ -53,20 +67,39 @@ public:
 		 uint64_t m_iRadarHealth                 		= 0x168;
 		 uint64_t m_szRadarName                  		= 0x16C;
 		*/
-		/*
-		// player resource needs new sig
-		uint64_t m_iKills                              = 0x1288;
-		uint64_t m_iAssists                            = 0x138C;
-		uint64_t m_iDeaths                             = 0x1490;
-		uint64_t m_iTeam2                              = 0x15C8;
-		uint64_t m_iHealth2                            = 0x1814;
-		uint64_t m_bHasDefuser                         = 0x1E51;
-		uint64_t m_bConnected                          = 0x1594;
-		uint64_t m_bHasHelmet                          = 0x1E92;
-		uint64_t m_iArmor                              = 0x1ED8;
-		uint64_t m_iCompetitiveRanking                 = 0x20E0;
-		uint64_t m_iCompetitiveWins                    = 0x21E4;
-		*/
+		
+//		 0x44 -> Entity List
+		uint64_t m_iKills                              	= 0x12CC;
+		uint64_t m_iAssists                            	= 0x13D0;
+		uint64_t m_iDeaths                             	= 0x14D4;
+		uint64_t m_iTeam2                              	= 0x15D8;
+		uint64_t m_bConnected                          	= 0x17DD;
+		uint64_t m_iHealth2                            	= 0x1824;
+		uint64_t m_iMVPs								= 0x1D90;
+		uint64_t m_bHasDefuser                         	= 0x1E91;
+		uint64_t m_bHasHelmet                          	= 0x1ED2;
+		uint64_t m_iArmor                              	= 0x1F18;
+		uint64_t m_iScore								= 0x201C;
+//		uint64_t m_iCompetitiveRanking                 	= 0x2124;
+//		uint64_t m_iCompetitiveWins                    	= 0x2228;
+		uint64_t m_iCompetitiveRanking                 	= 0x20E0;
+		uint64_t m_iCompetitiveWins                    	= 0x21E4;
+//		m_iCompTeammateColor
+//		m_bControllingBot
+//		m_iControlledPlayer
+//		m_iControlledByPlayer
+//		m_iBotDifficulty
+		uint64_t m_szClan								= 0x4A54;
+		uint64_t m_iTotalCashSpent						= 0x4F5C;
+		uint64_t m_iCashSpentThisRound					= 0x5164;
+//		m_nEndMatchNextMapVotes
+//		m_bEndMatchNextMapAllVoted
+//		m_nActiveCoinRank
+//		m_nMusicID
+//		m_nPersonaDataPublicLevel
+//		m_nPersonaDataPublicCommendsLeader
+//		m_nPersonaDataPublicCommendsTeacher
+//		m_nPersonaDataPublicCommendsFriendly
 	} client;
 	
 	struct sEngine {
@@ -104,17 +137,18 @@ public:
 		"The Global Elite"
 	};
 	
-	const char* entityClass[54] {
+	const char* entityClass[57] {
+		// player
 		"10C_CSPlayer",
-		
+		// hostage
 		"10C_CHostage",
-		
+		// chicken
 		"10C_CChicken",
-		
+		// C4
 		"4C_C4",
-		
+		// plantedC4
 		"11C_PlantedC4",
-		
+		// weapon
 		"6C_AK47",
 		"11C_WeaponAug",
 		"11C_WeaponAWP",
@@ -155,7 +189,7 @@ public:
 		"16C_WeaponSawedoff",
 		"13C_WeaponTaser",
 		"14C_WeaponXM1014",
-		
+		// utility
 		"11C_Flashbang",
 		"11C_HEGrenade",
 		"14C_DecoyGrenade",
@@ -163,9 +197,14 @@ public:
 		"19C_IncendiaryGrenade",
 		"15C_SensorGrenade",
 		"14C_SmokeGrenade",
-		
+		// props
 		"11C_CSRagdoll",
-		"13C_DynamicProp"
+		"13C_DynamicProp",
+		// resources
+		"16C_PlayerResource",
+		"19C_CS_PlayerResource",
+		// team
+		"8C_CSTeam"
 	};
 	
 	enum EntityType {
@@ -177,34 +216,293 @@ public:
 		weapon,
 		utility,
 		props,
+		resource,
+		team,
 		other = -1
 	};
 	
-	EntityType getEntityType(std::string clsName);
+	
+	inline sOffsets::EntityType getEntityType(std::string clsName)
+	{
+		auto begin = std::begin(entityClass);
+		auto end = std::end(entityClass);
+		auto it = std::find(begin, end, clsName);
+		
+		bool cmp = (it == end);
+		int index = (int)(it - begin);
+		
+		return EntityType(  (int)other 			* cmp
+						  + (int)player 		* (index == 0)
+						  + (int)hostage 		* (index == 1)
+						  + (int)chicken 		* (index == 2)
+						  + (int)C4 			* (index == 3)
+						  + (int)plantedC4 		* (index == 4)
+						  + (int)weapon 		* (index > 4 && index < 46)
+						  + (int)utility 		* (index > 45 && index < 52)
+						  + (int)props 			* (index > 51 && index < 54)
+						  + (int)resource		* (index > 53 && index < 56)
+						  + (int)team 			* (index > 55 && index < 57)
+		);
+	}
 	
 };
 
 #endif /*OFFSETS_HPP*/
 
-inline sOffsets::EntityType sOffsets::getEntityType(std::string clsName)
-{
-//	std::cout << clsName << std::endl;
-	
-	auto begin = std::begin(entityClass);
-	auto end = std::end(entityClass);
-	auto it = std::find(begin, end, clsName);
-	
-	bool cmp = (it == end);
-	int index = (int)(it - begin);
-	
-	return EntityType(  (int)other 			* cmp
-					  + (int)player 		* (index == 0)
-					  + (int)hostage 		* (index == 1)
-					  + (int)chicken 		* (index == 2)
-					  + (int)C4 			* (index == 3)
-					  + (int)plantedC4 		* (index == 4)
-					  + (int)weapon 		* (index > 4 && index < 46)
-					  + (int)utility 		* (index > 45 && index < 52)
-					  + (int)props 			* (index > 51 && index < 54));
-}
+/*
+ CCSTeam
+ DT_CSTeam
+ CPlantedC4
+ DT_PlantedC4
+ m_bBombTicking
+ m_flC4Blow
+ m_flTimerLength
+ m_flDefuseLength
+ m_flDefuseCountDown
+ m_bBombDefused
+ m_hBombDefuser
+ */
 
+/*
+ DT_CSLocalPlayerExclusive
+ m_vecOrigin[2]
+ m_flVelocityModifier
+ m_bPlayerDominated
+ m_bPlayerDominated[0]
+ m_bPlayerDominatingMe
+ m_bPlayerDominatingMe[0]
+ m_iWeaponPurchasesThisRound
+ m_iWeaponPurchasesThisRound[0]
+ m_nQuestProgressReason
+ */
+
+/*
+ DT_CSNonLocalPlayerExclusive
+ CCSPlayer
+ DT_CSPlayer
+ cslocaldata
+ csnonlocaldata
+ m_angEyeAngles[0]
+ m_angEyeAngles[1]
+ m_iAddonBits
+ m_iPrimaryAddon
+ m_iSecondaryAddon
+ m_iThrowGrenadeCounter
+ m_bWaitForNoAttack
+ m_bIsRespawningForDMBonus
+ m_iPlayerState
+ m_iAccount
+ m_iStartAccount
+ m_totalHitsOnServer
+ m_bInBombZone
+ m_bInBuyZone
+ m_bInNoDefuseArea
+ m_bKilledByTaser
+ m_iMoveState
+ m_iClass
+ m_ArmorValue
+ m_angEyeAngles
+ m_bHasDefuser
+ m_bNightVisionOn
+ m_bHasNightVision
+ m_bInHostageRescueZone
+ m_bIsDefusing
+ m_bIsGrabbingHostage
+ m_fImmuneToGunGameDamageTime
+ m_bGunGameImmunity
+ m_bHasMovedSinceSpawn
+ m_bMadeFinalGunGameProgressiveKill
+ m_iGunGameProgressiveWeaponIndex
+ m_iNumGunGameTRKillPoints
+ m_iNumGunGameKillsWithCurrentWeapon
+ m_iNumRoundKills
+ m_fMolotovUseTime
+ m_fMolotovDamageTime
+ m_szArmsModel
+ m_hCarriedHostage
+ m_hCarriedHostageProp
+ m_bIsRescuing
+ m_flGroundAccelLinearFracLastTime
+ m_bCanMoveDuringFreezePeriod
+ m_isCurrentGunGameLeader
+ m_isCurrentGunGameTeamLeader
+ m_flGuardianTooFarDistFrac
+ m_flDetectedByEnemySensorTime
+ m_iMatchStats_Kills
+ m_iMatchStats_Kills[0]
+ m_iMatchStats_Damage
+ m_iMatchStats_Damage[0]
+ m_iMatchStats_EquipmentValue
+ m_iMatchStats_EquipmentValue[0]
+ m_iMatchStats_MoneySaved
+ m_iMatchStats_MoneySaved[0]
+ m_iMatchStats_KillReward
+ m_iMatchStats_KillReward[0]
+ m_iMatchStats_LiveTime
+ m_iMatchStats_LiveTime[0]
+ m_iMatchStats_Deaths
+ m_iMatchStats_Deaths[0]
+ m_iMatchStats_Assists
+ m_iMatchStats_Assists[0]
+ m_iMatchStats_HeadShotKills
+ m_iMatchStats_HeadShotKills[0]
+ m_iMatchStats_Objective
+ m_iMatchStats_Objective[0]
+ m_iMatchStats_CashEarned
+ m_iMatchStats_CashEarned[0]
+ m_iMatchStats_UtilityDamage
+ m_iMatchStats_UtilityDamage[0]
+ m_iMatchStats_EnemiesFlashed
+ m_iMatchStats_EnemiesFlashed[0]
+ m_rank
+ m_rank[0]
+ m_unMusicID
+ m_bHasHelmet
+ m_bHasHeavyArmor
+ m_flFlashDuration
+ m_flFlashMaxAlpha
+ m_iProgressBarDuration
+ m_flProgressBarStartTime
+ m_hRagdoll
+ m_cycleLatch
+ m_unCurrentEquipmentValue
+ m_unRoundStartEquipmentValue
+ m_unFreezetimeEndEquipmentValue
+ m_bIsControllingBot
+ m_bHasControlledBotThisRound
+ m_bCanControlObservedBot
+ m_iControlledBotEntIndex
+ m_bIsAssassinationTarget
+ m_bHud_MiniScoreHidden
+ m_bHud_RadarHidden
+ m_nLastKillerIndex
+ m_nLastConcurrentKilled
+ m_nDeathCamMusic
+ m_bIsHoldingLookAtWeapon
+ m_bIsLookingAtWeapon
+ m_iNumRoundKillsHeadshots
+ m_flLowerBodyYawTarget
+ m_bStrafing
+ */
+
+/*
+ CCSRagdoll
+ DT_CSRagdoll
+ m_vecRagdollOrigin
+ m_nForceBone
+ m_vecForce
+ m_vecRagdollVelocity
+ m_iDeathPose
+ m_iDeathFrame
+ m_iTeamNum
+ m_bClientSideAnimation
+ m_flDeathYaw
+ */
+
+/*
+ CTEPlayerAnimEvent
+ DT_TEPlayerAnimEvent
+ m_iEvent
+ m_nData
+ C_CSPlayer
+ m_flStamina
+ m_iShotsFired
+ m_iDirection
+ m_bIsScoped
+ m_bIsWalking
+ m_bResumeZoom
+ m_nNumFastDucks
+ m_bDuckOverride
+ */
+
+/*
+ CHostageCarriableProp
+ DT_HostageCarriableProp
+ death1
+ CHostage
+ DT_CHostage
+ m_isRescued
+ m_jumpedThisFrame
+ m_iHealth
+ m_iMaxHealth
+ m_lifeState
+ m_nHostageState
+ m_flRescueStartTime
+ m_flGrabSuccessTime
+ m_flDropStartTime
+ m_vel
+ m_leader
+ */
+
+/*
+ DT_BCCLocalPlayerExclusive
+ DT_BCCNonLocalPlayerExclusive
+ m_hMyWeapons
+ m_hMyWeapons[0]
+ DT_BaseCombatCharacter
+ bcc_localdata
+ bcc_nonlocaldata
+ m_LastHitGroup
+ m_hActiveWeapon
+ m_flTimeOfLastInjury
+ m_nRelativeDirectionOfLastInjury
+ C_BaseCombatCharacter
+ m_iAmmo
+ */
+
+/*
+ DT_BaseEntity
+ AnimTimeMustBeFirst
+ m_flSimulationTime
+ m_cellbits
+ m_cellX
+ m_cellY
+ m_cellZ
+ m_angRotation
+ m_iPendingTeamNum
+ m_CollisionGroup
+ m_flElasticity
+ m_flShadowCastDistance
+ m_hOwnerEntity
+ m_hEffectEntity
+ m_iParentAttachment
+ m_iName
+ movetype
+ movecollide
+ m_Collision
+ m_iTextureFrameIndex
+ m_bSimulatedEveryTick
+ m_bAnimatedEveryTick
+ m_bAlternateSorting
+ m_bSpotted
+ m_bSpottedBy
+ m_bSpottedBy[0]
+ m_bSpottedByMask
+ m_bSpottedByMask[0]
+ m_bIsAutoaimTarget
+ m_fadeMinDist
+ m_fadeMaxDist
+ m_flFadeScale
+ m_nMaxCPULevel
+ m_nMaxGPULevel
+ m_flUseLookAtAngle
+ m_MoveType
+ m_MoveCollide
+ m_vecAbsVelocity
+ m_vecViewOffset
+ m_flFriction
+ m_hNetworkMoveParent
+ m_vecNetworkOrigin
+ m_angNetworkAngles
+ m_vecAbsOrigin
+ m_angAbsRotation
+ m_hGroundEntity
+ m_nWaterLevel
+ m_nWaterType
+ m_vecAngVelocity
+ m_vecBaseVelocity
+ m_iEFlags
+ m_flGravity
+ m_flProxyRandomValue
+ m_bEverHadPredictionErrorsForThisCommand
+ */

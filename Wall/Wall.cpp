@@ -24,8 +24,10 @@ Wall::Wall(double refreshRate, double maxFlash, bool noTeammates, bool noUtils)
 	g_cProc 			= new Process;
 	mem 				= new MemMngr(g_cProc);
 	off 				= new sOffsets;
-	glow 				= new GlowObjectDefinition_t;
-	entity 				= new EntityObjectDefinition_t;
+	
+	glow 				= new sGlowDefinitionObject_t;
+	entity 				= new sClientEntityList_t;
+	resource 			= new sPlayerResourceObject_t;
 	
 	g_cProc->mainPid() 	= g_cProc->get("csgo_osx64");
 	
@@ -89,7 +91,7 @@ Wall::Wall(double refreshRate, double maxFlash, bool noTeammates, bool noUtils)
 	getClientPointers();
 	
 	if (off->client.m_dwLocalPlayer != 0x0) {
-		printf("Local Player Base\t\t= %s0x%llx%s\n", cT::getColor(cT::fG::green).c_str(), off->client.m_dwLocalPlayer, cT::getStyle(cT::sT::bold).c_str());
+		printf("Local Player\t\t= %s0x%llx%s\n", cT::getColor(cT::fG::green).c_str(), off->client.m_dwLocalPlayer, cT::getStyle(cT::sT::bold).c_str());
 	}
 	
 	if (off->client.m_dwEntityList != 0x0) {
@@ -159,7 +161,7 @@ void Wall::run(bool getOff)
 }
 
 void Wall::applyGlow()
-{	
+{
 	entity_ptr = off->client.m_dwEntityList;
 	base_ptr = off->client.m_dwLocalPlayerBase;
 	
@@ -171,51 +173,51 @@ void Wall::applyGlow()
 	
 	bool cmp = false;
 	
-	//	uint64_t mask = 0xFFFFFF10;
-	//  && (base_ptr | mask) == (entity_ptr | mask)
 	while (entity_ptr != 0x0) {
-		*entity = mem->read<EntityObjectDefinition_t>(entity_ptr);
+		*entity = mem->read<sClientEntityList_t>(entity_ptr);
 		entityList.emplace_back(*entity);
 		if (entityList.size() > MAX_ENTITIES) {
 			entityList.clear();
 			return;
 		}
+		
+		if (entity->entityType() == sOffsets::resource) {
+			resource->m_hEntity = entity->m_hEntity;
+		}
+		
 		entity_ptr = entity->m_pNext;
 	}
-	
+
 	for (int i = 0; i < glowListMaxIndex; ++i) {
 
 		glow_ptr = off->client.m_dwGlowObjectLoopStartBase + (off->client.m_dwGlowStructSize * i);
-		*glow = mem->read<GlowObjectDefinition_t>(glow_ptr);
+		*glow = mem->read<sGlowDefinitionObject_t>(glow_ptr);
 
 		if (glow->isValidGlowEntity()) {
 			
 			auto ent = std::find(entityList.begin(), entityList.end(), *glow);
 			if(ent != entityList.end()) {
-				entity_ptr = glow->m_hEntity;
 				
-				if (!mem->read<bool>(entity_ptr + off->client.m_bDormant) && !mem->read<bool>(entity_ptr + off->client.m_bLifeState)) {
+				if (!glow->isDormant() && !glow->lifeState()) {
 					
-					
-					switch (entityType(entity_ptr)) {
+					switch (glow->entityType()) {
 						case sOffsets::player:
-							if (base_ptr == entity_ptr) {
+							if (glow->isValidGlowEntity(base_ptr)) {
 								if (maxFlash != -1) {
-									if (mem->read<double>(entity_ptr + off->client.m_dFlashAlpha) > maxFlash)
-										mem->write<double>(entity_ptr + off->client.m_dFlashAlpha, maxFlash);
+									if (glow->flashMaxAlpha() > maxFlash) {
+										glow->setFlashMaxAlpha(maxFlash);
+									}
 								}
 								break;
-								// continue;
 							}
 							
-							team = mem->read<int>(entity_ptr + off->client.m_iTeam);
+							team = glow->team();
 							
 							if (noTeammates && team == i_teamNum) {
 								break;
-								// continue;
 							}
 							
-							health = mem->read<int>(entity_ptr + off->client.m_iHealth);
+							health = glow->health();
 							health += (health == 0 ? 100 : health);
 							
 							cmp = team != i_teamNum;
@@ -233,7 +235,7 @@ void Wall::applyGlow()
 							glow->m_bRenderWhenUnoccluded = false;
 							
 							// Write to Memory
-							mem->write<GlowObjectDefinition_t>(off->client.m_dwGlowObjectLoopStartBase + (off->client.m_dwGlowStructSize * i), *glow);
+							mem->write<sGlowDefinitionObject_t>(off->client.m_dwGlowObjectLoopStartBase + (off->client.m_dwGlowStructSize * i), *glow);
 							break;
 						case sOffsets::hostage:
 							// Glow Colors
@@ -245,7 +247,7 @@ void Wall::applyGlow()
 							glow->m_bRenderWhenUnoccluded = false;
 							
 							// Write to Memory
-							mem->write<GlowObjectDefinition_t>(off->client.m_dwGlowObjectLoopStartBase + (off->client.m_dwGlowStructSize * i), *glow);
+							mem->write<sGlowDefinitionObject_t>(off->client.m_dwGlowObjectLoopStartBase + (off->client.m_dwGlowStructSize * i), *glow);
 							break;
 						case sOffsets::chicken:
 							// Glow Colors
@@ -257,7 +259,7 @@ void Wall::applyGlow()
 							glow->m_bRenderWhenUnoccluded = false;
 							
 							// Write to Memory
-							mem->write<GlowObjectDefinition_t>(off->client.m_dwGlowObjectLoopStartBase + (off->client.m_dwGlowStructSize * i), *glow);
+							mem->write<sGlowDefinitionObject_t>(off->client.m_dwGlowObjectLoopStartBase + (off->client.m_dwGlowStructSize * i), *glow);
 							break;
 						case sOffsets::C4:
 							// Glow Colors
@@ -269,7 +271,7 @@ void Wall::applyGlow()
 							glow->m_bRenderWhenUnoccluded = false;
 							
 							// Write to Memory
-							mem->write<GlowObjectDefinition_t>(off->client.m_dwGlowObjectLoopStartBase + (off->client.m_dwGlowStructSize * i), *glow);
+							mem->write<sGlowDefinitionObject_t>(off->client.m_dwGlowObjectLoopStartBase + (off->client.m_dwGlowStructSize * i), *glow);
 							break;
 						case sOffsets::plantedC4:
 							// Glow Colors
@@ -281,7 +283,7 @@ void Wall::applyGlow()
 							glow->m_bRenderWhenUnoccluded = false;
 							
 							// Write to Memory
-							mem->write<GlowObjectDefinition_t>(off->client.m_dwGlowObjectLoopStartBase + (off->client.m_dwGlowStructSize * i), *glow);
+							mem->write<sGlowDefinitionObject_t>(off->client.m_dwGlowObjectLoopStartBase + (off->client.m_dwGlowStructSize * i), *glow);
 							break;
 						case sOffsets::weapon:
 							// Glow Colors
@@ -293,7 +295,7 @@ void Wall::applyGlow()
 							glow->m_bRenderWhenUnoccluded = false;
 							
 							// Write to Memory
-							mem->write<GlowObjectDefinition_t>(off->client.m_dwGlowObjectLoopStartBase + (off->client.m_dwGlowStructSize * i), *glow);
+							mem->write<sGlowDefinitionObject_t>(off->client.m_dwGlowObjectLoopStartBase + (off->client.m_dwGlowStructSize * i), *glow);
 							break;
 						case sOffsets::utility:
 							// Glow Colors
@@ -305,9 +307,13 @@ void Wall::applyGlow()
 							glow->m_bRenderWhenUnoccluded = false;
 							
 							// Write to Memory
-							mem->write<GlowObjectDefinition_t>(off->client.m_dwGlowObjectLoopStartBase + (off->client.m_dwGlowStructSize * i), *glow);
+							mem->write<sGlowDefinitionObject_t>(off->client.m_dwGlowObjectLoopStartBase + (off->client.m_dwGlowStructSize * i), *glow);
 							break;
 						case sOffsets::props:
+							break;
+						case sOffsets::resource:
+							break;
+						case sOffsets::team:
 							break;
 						case sOffsets::other:
 							break;
@@ -319,15 +325,6 @@ void Wall::applyGlow()
 	
 //	stop.store(true);
 	entityList.clear();
-}
-
-const sOffsets::EntityType Wall::entityType(uint64_t ptr) const
-{
-	uint64_t vtable = mem->read<uint64_t>(ptr + 0x8);
-	uint64_t fn = mem->read<uint64_t>(vtable - 0x8);
-	uint64_t cls = mem->read<uint64_t>(fn + 0x8);
-	
-	return off->getEntityType(mem->readString(cls));
 }
 
 void Wall::getOffsets()
@@ -366,8 +363,8 @@ void Wall::getOffsets()
 		
 		if (isValid) {
 			printf("\nuint64_t %s\t\t= %s0x%llx%s\n", cT::print("m_iGlowIndex", cT::fG::yellow).c_str(), cT::getColor(cT::fG::green).c_str(), off->client.m_iGlowIndex + i, cT::getStyle(cT::sT::bold).c_str());
-			printf("uint64_t %s\t\t= %s0x%llx%s\n", cT::print("m_dFlashAlpha", cT::fG::yellow).c_str(), cT::getColor(cT::fG::green).c_str(), off->client.m_dFlashAlpha + i, cT::getStyle(cT::sT::bold).c_str());
-			printf("uint64_t %s\t= %s0x%llx%s\n\n", cT::print("m_fFlashDuration", cT::fG::yellow).c_str(), cT::getColor(cT::fG::green).c_str(), off->client.m_fFlashDuration + i, cT::getStyle(cT::sT::bold).c_str());
+			printf("uint64_t %s\t\t= %s0x%llx%s\n", cT::print("m_flFlashMaxAlpha", cT::fG::yellow).c_str(), cT::getColor(cT::fG::green).c_str(), off->client.m_flFlashMaxAlpha + i, cT::getStyle(cT::sT::bold).c_str());
+			printf("uint64_t %s\t= %s0x%llx%s\n\n", cT::print("m_flFlashDuration", cT::fG::yellow).c_str(), cT::getColor(cT::fG::green).c_str(), off->client.m_flFlashDuration + i, cT::getStyle(cT::sT::bold).c_str());
 			printf("uint64_t %s\t\t= %s0x%llx%s\n\n", cT::print("m_iShotFired", cT::fG::yellow).c_str(), cT::getColor(cT::fG::green).c_str(), off->client.m_iShotFired + i, cT::getStyle(cT::sT::bold).c_str());
 			return;
 		}
@@ -442,3 +439,282 @@ void Wall::stopThread()
 }
 
 std::atomic<bool> Wall::stop{false};
+
+Process* Wall::g_cProc = new Process;
+
+MemMngr* Wall::mem = new MemMngr(g_cProc);
+
+sOffsets* Wall::off = new sOffsets;
+
+std::string Wall::sBaseEntityObject_t::entityClass()
+{
+	uint64_t vtable = mem->read<uint64_t>(m_hEntity + 0x8);
+	uint64_t fn = mem->read<uint64_t>(vtable - 0x8);
+	uint64_t cls = mem->read<uint64_t>(fn + 0x8);
+	return mem->readString(cls);
+}
+
+double Wall::sBaseEntityObject_t::flashMaxAlpha()
+{
+	return mem->read<double>(m_hEntity + off->client.m_flFlashMaxAlpha);
+}
+
+float Wall::sBaseEntityObject_t::flashDuration()
+{
+	return mem->read<float>(m_hEntity + off->client.m_flFlashDuration);
+}
+
+int Wall::sBaseEntityObject_t::health()
+{
+	return mem->read<int>(m_hEntity + off->client.m_iHealth);
+}
+
+int Wall::sBaseEntityObject_t::team()
+{
+	return mem->read<int>(m_hEntity + off->client.m_iTeam);
+}
+
+int Wall::sBaseEntityObject_t::glowIndex()
+{
+	return mem->read<int>(m_hEntity + off->client.m_iGlowIndex);
+}
+
+int Wall::sBaseEntityObject_t::shotsFired()
+{
+	return mem->read<int>(m_hEntity + off->client.m_iShotFired);
+}
+
+int Wall::sBaseEntityObject_t::spottedBy()
+{
+	return mem->read<int>(m_hEntity + off->client.m_bSpottedBy);
+}
+
+sOffsets::EntityType Wall::sBaseEntityObject_t::entityType()
+{
+	return off->getEntityType(entityClass());
+}
+
+Byte Wall::sBaseEntityObject_t::EFlags()
+{
+	return mem->read<Byte>(m_hEntity + off->client.m_iEFlags);
+}
+
+bool Wall::sBaseEntityObject_t::isDormant()
+{
+	return mem->read<bool>(m_hEntity + off->client.m_bDormant);
+}
+
+bool Wall::sBaseEntityObject_t::lifeState()
+{
+	return mem->read<bool>(m_hEntity + off->client.m_bLifeState);
+}
+
+bool Wall::sBaseEntityObject_t::spotted()
+{
+	return mem->read<bool>(m_hEntity + off->client.m_bSpotted);
+}
+
+bool Wall::sBaseEntityObject_t::hasMovedSinceSpawn()
+{
+	return mem->read<bool>(m_hEntity + off->client.m_bHasMovedSinceSpawn);
+}
+
+bool Wall::sBaseEntityObject_t::isJumping()
+{
+	return EFlags() & FL_ONGROUND;
+}
+
+bool Wall::sBaseEntityObject_t::isCrouching()
+{
+	return EFlags() & FL_DUCKING;
+}
+
+bool Wall::sBaseEntityObject_t::isWeapon()
+{
+	return entityType() == sOffsets::weapon;
+}
+
+bool Wall::sBaseEntityObject_t::isBomb()
+{
+	return entityType() == sOffsets::C4 || entityType() == sOffsets::plantedC4;
+}
+
+bool Wall::sBaseEntityObject_t::isChicken()
+{
+	return entityType() == sOffsets::chicken;
+}
+
+bool Wall::sBaseEntityObject_t::isPlayer()
+{
+	return entityType() == sOffsets::player;
+}
+
+bool Wall::sBaseEntityObject_t::isValidGlowEntity()
+{
+	return m_hEntity != 0x0;
+}
+
+bool Wall::sBaseEntityObject_t::isValidGlowEntity(uint64_t ptr)
+{
+	return m_hEntity != 0x0 && m_hEntity == ptr;
+}
+
+void Wall::sBaseEntityObject_t::setFlashMaxAlpha(double x)
+{
+	mem->write<double>(m_hEntity + off->client.m_flFlashMaxAlpha, x);
+}
+
+void Wall::sBaseEntityObject_t::print()
+{
+	printf("0x%llx\n", m_hEntity);
+}
+
+void Wall::sGlowDefinitionObject_t::print()
+{
+	printf("0x%llx\n", m_hEntity);
+	printf("red = %f\n", m_vGlowColor.r);
+	printf("green = %f\n", m_vGlowColor.g);
+	printf("blue = %f\n", m_vGlowColor.b);
+	printf("alpha = %f\n", m_flGlowAlpha);
+	printf("%s\n", unk1);
+	printf("%i\n", m_bRenderWhenOccluded);
+	printf("%i\n", m_bRenderWhenUnoccluded);
+	printf("%i\n", FullBloom);
+	printf("%s\n", unk2);
+	printf("\n");
+}
+
+bool Wall::sGlowDefinitionObject_t::operator == (const sGlowDefinitionObject_t& rhs)
+{
+	return m_hEntity == rhs.m_hEntity;
+}
+
+bool Wall::sGlowDefinitionObject_t::operator == (const sClientEntityList_t& rhs)
+{
+	return m_hEntity == rhs.m_hEntity;
+}
+
+
+void Wall::sClientEntityList_t::print()
+{
+	printf("0x%llx\n", m_hEntity);
+	printf("%s\n", m_SerialNum);
+	printf("0x%llx\n", m_pPrevious);
+	printf("0x%llx\n", m_pNext);
+	printf("\n");
+}
+
+bool Wall::sClientEntityList_t::operator == (const sClientEntityList_t& rhs)
+{
+	return m_hEntity == rhs.m_hEntity;
+}
+
+bool Wall::sClientEntityList_t::operator == (const sGlowDefinitionObject_t& rhs)
+{
+	return m_hEntity == rhs.m_hEntity;
+}
+
+
+
+std::string Wall::sPlayerResourceObject_t::clan(int index)
+{
+	return mem->readString(m_hEntity + off->client.m_szClan + (index * sizeof(32)));
+}
+
+int Wall::sPlayerResourceObject_t::kills(int index)
+{
+	return mem->read<int>(m_hEntity + off->client.m_iKills + (index * sizeof(int)));
+}
+
+int Wall::sPlayerResourceObject_t::assists(int index)
+{
+	return mem->read<int>(m_hEntity + off->client.m_iAssists + (index * sizeof(int)));
+}
+
+int Wall::sPlayerResourceObject_t::deaths(int index)
+{
+	return mem->read<int>(m_hEntity + off->client.m_iDeaths + (index * sizeof(int)));
+}
+
+int Wall::sPlayerResourceObject_t::team2(int index)
+{
+	return mem->read<int>(m_hEntity + off->client.m_iTeam2 + (index * sizeof(int)));
+}
+
+int Wall::sPlayerResourceObject_t::health2(int index)
+{
+	return mem->read<int>(m_hEntity + off->client.m_iHealth2 + (index * sizeof(int)));
+}
+
+int Wall::sPlayerResourceObject_t::MVPs(int index)
+{
+	return mem->read<int>(m_hEntity + off->client.m_iMVPs + (index * sizeof(int)));
+}
+
+int Wall::sPlayerResourceObject_t::armor(int index)
+{
+	return mem->read<int>(m_hEntity + off->client.m_iArmor + (index * sizeof(int)));
+}
+
+int Wall::sPlayerResourceObject_t::score(int index)
+{
+	return mem->read<int>(m_hEntity + off->client.m_iScore + (index * sizeof(int)));
+}
+
+int Wall::sPlayerResourceObject_t::competitiveRanking(int index)
+{
+	return mem->read<int>(m_hEntity + off->client.m_iCompetitiveRanking + (index * sizeof(int)));
+}
+
+int Wall::sPlayerResourceObject_t::competitiveWins(int index)
+{
+	return mem->read<int>(m_hEntity + off->client.m_iCompetitiveWins + (index * sizeof(int)));
+}
+
+int Wall::sPlayerResourceObject_t::totalCashSpent(int index)
+{
+	return mem->read<int>(m_hEntity + off->client.m_iTotalCashSpent + (index * sizeof(int)));
+}
+
+int Wall::sPlayerResourceObject_t::cashSpentThisRound(int index)
+{
+	return mem->read<int>(m_hEntity + off->client.m_iCashSpentThisRound + (index * sizeof(int)));
+}
+
+bool Wall::sPlayerResourceObject_t::connected(int index)
+{
+	return mem->read<bool>(m_hEntity + off->client.m_bConnected + (index * sizeof(bool)));
+}
+
+bool Wall::sPlayerResourceObject_t::hasDefuser(int index)
+{
+	return mem->read<bool>(m_hEntity + off->client.m_bHasDefuser + (index * sizeof(bool)));
+}
+
+bool Wall::sPlayerResourceObject_t::hasHelmet(int index)
+{
+	return mem->read<bool>(m_hEntity + off->client.m_bHasHelmet + (index * sizeof(bool)));
+}
+
+void Wall::sPlayerResourceObject_t::print()
+{
+	int num_alive = mem->read<int>(off->client.m_dwEntityList - off->client.m_iNumPlayersAlive);
+	for (int i = 0; i < num_alive; ++i) {
+		printf("index = %i\n", i);
+		printf("m_hEntity = 0x%llx\n", m_hEntity);
+		printf("m_iKills = %i\n", kills(i));
+		printf("m_iAssists = %i\n", assists(i));
+		printf("m_iDeaths = %i\n", deaths(i));
+		printf("m_iTeam2 = %i\n", team2(i));
+		printf("m_bConnected = %i\n", connected(i));
+		printf("m_iHealth2 = %i\n", health2(i));
+		printf("m_iMVPs = %i\n", MVPs(i));
+		printf("m_bHasDefuser = %i\n", hasDefuser(i));
+		printf("m_bHasHelmet = %i\n", hasHelmet(i));
+		printf("m_iArmor = %i\n", armor(i));
+		printf("m_iScore = %i\n", score(i));
+		printf("m_iCompetitiveRanking = %i\n", competitiveRanking(i));
+		printf("m_iCompetitiveWins = %i\n", competitiveWins(i));
+		printf("\n");
+	}
+}
