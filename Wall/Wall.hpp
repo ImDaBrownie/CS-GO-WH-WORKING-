@@ -13,8 +13,8 @@
 #ifndef WALL_HPP
 #define WALL_HPP
 
-#define MAX_ENTITIES 0X4000
-#define MAX_PLAYERS 0X40
+#define MAX_ENTITIES 	0X4000
+#define MAX_PLAYERS 	0X40
 
 #include "Scanner.hpp"
 #include "MemMngr.hpp"
@@ -54,8 +54,6 @@ class Wall {
 	mach_vm_address_t client_moduleStartAddress;
 	off_t client_moduleLength 			= 0;
 	
-	uint64_t entityMask 				= 0xFFFFFFF10;
-	
 	double refreshRate 					= 10000.0f;
 	double maxFlash 					= 100.0f;
 	bool noTeammates 					= false;
@@ -64,24 +62,25 @@ class Wall {
 	static Process* g_cProc;
 	static MemMngr* mem;
 	static sOffsets* off;
+	
 	static std::atomic<bool> stop;
 	
 public:
 	explicit Wall(double refreshRate = 1000.0f, double maxFlash = 100.0f, bool noTeammates = false, bool noUtils = false);
 	~Wall();
 	
-	void 					run(bool getOff = false);
+	void 		run(bool getOff = false);
 
 private:
-	void 					deinit();
+	void 		deinit();
 	
-	void 					applyGlow();
+	void		applyGlow();
 
-	void 					getOffsets();
-	void 					getEnginePointers();
-	void 					getClientPointers();
+	void 		getOffsets();
+	void 		getEnginePointers();
+	void 		getClientPointers();
 	
-	void 					stopThread();
+	void 		stopThread();
 };
 
 struct Wall::sBaseEntityObject_t {

@@ -91,7 +91,7 @@ Wall::Wall(double refreshRate, double maxFlash, bool noTeammates, bool noUtils)
 	getClientPointers();
 	
 	if (off->client.m_dwLocalPlayer != 0x0) {
-		printf("Local Player\t\t= %s0x%llx%s\n", cT::getColor(cT::fG::green).c_str(), off->client.m_dwLocalPlayer, cT::getStyle(cT::sT::bold).c_str());
+		printf("Local Player\t\t\t= %s0x%llx%s\n", cT::getColor(cT::fG::green).c_str(), off->client.m_dwLocalPlayer, cT::getStyle(cT::sT::bold).c_str());
 	}
 	
 	if (off->client.m_dwEntityList != 0x0) {
@@ -125,6 +125,8 @@ void Wall::deinit()
 		delete glow;
 	if (entity)
 		delete entity;
+	if (resource)
+		delete resource;
 }
 
 void Wall::run(bool getOff)
@@ -181,13 +183,15 @@ void Wall::applyGlow()
 			return;
 		}
 		
+//		printf("%s -> 0x%llx\n", entity->entityClass().c_str(), entity->m_hEntity);
+		
 		if (entity->entityType() == sOffsets::resource) {
 			resource->m_hEntity = entity->m_hEntity;
 		}
 		
 		entity_ptr = entity->m_pNext;
 	}
-
+	
 	for (int i = 0; i < glowListMaxIndex; ++i) {
 
 		glow_ptr = off->client.m_dwGlowObjectLoopStartBase + (off->client.m_dwGlowStructSize * i);
@@ -197,6 +201,8 @@ void Wall::applyGlow()
 			
 			auto ent = std::find(entityList.begin(), entityList.end(), *glow);
 			if(ent != entityList.end()) {
+				
+//				printf("%s -> 0x%llx\n", glow->entityClass().c_str(), glow->m_hEntity);
 				
 				if (!glow->isDormant() && !glow->lifeState()) {
 					
@@ -210,18 +216,18 @@ void Wall::applyGlow()
 								}
 								break;
 							}
-							
+
 							team = glow->team();
-							
+
 							if (noTeammates && team == i_teamNum) {
 								break;
 							}
-							
+
 							health = glow->health();
 							health += (health == 0 ? 100 : health);
-							
+
 							cmp = team != i_teamNum;
-							
+
 							// Glow Colors
 							glow->m_vGlowColor = {
 								float((100 - health)/100.0),
@@ -229,11 +235,11 @@ void Wall::applyGlow()
 								cmp ? 0.0f : float((health)/100.0)
 							};
 							glow->m_flGlowAlpha = 0.5f;
-							
+
 							// Enables Glow
 							glow->m_bRenderWhenOccluded = true;
 							glow->m_bRenderWhenUnoccluded = false;
-							
+
 							// Write to Memory
 							mem->write<sGlowDefinitionObject_t>(off->client.m_dwGlowObjectLoopStartBase + (off->client.m_dwGlowStructSize * i), *glow);
 							break;
@@ -241,35 +247,35 @@ void Wall::applyGlow()
 							// Glow Colors
 							glow->m_vGlowColor = {1.0f, 1.0f, 1.0f};
 							glow->m_flGlowAlpha = 0.8f;
-							
+
 							// Enables Glow
 							glow->m_bRenderWhenOccluded = !noUtils;
 							glow->m_bRenderWhenUnoccluded = false;
-							
+
 							// Write to Memory
 							mem->write<sGlowDefinitionObject_t>(off->client.m_dwGlowObjectLoopStartBase + (off->client.m_dwGlowStructSize * i), *glow);
 							break;
 						case sOffsets::chicken:
 							// Glow Colors
-							glow->m_vGlowColor = {1.0f, 0.0f, 0.0f};
+							glow->m_vGlowColor = {1.0f, 1.0f, 0.5f};
 							glow->m_flGlowAlpha = 0.8f;
-							
+
 							// Enables Glow
 							glow->m_bRenderWhenOccluded = !noUtils;
 							glow->m_bRenderWhenUnoccluded = false;
-							
+
 							// Write to Memory
 							mem->write<sGlowDefinitionObject_t>(off->client.m_dwGlowObjectLoopStartBase + (off->client.m_dwGlowStructSize * i), *glow);
 							break;
 						case sOffsets::C4:
 							// Glow Colors
-							glow->m_vGlowColor = {1.0f, 1.0f, 1.0f};
+							glow->m_vGlowColor = {0.0f, 1.0f, 0.0f};
 							glow->m_flGlowAlpha = 0.8f;
-							
+
 							// Enables Glow
 							glow->m_bRenderWhenOccluded = !noUtils;
 							glow->m_bRenderWhenUnoccluded = false;
-							
+
 							// Write to Memory
 							mem->write<sGlowDefinitionObject_t>(off->client.m_dwGlowObjectLoopStartBase + (off->client.m_dwGlowStructSize * i), *glow);
 							break;
@@ -277,17 +283,29 @@ void Wall::applyGlow()
 							// Glow Colors
 							glow->m_vGlowColor = {1.0f, 0.0f, 0.0f};
 							glow->m_flGlowAlpha = 1.0f;
-							
+
 							// Enables Glow
 							glow->m_bRenderWhenOccluded = !noUtils;
 							glow->m_bRenderWhenUnoccluded = false;
-							
+
 							// Write to Memory
 							mem->write<sGlowDefinitionObject_t>(off->client.m_dwGlowObjectLoopStartBase + (off->client.m_dwGlowStructSize * i), *glow);
 							break;
 						case sOffsets::weapon:
 							// Glow Colors
 							glow->m_vGlowColor = {1.0f, 1.0f, 1.0f};
+							glow->m_flGlowAlpha = 0.8f;
+
+							// Enables Glow
+							glow->m_bRenderWhenOccluded = !noUtils;
+							glow->m_bRenderWhenUnoccluded = false;
+
+							// Write to Memory
+							mem->write<sGlowDefinitionObject_t>(off->client.m_dwGlowObjectLoopStartBase + (off->client.m_dwGlowStructSize * i), *glow);
+							break;
+						case sOffsets::kit:
+							// Glow Colors
+							glow->m_vGlowColor = {1.0f, 0.0f, 1.0f};
 							glow->m_flGlowAlpha = 0.8f;
 							
 							// Enables Glow
@@ -301,11 +319,11 @@ void Wall::applyGlow()
 							// Glow Colors
 							glow->m_vGlowColor = {1.0f, 1.0f, 1.0f};
 							glow->m_flGlowAlpha = 0.8f;
-							
+
 							// Enables Glow
 							glow->m_bRenderWhenOccluded = !noUtils;
 							glow->m_bRenderWhenUnoccluded = false;
-							
+
 							// Write to Memory
 							mem->write<sGlowDefinitionObject_t>(off->client.m_dwGlowObjectLoopStartBase + (off->client.m_dwGlowStructSize * i), *glow);
 							break;
@@ -324,6 +342,7 @@ void Wall::applyGlow()
 	}
 	
 //	stop.store(true);
+	
 	entityList.clear();
 }
 

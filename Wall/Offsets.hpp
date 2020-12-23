@@ -137,7 +137,7 @@ public:
 		"The Global Elite"
 	};
 	
-	const char* entityClass[57] {
+	const char* entityClass[63] {
 		// player
 		"10C_CSPlayer",
 		// hostage
@@ -189,14 +189,21 @@ public:
 		"16C_WeaponSawedoff",
 		"13C_WeaponTaser",
 		"14C_WeaponXM1014",
+		// kit
+		"12C_EconEntity",
 		// utility
 		"11C_Flashbang",
 		"11C_HEGrenade",
+		"25C_BaseCSGrenadeProjectile",
 		"14C_DecoyGrenade",
+		"17C_DecoyProjectile",
 		"16C_MolotovGrenade",
 		"19C_IncendiaryGrenade",
+		"19C_MolotovProjectile",
 		"15C_SensorGrenade",
+		"25C_SensorGrenadeProjectile",
 		"14C_SmokeGrenade",
+		"24C_SmokeGrenadeProjectile",
 		// props
 		"11C_CSRagdoll",
 		"13C_DynamicProp",
@@ -208,17 +215,18 @@ public:
 	};
 	
 	enum EntityType {
-		player,
-		hostage,
-		chicken,
-		C4,
-		plantedC4,
-		weapon,
-		utility,
-		props,
-		resource,
-		team,
-		other = -1
+		player 		= 0,
+		hostage 	= 1,
+		chicken 	= 2,
+		C4 			= 3,
+		plantedC4 	= 4,
+		weapon 		= 5,
+		kit 		= 45,
+		utility 	= 46,
+		props 		= 58,
+		resource 	= 60,
+		team 		= 62,
+		other		= -1
 	};
 	
 	
@@ -232,16 +240,17 @@ public:
 		int index = (int)(it - begin);
 		
 		return EntityType(  (int)other 			* cmp
-						  + (int)player 		* (index == 0)
-						  + (int)hostage 		* (index == 1)
-						  + (int)chicken 		* (index == 2)
-						  + (int)C4 			* (index == 3)
-						  + (int)plantedC4 		* (index == 4)
-						  + (int)weapon 		* (index > 4 && index < 46)
-						  + (int)utility 		* (index > 45 && index < 52)
-						  + (int)props 			* (index > 51 && index < 54)
-						  + (int)resource		* (index > 53 && index < 56)
-						  + (int)team 			* (index > 55 && index < 57)
+						  + (int)player 		* (index == (int)player)
+						  + (int)hostage 		* (index == (int)hostage)
+						  + (int)chicken 		* (index == (int)chicken)
+						  + (int)C4 			* (index == (int)C4)
+						  + (int)plantedC4 		* (index == (int)plantedC4)
+						  + (int)weapon 		* (index >= (int)weapon && index < (int)kit)
+						  + (int)kit 			* (index >= (int)kit && index < (int)utility)
+						  + (int)utility 		* (index >= (int)utility && index < (int)props)
+						  + (int)props 			* (index >= (int)props && index < (int)resource)
+						  + (int)resource		* (index >= (int)resource && index < (int)team)
+						  + (int)team 			* (index >= (int)team && index < 58)
 		);
 	}
 	
