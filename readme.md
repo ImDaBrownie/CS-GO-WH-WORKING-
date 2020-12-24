@@ -44,3 +44,7 @@ We believe that you know what you are doing. You should get this software for fr
 	-h			: Display this message
 		
 	Stop by typing "stop", "exit", "quit", "q" or terminating csgo
+	
+	Note:
+	1) -o is currently unavailable
+	2) use sv_dump_class_info to find more entity classes
