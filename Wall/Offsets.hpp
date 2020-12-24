@@ -18,19 +18,19 @@ struct sOffsets {
 public:
 	struct sClient {
 		uint64_t m_dwGlowManager;
-		uint64_t m_dwGlowObjectLoopStartBase;
+//		uint64_t m_dwGlowObjectLoopStartBase;
 		uint64_t m_dwEntityList;
 		uint64_t m_dwLocalPlayer;
-		uint64_t m_dwLocalPlayerBase;
+//		uint64_t m_dwLocalPlayerBase;
 		uint64_t m_dwPlayerResource;					//0x164AAE8
-		uint64_t m_dwPlayerResourceBase;
+//		uint64_t m_dwPlayerResourceBase;
 		uint64_t m_dwRadarManager;
 		uint64_t m_dwRadarBase;
 		
 		uint64_t m_dwGlowListMaxSize					= 0x8;
 		uint64_t m_dwGlowListSize 						= 0x10;
-		uint64_t m_dwEntityStructSize					= 0x20;
-		uint64_t m_dwGlowStructSize						= 0x40;
+//		uint64_t m_dwEntityStructSize					= 0x20;
+//		uint64_t m_dwGlowStructSize						= 0x40;
 		// uint64_t m_dwGlowColorStruct					= 0x8;
 		// uint64_t m_dwGlowEnable						= 0x28;
 		uint64_t m_bDormant								= 0x125;
@@ -57,7 +57,7 @@ public:
 //		uint64_t m_dwCrosshairID               		 	= 0xBC08;
 		
 		// m_dwEntityList - ...
-		uint64_t m_iMaxPlayers							= 0xDC00;
+//		uint64_t m_iMaxPlayers							= 0xDC00;
 		uint64_t m_iNumPlayersAlive						= 0xDBF8;
 		/*
 		 // radar base needs new sig

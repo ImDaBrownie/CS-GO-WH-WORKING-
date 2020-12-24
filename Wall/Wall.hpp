@@ -13,8 +13,8 @@
 #ifndef WALL_HPP
 #define WALL_HPP
 
-#define MAX_ENTITIES 	0X4000
-#define MAX_PLAYERS 	0X40
+#define MAX_ENTITIES 	0x4000
+#define MAX_PLAYERS 	0x40
 
 #include "Scanner.hpp"
 #include "MemMngr.hpp"
@@ -29,24 +29,25 @@
 #include <thread>
 
 class Wall {
-	struct sBaseEntityObject_t;
-	struct sClientEntityList_t;
+	struct sBaseEntity_t;
+	struct sBasePlayer_t;
+	struct sEntityList_t;
 	struct sGlowDefinitionObject_t;
-	struct sPlayerResourceObject_t;
+	struct sGlowManager_t;
+	struct sPlayerResource_t;
 	
-	std::vector<sClientEntityList_t> entityList;
+	std::vector<sEntityList_t> entities;
 
 	Scanner* engineScanner 				= nullptr;
 	Scanner* clientScanner 				= nullptr;
 	
-	sGlowDefinitionObject_t* glow 		= nullptr;
-	sClientEntityList_t* entity 		= nullptr;
-	sPlayerResourceObject_t* resource	= nullptr;
+	sBasePlayer_t* localPlayer			= nullptr;
+	sEntityList_t* entityList 			= nullptr;
+	sGlowManager_t* glowManager 		= nullptr;
+	sPlayerResource_t* playerResource	= nullptr;
 	
-	uint64_t glow_ptr;
-	uint64_t entity_ptr;
-	uint64_t resources_ptr;
-	uint64_t base_ptr;
+	sGlowDefinitionObject_t* glow 		= nullptr;
+	
 	
 	mach_vm_address_t engine_moduleStartAddress;
 	off_t engine_moduleLength 			= 0;
@@ -66,66 +67,86 @@ class Wall {
 	static std::atomic<bool> stop;
 	
 public:
-	explicit Wall(double refreshRate = 1000.0f, double maxFlash = 100.0f, bool noTeammates = false, bool noUtils = false);
+	explicit Wall(double refreshRate = 10000.0f, double maxFlash = 100.0f, bool noTeammates = false, bool noUtils = false);
 	~Wall();
 	
-	void 		run(bool getOff = false);
+	void 		Run();
 
 private:
-	void 		deinit();
+	void 		Deinit();
 	
-	void		applyGlow();
-
-	void 		getOffsets();
-	void 		getEnginePointers();
-	void 		getClientPointers();
+	void		ApplyGlow();
 	
-	void 		stopThread();
+	bool 		EngineCheck();
+	bool 		ClientCheck();
+		
+	void 		GetEnginePointers();
+	void 		GetClientPointers();
+	
+	void 		StopThread();
 };
 
-struct Wall::sBaseEntityObject_t {
-	uint64_t 	m_hEntity;
+struct Wall::sBaseEntity_t {
+	uint64_t 	m_hBase;
 	
-	std::string entityClass();
+	std::string EntityClass();
 	
-	double		flashMaxAlpha();
-	float		flashDuration();
+	int 		SpottedBy();
 	
-	int 		health();
-	int 		team();
-	int 		glowIndex();
-	int 		shotsFired();
-	int 		spottedBy();
-	
-	sOffsets::EntityType entityType();
+	sOffsets::EntityType Type();
 	
 	Byte		EFlags();
 	
-	bool		isDormant();
-	bool 		lifeState();
-	bool 		spotted();
-	bool 		hasMovedSinceSpawn();
-	bool 		isJumping();
-	bool 		isCrouching();
-	bool		isWeapon();
-	bool		isBomb();
-	bool		isChicken();
-	bool		isPlayer();
+	bool		IsDormant();
+	bool 		LifeState();
+	bool 		Spotted();
+	bool		IsWeapon();
+	bool		IsBomb();
+	bool		IsChicken();
+	bool		IsPlayer();
 	
-	bool 		isValidGlowEntity();
-	bool 		isValidGlowEntity(uint64_t ptr);
+	bool 		IsValid();
+	bool 		IsValid(uint64_t ptr);
 	
-	void 		setFlashMaxAlpha(double x);
+	bool 		operator == (const sBaseEntity_t& rhs);
 	
-	void 		print();
+	void 		Print();
 };
 
-struct Wall::sGlowDefinitionObject_t: public sBaseEntityObject_t {
+struct Wall::sBasePlayer_t: public sBaseEntity_t {
+	double		FlashMaxAlpha();
+	float		FlashDuration();
+	
+	int 		Health();
+	int 		Team();
+	int 		GlowIndex();
+	int 		ShotsFired();
+	
+	bool 		HasMovedSinceSpawn();
+	bool 		IsJumping();
+	bool 		IsCrouching();
+	
+	void 		SetFlashMaxAlpha(double x);
+	
+	void 		Print();
+	
+};
+
+struct Wall::sEntityList_t: public sBaseEntity_t {
+	char 		m_SerialNum[0x8];
+	uint64_t 	m_pPrevious;
+	uint64_t 	m_pNext;
+	
+	void 		Print();
+};
+
+struct Wall::sGlowDefinitionObject_t: public sBaseEntity_t {
 	struct Vector {
 		float r;
 		float g;
 		float b;
 	};
+	
 	Vector 		m_vGlowColor;
 	float 		m_flGlowAlpha;
 	char 		unk1[0x10];
@@ -134,44 +155,44 @@ struct Wall::sGlowDefinitionObject_t: public sBaseEntityObject_t {
 	bool 		FullBloom;
 	char 		unk2[0x15];
 	
-	bool 		operator == (const sGlowDefinitionObject_t& rhs);
-	bool 		operator == (const sClientEntityList_t& rhs);
-	
-	void 		print();
+	void 		Print();
 };
 
-struct Wall::sClientEntityList_t: public sBaseEntityObject_t {
-	char 		m_SerialNum[0x8];
-	uint64_t 	m_pPrevious;
-	uint64_t 	m_pNext;
+struct Wall::sGlowManager_t: public sBaseEntity_t {
+	int			m_iGlowListMaxSize;
+	char 		unk1[0x4]; // padding
+	int			m_iGlowListSize;
+	char 		unk2[0x4]; // padding
 	
-	bool 		operator == (const sClientEntityList_t& rhs);
-	bool 		operator == (const sGlowDefinitionObject_t& rhs);
+	sGlowDefinitionObject_t Get(int index);
 	
-	void 		print();
+	int			Capacity();
+	int 		Size();
+	
+	void 		Print();
 };
 
-struct Wall::sPlayerResourceObject_t: public sBaseEntityObject_t {
-	std::string clan(int index);
+struct Wall::sPlayerResource_t: public sBaseEntity_t {
+	std::string Clan(int index);
 	
-	int 		kills(int index);
-	int		 	assists(int index);
-	int		 	deaths(int index);
-	int		 	team2(int index);
-	int	 		health2(int index);
+	int 		Kills(int index);
+	int		 	Assists(int index);
+	int		 	Deaths(int index);
+	int		 	Team2(int index);
+	int	 		Health2(int index);
 	int 		MVPs(int index);
-	int			armor(int index);
-	int 		score(int index);
-	int 		competitiveRanking(int index);
-	int			competitiveWins(int index);
-	int 		totalCashSpent(int index);
-	int 		cashSpentThisRound(int index);
+	int			Armor(int index);
+	int 		Score(int index);
+	int 		CompetitiveRanking(int index);
+	int			CompetitiveWins(int index);
+	int 		TotalCashSpent(int index);
+	int 		CashSpentThisRound(int index);
 	
-	bool 		connected(int index);
-	bool		hasDefuser(int index);
-	bool 		hasHelmet(int index);
+	bool 		Connected(int index);
+	bool		HasDefuser(int index);
+	bool 		HasHelmet(int index);
 	
-	void 		print();
+	void 		Print();
 };
 
 #endif /* WALL_HPP */

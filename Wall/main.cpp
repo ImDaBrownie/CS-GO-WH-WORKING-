@@ -22,10 +22,10 @@
  
  -f <flash alpha>	: Antiflash alpha max amount (default: 100.0, disable: -1, range: [0-2700])
  -r <refresh rate>	: Refresh rate in microseconds (default: 1000.0)
- -t			: Disables teammate glow
- -u			: Disables weapons/utility/bomb/chicken glow
- -o			: Get new offsets (only use with -insecure launch option flag in CSGO)
- -h			: Display this message
+ -t					: Disables teammate glow
+ -u					: Disables weapons/utility/bomb/chicken glow
+ -o					: Get new offsets (only use with -insecure launch option flag in CSGO)
+ -h					: Display this message
  
  Stop by typing "stop", "exit", "quit", "q" or terminating csgo
 */
@@ -92,7 +92,7 @@ int main(int argc, char** argv) {
 			case 'u':
 				noUtils = true;
 				break;
-			case 'o':
+			case 'o': // temporarily disabled
 				getOffsets = true;
 				break;
 			case 'h':
@@ -107,7 +107,7 @@ int main(int argc, char** argv) {
 	
 	Wall wall(refreshRate, maxFlash, noTeammates, noUtils);
 
-	wall.run(getOffsets);
+	wall.Run();
 	
 	return 0;
 }
