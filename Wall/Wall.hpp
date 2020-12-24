@@ -171,6 +171,8 @@ struct Wall::sGlowManager_t: public sBaseEntity_t {
 	int			Capacity();
 	int 		Size();
 	
+	void 		Write(Wall::sGlowDefinitionObject_t* glowObject, int index);
+	
 	void 		Print();
 };
 

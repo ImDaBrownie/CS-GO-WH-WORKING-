@@ -151,12 +151,14 @@ void Wall::ApplyGlow()
 	
 	bool cmp = false;
 	
-	while (entityList->m_pNext != 0x0) {
+	while (entityList->IsValid()) {
 		
-		*entityList = mem->read<sEntityList_t>(entityList->m_pNext);
 		entities.emplace_back(*entityList);
 		
+		*entityList = mem->read<sEntityList_t>(entityList->m_pNext);
+		
 		if (entities.size() > MAX_ENTITIES) {
+			printf("entities > MAX_ENTITIES -> %lx\n", entities.size());
 			entities.clear();
 			return;
 		}
@@ -211,23 +213,13 @@ void Wall::ApplyGlow()
 							glow->m_bRenderWhenUnoccluded = false;
 
 							// Write to Memory
-							mem->write<sGlowDefinitionObject_t>(glowManager->m_hBase + (sizeof(sGlowDefinitionObject_t) * i), *glow);
+							glowManager->Write(glow, i);
 							break;
 						case sOffsets::hostage:
-							// Glow Colors
-							glow->m_vGlowColor = {1.0f, 1.0f, 1.0f};
-							glow->m_flGlowAlpha = 0.8f;
-
-							// Enables Glow
-							glow->m_bRenderWhenOccluded = !noUtils;
-							glow->m_bRenderWhenUnoccluded = false;
-
-							// Write to Memory
-							mem->write<sGlowDefinitionObject_t>(glowManager->m_hBase + (sizeof(sGlowDefinitionObject_t) * i), *glow);
 							break;
 						case sOffsets::chicken:
 							// Glow Colors
-							glow->m_vGlowColor = {1.0f, 1.0f, 0.5f};
+							glow->m_vGlowColor = {0.0f, 1.0f, 1.0f};
 							glow->m_flGlowAlpha = 0.8f;
 
 							// Enables Glow
@@ -235,7 +227,7 @@ void Wall::ApplyGlow()
 							glow->m_bRenderWhenUnoccluded = false;
 
 							// Write to Memory
-							mem->write<sGlowDefinitionObject_t>(glowManager->m_hBase + (sizeof(sGlowDefinitionObject_t) * i), *glow);
+							glowManager->Write(glow, i);
 							break;
 						case sOffsets::C4:
 							// Glow Colors
@@ -247,7 +239,7 @@ void Wall::ApplyGlow()
 							glow->m_bRenderWhenUnoccluded = false;
 
 							// Write to Memory
-							mem->write<sGlowDefinitionObject_t>(glowManager->m_hBase + (sizeof(sGlowDefinitionObject_t) * i), *glow);
+							glowManager->Write(glow, i);
 							break;
 						case sOffsets::plantedC4:
 							// Glow Colors
@@ -259,7 +251,7 @@ void Wall::ApplyGlow()
 							glow->m_bRenderWhenUnoccluded = false;
 
 							// Write to Memory
-							mem->write<sGlowDefinitionObject_t>(glowManager->m_hBase + (sizeof(sGlowDefinitionObject_t) * i), *glow);
+							glowManager->Write(glow, i);
 							break;
 						case sOffsets::weapon:
 							// Glow Colors
@@ -271,7 +263,7 @@ void Wall::ApplyGlow()
 							glow->m_bRenderWhenUnoccluded = false;
 
 							// Write to Memory
-							mem->write<sGlowDefinitionObject_t>(glowManager->m_hBase + (sizeof(sGlowDefinitionObject_t) * i), *glow);
+							glowManager->Write(glow, i);
 							break;
 						case sOffsets::kit:
 							// Glow Colors
@@ -283,9 +275,9 @@ void Wall::ApplyGlow()
 							glow->m_bRenderWhenUnoccluded = false;
 							
 							// Write to Memory
-							mem->write<sGlowDefinitionObject_t>(glowManager->m_hBase + (sizeof(sGlowDefinitionObject_t) * i), *glow);
+							glowManager->Write(glow, i);
 							break;
-						case sOffsets::utility:
+						case sOffsets::grenade:
 							// Glow Colors
 							glow->m_vGlowColor = {1.0f, 1.0f, 1.0f};
 							glow->m_flGlowAlpha = 0.8f;
@@ -295,8 +287,10 @@ void Wall::ApplyGlow()
 							glow->m_bRenderWhenUnoccluded = false;
 
 							// Write to Memory
-							mem->write<sGlowDefinitionObject_t>(glowManager->m_hBase + (sizeof(sGlowDefinitionObject_t) * i), *glow);
+							glowManager->Write(glow, i);
 							break;
+						case sOffsets::projectile:
+//							break;
 						case sOffsets::props:
 							break;
 						case sOffsets::resource:
@@ -339,17 +333,9 @@ bool Wall::ClientCheck()
 		printf("Glow Manager\t\t\t= %s0x%llx%s\n", cT::getColor(cT::fG::green).c_str(), off->client.m_dwGlowManager, cT::getStyle(cT::sT::bold).c_str());
 	}
 	
-	if (off->client.m_dwLocalPlayer != 0x0) {
-		*localPlayer = mem->read<sBasePlayer_t>(off->client.m_dwLocalPlayer);
-	}
-	
-	if (off->client.m_dwEntityList != 0x0) {
-		*entityList = mem->read<sEntityList_t>(off->client.m_dwEntityList);
-	}
-
-	if (off->client.m_dwGlowManager != 0x0) {
-		*glowManager = mem->read<sGlowManager_t>(off->client.m_dwGlowManager);
-	}
+	*localPlayer = mem->read<sBasePlayer_t>(off->client.m_dwLocalPlayer);
+	*entityList = mem->read<sEntityList_t>(off->client.m_dwEntityList);
+	*glowManager = mem->read<sGlowManager_t>(off->client.m_dwGlowManager);
 	
 	return localPlayer->IsValid() && entityList->IsValid() && glowManager->IsValid();
 }
@@ -560,7 +546,9 @@ bool Wall::sBasePlayer_t::IsCrouching()
 
 void Wall::sBasePlayer_t::SetFlashMaxAlpha(double x)
 {
-	mem->write<double>(m_hBase + off->client.m_flFlashMaxAlpha, x);
+	if (this->IsValid()) {
+		mem->write<double>(m_hBase + off->client.m_flFlashMaxAlpha, x);
+	}
 }
 
 void Wall::sBasePlayer_t::Print()
@@ -625,6 +613,15 @@ int Wall::sGlowManager_t::Capacity()
 int Wall::sGlowManager_t::Size()
 {
 	return m_iGlowListSize;
+}
+
+void Wall::sGlowManager_t::Write(Wall::sGlowDefinitionObject_t* glowObject, int index)
+{
+	if (this->IsValid()) {
+		mem->write<sGlowDefinitionObject_t>(m_hBase + (sizeof(sGlowDefinitionObject_t) * index), *glowObject);
+	} else {
+		printf("%s -> 0x%llx\n", "Invalid", m_hBase);
+	}
 }
 
 void Wall::sGlowManager_t::Print()

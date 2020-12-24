@@ -191,18 +191,19 @@ public:
 		"14C_WeaponXM1014",
 		// kit
 		"12C_EconEntity",
-		// utility
+		// grenade
 		"11C_Flashbang",
 		"11C_HEGrenade",
-		"25C_BaseCSGrenadeProjectile",
 		"14C_DecoyGrenade",
-		"17C_DecoyProjectile",
 		"16C_MolotovGrenade",
 		"19C_IncendiaryGrenade",
-		"19C_MolotovProjectile",
 		"15C_SensorGrenade",
-		"25C_SensorGrenadeProjectile",
 		"14C_SmokeGrenade",
+		// grenade projectiles
+		"25C_BaseCSGrenadeProjectile",
+		"17C_DecoyProjectile",
+		"19C_MolotovProjectile",
+		"25C_SensorGrenadeProjectile",
 		"24C_SmokeGrenadeProjectile",
 		// props
 		"11C_CSRagdoll",
@@ -222,7 +223,8 @@ public:
 		plantedC4 	= 4,
 		weapon 		= 5,
 		kit 		= 45,
-		utility 	= 46,
+		grenade 	= 46,
+		projectile 	= 53,
 		props 		= 58,
 		resource 	= 60,
 		team 		= 62,
@@ -239,6 +241,8 @@ public:
 		bool cmp = (it == end);
 		int index = (int)(it - begin);
 		
+		int len = sizeof(entityClass) / sizeof(const char*);
+		
 		return EntityType(  (int)other 			* cmp
 						  + (int)player 		* (index == (int)player)
 						  + (int)hostage 		* (index == (int)hostage)
@@ -246,11 +250,12 @@ public:
 						  + (int)C4 			* (index == (int)C4)
 						  + (int)plantedC4 		* (index == (int)plantedC4)
 						  + (int)weapon 		* (index >= (int)weapon && index < (int)kit)
-						  + (int)kit 			* (index >= (int)kit && index < (int)utility)
-						  + (int)utility 		* (index >= (int)utility && index < (int)props)
+						  + (int)kit 			* (index >= (int)kit && index < (int)grenade)
+						  + (int)grenade 		* (index >= (int)grenade && index < (int)projectile)
+						  + (int)projectile 	* (index >= (int)projectile && index < (int)props)
 						  + (int)props 			* (index >= (int)props && index < (int)resource)
 						  + (int)resource		* (index >= (int)resource && index < (int)team)
-						  + (int)team 			* (index >= (int)team && index < 58)
+						  + (int)team 			* (index >= (int)team && index < len)
 		);
 	}
 	
