@@ -641,7 +641,7 @@ void Wall::sGlowManager_t::Print()
 
 std::string Wall::sPlayerResource_t::Clan(int index)
 {
-	return mem->readString(m_hBase + off->client.m_szClan + (index * sizeof(32)));
+	return mem->readString(m_hBase + off->client.m_szClan + (index * 0xF));
 }
 
 int Wall::sPlayerResource_t::Kills(int index)

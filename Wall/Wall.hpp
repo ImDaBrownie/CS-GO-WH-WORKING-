@@ -13,8 +13,10 @@
 #ifndef WALL_HPP
 #define WALL_HPP
 
-#define MAX_ENTITIES 	0x4000
-#define MAX_PLAYERS 	0x40
+#define MAX_ENTITIES 			0x4000
+#define MAX_PLAYERS 			0x40
+
+#define MAX_CLANTAG_LENGTH		0xF
 
 #include "Scanner.hpp"
 #include "MemMngr.hpp"
