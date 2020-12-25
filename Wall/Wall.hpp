@@ -33,13 +33,14 @@
 class Wall {
 	struct sBaseEntity_t;
 	struct sBasePlayer_t;
+	struct sBaseCombatWeapon_t;
 	struct sEntityList_t;
 	struct sGlowDefinitionObject_t;
 	struct sGlowManager_t;
 	struct sPlayerResource_t;
 	
 	std::vector<sEntityList_t> entities;
-
+	
 	Scanner* engineScanner 				= nullptr;
 	Scanner* clientScanner 				= nullptr;
 	
@@ -48,8 +49,9 @@ class Wall {
 	sGlowManager_t* glowManager 		= nullptr;
 	sPlayerResource_t* playerResource	= nullptr;
 	
+	sBasePlayer_t* player 				= nullptr;
 	sGlowDefinitionObject_t* glow 		= nullptr;
-	
+	sBaseCombatWeapon_t* weapon 		= nullptr;
 	
 	mach_vm_address_t engine_moduleStartAddress;
 	off_t engine_moduleLength 			= 0;
@@ -93,15 +95,17 @@ struct Wall::sBaseEntity_t {
 	
 	std::string EntityClass();
 	
-	int 		SpottedBy();
-	
 	sOffsets::EntityType Type();
 	
 	Byte		EFlags();
 	
+	//	int 		GetOwner();
+	int 		Team();
+	int 		SpottedBy();
+	
+	bool 		Spotted();
 	bool		IsDormant();
 	bool 		LifeState();
-	bool 		Spotted();
 	bool		IsWeapon();
 	bool		IsBomb();
 	bool		IsChicken();
@@ -120,7 +124,6 @@ struct Wall::sBasePlayer_t: public sBaseEntity_t {
 	float		FlashDuration();
 	
 	int 		Health();
-	int 		Team();
 	int 		GlowIndex();
 	int 		ShotsFired();
 	
@@ -128,10 +131,27 @@ struct Wall::sBasePlayer_t: public sBaseEntity_t {
 	bool 		IsJumping();
 	bool 		IsCrouching();
 	
+	void 		GetAllWeapons(uint64_t* weaponArray);
+	uint64_t 	GetActiveWeapon();
+	
 	void 		SetFlashMaxAlpha(double x);
 	
 	void 		Print();
 	
+};
+
+struct Wall::sBaseCombatWeapon_t: public sBaseEntity_t {
+	char 		unk[0x3AD0];
+	int 		m_iEquipped;
+	char 		unk1[0x8];
+	int			m_iClip1;
+	char		unk2[0x4];
+	int 		m_iClip2;
+	char		unk3[0x4];
+	int			m_primaryReserveAmmoCount;
+	char		unk4[0x4];
+	int 		m_secondaryReserveAmmoCount;
+	char		unk5[0x4];
 };
 
 struct Wall::sEntityList_t: public sBaseEntity_t {

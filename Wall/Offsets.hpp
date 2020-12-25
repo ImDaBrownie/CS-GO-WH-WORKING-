@@ -29,6 +29,7 @@ public:
 		
 		uint64_t m_dwGlowListMaxSize					= 0x8;
 		uint64_t m_dwGlowListSize 						= 0x10;
+		uint64_t m_dwWeaponListSize 					= 0x10;
 //		uint64_t m_dwEntityStructSize					= 0x20;
 //		uint64_t m_dwGlowStructSize						= 0x40;
 		// uint64_t m_dwGlowColorStruct					= 0x8;
@@ -41,6 +42,8 @@ public:
 		uint64_t m_vecAbsVelocity						= 0x14C;
 		uint64_t m_angAbsRotation						= 0x164;
 		uint64_t m_vecAbsOrigin							= 0x170;
+		uint64_t m_hOwnerEntity 						= 0x184;
+		uint64_t m_hEntityID 							= 0x2C4;
 		uint64_t m_bLifeState							= 0x297;
 		uint64_t m_bSpotted								= 0xECD;
 		uint64_t m_bSpottedBy							= 0xF10;
@@ -49,12 +52,18 @@ public:
 		uint64_t m_hActiveWeapon						= 0x3638;
 //		uint64_t m_hLocalPlayer							= 0x3700;
 //		uint64_t m_hViewModelIndex						= 0x3AE4;
+		uint64_t m_iEquipped 							= 0x3AD8;
+		uint64_t m_hOwner 								= 0x3AB0;
 		uint64_t m_bHasMovedSinceSpawn					= 0x4245;
 		uint64_t m_iShotFired							= 0xACC0;
 		uint64_t m_flFlashMaxAlpha						= 0xAD4C; // 0xAD2C
 		uint64_t m_flFlashDuration						= 0xAD50; // 0xAD30
 		uint64_t m_iGlowIndex							= 0xAD68; // 0xAD48 // 0xAD2C
 //		uint64_t m_dwCrosshairID               		 	= 0xBC08;
+		
+//		uint64_t m_iClip1 								= 0x3AE4;
+		uint64_t m_bInReload 							= 0x3B29;
+		uint64_t m_iState 								= 0x3B34;
 		
 		// m_dwEntityList - ...
 //		uint64_t m_iMaxPlayers							= 0xDC00;
@@ -139,80 +148,80 @@ public:
 	
 	const char* entityClass[63] {
 		// player
-		"10C_CSPlayer",
+		"C_CSPlayer",
 		// hostage
-		"10C_CHostage",
+		"C_CHostage",
 		// chicken
-		"10C_CChicken",
+		"C_CChicken",
 		// C4
-		"4C_C4",
+		"C_C4",
 		// plantedC4
-		"11C_PlantedC4",
+		"C_PlantedC4",
 		// weapon
-		"6C_AK47",
-		"11C_WeaponAug",
-		"11C_WeaponAWP",
-		"13C_WeaponBizon",
-		"13C_WeaponFamas",
-		"17C_WeaponFiveSeven",
-		"13C_WeaponG3SG1",
-		"13C_WeaponGalil",
-		"15C_WeaponGalilAR",
-		"13C_WeaponGlock",
-		"15C_WeaponHKP2000",
-		"12C_WeaponM4A1",
-		"13C_WeaponMAC10",
-		"12C_WeaponMag7",
-		"15C_WeaponMP5Navy",
-		"11C_WeaponMP7",
-		"11C_WeaponMP9",
-		"13C_WeaponNegev",
-		"12C_WeaponP228",
-		"12C_WeaponP250",
-		"11C_WeaponP90",
-		"8C_SCAR17",
-		"14C_WeaponSCAR20",
-		"13C_WeaponScout",
-		"13C_WeaponSG550",
-		"13C_WeaponSG556",
-		"13C_WeaponSSG08",
-		"12C_WeaponTec9",
-		"11C_WeaponTMP",
-		"13C_WeaponUMP45",
-		"12C_WeaponM249",
-		"11C_WeaponUSP",
-		"8C_DEagle",
-		"13C_WeaponElite",
-		"7C_Knife",
-		"9C_KnifeGG",
-		"12C_WeaponNOVA",
-		"16C_WeaponSawedoff",
-		"13C_WeaponTaser",
-		"14C_WeaponXM1014",
+		"C_AK47",
+		"C_WeaponAug",
+		"C_WeaponAWP",
+		"C_WeaponBizon",
+		"C_WeaponFamas",
+		"C_WeaponFiveSeven",
+		"C_WeaponG3SG1",
+		"C_WeaponGalil",
+		"C_WeaponGalilAR",
+		"C_WeaponGlock",
+		"C_WeaponHKP2000",
+		"C_WeaponM4A1",
+		"C_WeaponMAC10",
+		"C_WeaponMag7",
+		"C_WeaponMP5Navy",
+		"C_WeaponMP7",
+		"C_WeaponMP9",
+		"C_WeaponNegev",
+		"C_WeaponP228",
+		"C_WeaponP250",
+		"C_WeaponP90",
+		"C_SCAR17",
+		"C_WeaponSCAR20",
+		"C_WeaponScout",
+		"C_WeaponSG550",
+		"C_WeaponSG556",
+		"C_WeaponSSG08",
+		"C_WeaponTec9",
+		"C_WeaponTMP",
+		"C_WeaponUMP45",
+		"C_WeaponM249",
+		"C_WeaponUSP",
+		"C_DEagle",
+		"C_WeaponElite",
+		"C_Knife",
+		"C_KnifeGG",
+		"C_WeaponNOVA",
+		"C_WeaponSawedoff",
+		"C_WeaponTaser",
+		"C_WeaponXM1014",
 		// kit
-		"12C_EconEntity",
+		"C_EconEntity",
 		// grenade
-		"11C_Flashbang",
-		"11C_HEGrenade",
-		"14C_DecoyGrenade",
-		"16C_MolotovGrenade",
-		"19C_IncendiaryGrenade",
-		"15C_SensorGrenade",
-		"14C_SmokeGrenade",
+		"C_Flashbang",
+		"C_HEGrenade",
+		"C_DecoyGrenade",
+		"C_MolotovGrenade",
+		"C_IncendiaryGrenade",
+		"C_SensorGrenade",
+		"C_SmokeGrenade",
 		// grenade projectiles
-		"25C_BaseCSGrenadeProjectile",
-		"17C_DecoyProjectile",
-		"19C_MolotovProjectile",
-		"25C_SensorGrenadeProjectile",
-		"24C_SmokeGrenadeProjectile",
+		"C_BaseCSGrenadeProjectile",
+		"C_DecoyProjectile",
+		"C_MolotovProjectile",
+		"C_SensorGrenadeProjectile",
+		"C_SmokeGrenadeProjectile",
 		// props
-		"11C_CSRagdoll",
-		"13C_DynamicProp",
+		"C_CSRagdoll",
+		"C_DynamicProp",
 		// resources
-		"16C_PlayerResource",
-		"19C_CS_PlayerResource",
+		"C_PlayerResource",
+		"C_CS_PlayerResource",
 		// team
-		"8C_CSTeam"
+		"C_CSTeam"
 	};
 	
 	enum EntityType {

@@ -85,6 +85,7 @@ Wall::Wall(double refreshRate, double maxFlash, bool noTeammates, bool noUtils)
 	playerResource 		= new sPlayerResource_t;
 	
 	glow 				= new sGlowDefinitionObject_t;
+	weapon 				= new sBaseCombatWeapon_t;
 	
 }
 
@@ -116,6 +117,8 @@ void Wall::Deinit()
 		delete playerResource;
 	if (glow)
 		delete glow;
+	if (weapon)
+		delete weapon;
 }
 
 void Wall::Run()
@@ -142,9 +145,6 @@ void Wall::Run()
 
 void Wall::ApplyGlow()
 {
-	
-	sBasePlayer_t* player = nullptr;
-	
 	int health;
 	int team;
 	int i_teamNum = localPlayer->Team();
@@ -158,7 +158,6 @@ void Wall::ApplyGlow()
 		*entityList = mem->read<sEntityList_t>(entityList->m_pNext);
 		
 		if (entities.size() > MAX_ENTITIES) {
-			printf("entities > MAX_ENTITIES -> %lx\n", entities.size());
 			entities.clear();
 			return;
 		}
@@ -181,7 +180,9 @@ void Wall::ApplyGlow()
 					
 					switch (glow->Type()) {
 						case sOffsets::player:
+							
 							player = reinterpret_cast<sBasePlayer_t*>(glow);
+							
 							if (*player == *localPlayer && maxFlash != -1) {
 								if (player->FlashMaxAlpha() > maxFlash) {
 									player->SetFlashMaxAlpha(maxFlash);
@@ -199,7 +200,7 @@ void Wall::ApplyGlow()
 							health += (health == 0 ? 100 : health);
 
 							cmp = team != i_teamNum;
-
+							
 							// Glow Colors
 							glow->m_vGlowColor = {
 								float((100 - health)/100.0),
@@ -218,6 +219,11 @@ void Wall::ApplyGlow()
 						case sOffsets::hostage:
 							break;
 						case sOffsets::chicken:
+							
+							if (glow->LifeState()) {
+								break;
+							}
+							
 							// Glow Colors
 							glow->m_vGlowColor = {0.0f, 1.0f, 1.0f};
 							glow->m_flGlowAlpha = 0.8f;
@@ -230,6 +236,17 @@ void Wall::ApplyGlow()
 							glowManager->Write(glow, i);
 							break;
 						case sOffsets::C4:
+							
+							if (glow->LifeState()) {
+								break;
+							}
+							
+							*weapon = mem->read<sBaseCombatWeapon_t>(glow->m_hBase);
+							
+							if (weapon->m_iEquipped) {
+								break;
+							}
+							
 							// Glow Colors
 							glow->m_vGlowColor = {0.0f, 1.0f, 0.0f};
 							glow->m_flGlowAlpha = 0.8f;
@@ -242,6 +259,11 @@ void Wall::ApplyGlow()
 							glowManager->Write(glow, i);
 							break;
 						case sOffsets::plantedC4:
+							
+							if (glow->LifeState()) {
+								break;
+							}
+							
 							// Glow Colors
 							glow->m_vGlowColor = {1.0f, 0.0f, 0.0f};
 							glow->m_flGlowAlpha = 1.0f;
@@ -254,6 +276,17 @@ void Wall::ApplyGlow()
 							glowManager->Write(glow, i);
 							break;
 						case sOffsets::weapon:
+							
+							if (glow->LifeState()) {
+								break;
+							}
+							
+							*weapon = mem->read<sBaseCombatWeapon_t>(glow->m_hBase);
+							
+							if (weapon->m_iEquipped) {
+								break;
+							}
+							
 							// Glow Colors
 							glow->m_vGlowColor = {1.0f, 1.0f, 1.0f};
 							glow->m_flGlowAlpha = 0.8f;
@@ -266,6 +299,17 @@ void Wall::ApplyGlow()
 							glowManager->Write(glow, i);
 							break;
 						case sOffsets::kit:
+							
+							if (glow->LifeState()) {
+								break;
+							}
+							
+							*weapon = mem->read<sBaseCombatWeapon_t>(glow->m_hBase);
+							
+							if (weapon->m_iEquipped) {
+								break;
+							}
+							
 							// Glow Colors
 							glow->m_vGlowColor = {1.0f, 0.0f, 1.0f};
 							glow->m_flGlowAlpha = 0.8f;
@@ -278,6 +322,17 @@ void Wall::ApplyGlow()
 							glowManager->Write(glow, i);
 							break;
 						case sOffsets::grenade:
+							
+							if (glow->LifeState()) {
+								break;
+							}
+							
+							*weapon = mem->read<sBaseCombatWeapon_t>(glow->m_hBase);
+
+							if (weapon->m_iEquipped) {
+								break;
+							}
+
 							// Glow Colors
 							glow->m_vGlowColor = {1.0f, 1.0f, 1.0f};
 							glow->m_flGlowAlpha = 0.8f;
@@ -290,7 +345,7 @@ void Wall::ApplyGlow()
 							glowManager->Write(glow, i);
 							break;
 						case sOffsets::projectile:
-//							break;
+							break;
 						case sOffsets::props:
 							break;
 						case sOffsets::resource:
@@ -305,6 +360,11 @@ void Wall::ApplyGlow()
 		}
 	}
 	
+//	for (auto& entity: entities) {
+//		printf("%s -> 0x%llx\n", entity.EntityClass().c_str(), entity.m_hBase);
+//		entity.Print();
+//	}
+//
 //	stop.store(true);
 	
 	entities.clear();
@@ -326,8 +386,11 @@ bool Wall::EngineCheck()
 
 bool Wall::ClientCheck()
 {
-	if (off->client.m_dwLocalPlayer == 0x0 || off->client.m_dwEntityList == 0x0 || off->client.m_dwGlowManager == 0x0) {
-		GetClientPointers();
+	bool cmp = (off->client.m_dwLocalPlayer == 0x0 || off->client.m_dwEntityList == 0x0 || off->client.m_dwGlowManager == 0x0);
+	
+	GetClientPointers();
+	
+	if (cmp) {
 		printf("Local Player\t\t\t= %s0x%llx%s\n", cT::getColor(cT::fG::green).c_str(), off->client.m_dwLocalPlayer, cT::getStyle(cT::sT::bold).c_str());
 		printf("Entity List\t\t\t= %s0x%llx%s\n", cT::getColor(cT::fG::green).c_str(), off->client.m_dwEntityList, cT::getStyle(cT::sT::bold).c_str());
 		printf("Glow Manager\t\t\t= %s0x%llx%s\n", cT::getColor(cT::fG::green).c_str(), off->client.m_dwGlowManager, cT::getStyle(cT::sT::bold).c_str());
@@ -417,13 +480,22 @@ std::string Wall::sBaseEntity_t::EntityClass()
 	uint64_t vtable = mem->read<uint64_t>(m_hBase + 0x8);
 	uint64_t fn = mem->read<uint64_t>(vtable - 0x8);
 	uint64_t cls = mem->read<uint64_t>(fn + 0x8);
-	return mem->readString(cls);
+	std::string clsName = mem->readString(cls);
+	auto delim = clsName.find_first_of("C");
+	if (delim != std::string::npos) {
+		return std::string(clsName.c_str(), delim, clsName.length() - delim);
+	}
+	return clsName;
 }
 
-int Wall::sBaseEntity_t::SpottedBy()
-{
-	return mem->read<int>(m_hBase + off->client.m_bSpottedBy);
-}
+
+//int Wall::sBaseEntity_t::GetOwner()
+//{
+////	return mem->read<int>(m_hBase + off->client.m_hOwner);
+//	return 0;
+//}
+
+
 
 sOffsets::EntityType Wall::sBaseEntity_t::Type()
 {
@@ -435,6 +507,21 @@ Byte Wall::sBaseEntity_t::EFlags()
 	return mem->read<Byte>(m_hBase + off->client.m_iEFlags);
 }
 
+int Wall::sBaseEntity_t::Team()
+{
+	return mem->read<int>(m_hBase + off->client.m_iTeam);
+}
+
+int Wall::sBaseEntity_t::SpottedBy()
+{
+	return mem->read<int>(m_hBase + off->client.m_bSpottedBy);
+}
+
+bool Wall::sBaseEntity_t::Spotted()
+{
+	return mem->read<bool>(m_hBase + off->client.m_bSpotted);
+}
+
 bool Wall::sBaseEntity_t::IsDormant()
 {
 	return mem->read<bool>(m_hBase + off->client.m_bDormant);
@@ -443,11 +530,6 @@ bool Wall::sBaseEntity_t::IsDormant()
 bool Wall::sBaseEntity_t::LifeState()
 {
 	return mem->read<bool>(m_hBase + off->client.m_bLifeState);
-}
-
-bool Wall::sBaseEntity_t::Spotted()
-{
-	return mem->read<bool>(m_hBase + off->client.m_bSpotted);
 }
 
 bool Wall::sBaseEntity_t::IsWeapon()
@@ -492,12 +574,17 @@ void Wall::sBaseEntity_t::Print()
 	printf("m_bSpotted = %i\n", Spotted());
 	printf("m_bSpottedBy = %i\n", SpottedBy());
 	printf("Entity Type = %i\n", Type());
+	printf("m_iTeam = %i\n", Team());
+	printf("m_bDormant = %i\n", IsDormant());
+	printf("m_bLifeState = %i\n", LifeState());
 	printf("Is Weapon = %i\n", IsWeapon());
 	printf("Is Bomb = %i\n", IsBomb());
 	printf("Is Chicken = %i\n", IsChicken());
 	printf("Is Player = %i\n", IsPlayer());
 	printf("\n");
 }
+
+
 
 double Wall::sBasePlayer_t::FlashMaxAlpha()
 {
@@ -512,11 +599,6 @@ float Wall::sBasePlayer_t::FlashDuration()
 int Wall::sBasePlayer_t::Health()
 {
 	return mem->read<int>(m_hBase + off->client.m_iHealth);
-}
-
-int Wall::sBasePlayer_t::Team()
-{
-	return mem->read<int>(m_hBase + off->client.m_iTeam);
 }
 
 int Wall::sBasePlayer_t::GlowIndex()
@@ -544,6 +626,31 @@ bool Wall::sBasePlayer_t::IsCrouching()
 	return EFlags() & FL_DUCKING;
 }
 
+void Wall::sBasePlayer_t::GetAllWeapons(uint64_t* weaponArray)
+{
+	for (int i = 0; i < 16; ++i) {
+		uint64_t weaponHandle = mem->read<uint32_t>(m_hBase + off->client.m_hMyWeapons + (sizeof(uint32_t) * i)) & 0xFFF;
+		if((int)weaponHandle != -1) {
+			weaponArray[i] = mem->read<uint64_t>(
+												 off->client.m_dwEntityList +
+												 ((weaponHandle - 1) * sizeof(sEntityList_t))
+												 );
+		} else {
+			weaponArray[i] = 0x0;
+		}
+	}
+}
+
+uint64_t Wall::sBasePlayer_t::GetActiveWeapon()
+{
+	uint64_t dwBaseCombatWeaponIndex =  mem->read<uint32_t>(m_hBase + off->client.m_hActiveWeapon) & 0xFFF;
+	
+	return mem->read<uint64_t>(
+										 off->client.m_dwEntityList +
+										 ((dwBaseCombatWeaponIndex - 1) * sizeof(sEntityList_t))
+										 );
+}
+
 void Wall::sBasePlayer_t::SetFlashMaxAlpha(double x)
 {
 	if (this->IsValid()) {
@@ -557,11 +664,8 @@ void Wall::sBasePlayer_t::Print()
 	printf("m_flFlashMaxAlpha = %f\n", FlashMaxAlpha());
 	printf("m_flFlashDuration = %f\n", FlashDuration());
 	printf("m_iHealth = %i\n", Health());
-	printf("m_iTeam = %i\n", Team());
-	printf("m_iTeam = %i\n", GlowIndex());
+	printf("m_iGlowIndex = %i\n", GlowIndex());
 	printf("m_iShotFired = %i\n", ShotsFired());
-	printf("m_bDormant = %i\n", IsDormant());
-	printf("m_bLifeState = %i\n", LifeState());
 	printf("m_bHasMovedSinceSpawn = %i\n", HasMovedSinceSpawn());
 	printf("Is Jumping = %i\n", IsJumping());
 	printf("Is Crouching = %i\n", IsCrouching());
@@ -617,10 +721,8 @@ int Wall::sGlowManager_t::Size()
 
 void Wall::sGlowManager_t::Write(Wall::sGlowDefinitionObject_t* glowObject, int index)
 {
-	if (this->IsValid()) {
+	if (this->IsValid() && glowObject->IsValid()) {
 		mem->write<sGlowDefinitionObject_t>(m_hBase + (sizeof(sGlowDefinitionObject_t) * index), *glowObject);
-	} else {
-		printf("%s -> 0x%llx\n", "Invalid", m_hBase);
 	}
 }
 
