@@ -183,8 +183,8 @@ void Wall::ApplyGlow()
 							
 							player = reinterpret_cast<sBasePlayer_t*>(glow);
 							
-							if (*player == *localPlayer && maxFlash != -1) {
-								if (player->FlashMaxAlpha() > maxFlash) {
+							if (*player == *localPlayer) {
+								if (maxFlash != -1 && player->FlashMaxAlpha() > maxFlash) {
 									player->SetFlashMaxAlpha(maxFlash);
 								}
 								break;
@@ -360,12 +360,12 @@ void Wall::ApplyGlow()
 		}
 	}
 	
-//	for (auto& entity: entities) {
-//		printf("%s -> 0x%llx\n", entity.EntityClass().c_str(), entity.m_hBase);
+	for (auto& entity: entities) {
+		printf("%s -> 0x%llx\n", entity.EntityClass().c_str(), entity.m_hBase);
 //		entity.Print();
-//	}
-//
-//	stop.store(true);
+	}
+
+	stop.store(true);
 	
 	entities.clear();
 }

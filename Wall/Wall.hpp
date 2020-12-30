@@ -23,6 +23,8 @@
 #include "Offsets.hpp"
 #include "ColorText.hpp"
 
+#include <stdio.h>
+#include <stdlib.h>
 #include <iostream>
 #include <algorithm>
 #include <string>
@@ -92,17 +94,17 @@ private:
 
 struct Wall::sBaseEntity_t {
 	uint64_t 	m_hBase;
-	
+
 	std::string EntityClass();
-	
+
 	sOffsets::EntityType Type();
-	
+
 	Byte		EFlags();
-	
+
 	//	int 		GetOwner();
 	int 		Team();
 	int 		SpottedBy();
-	
+
 	bool 		Spotted();
 	bool		IsDormant();
 	bool 		LifeState();
@@ -110,34 +112,34 @@ struct Wall::sBaseEntity_t {
 	bool		IsBomb();
 	bool		IsChicken();
 	bool		IsPlayer();
-	
+
 	bool 		IsValid();
 	bool 		IsValid(uint64_t ptr);
-	
+
 	bool 		operator == (const sBaseEntity_t& rhs);
-	
+
 	void 		Print();
 };
 
 struct Wall::sBasePlayer_t: public sBaseEntity_t {
 	double		FlashMaxAlpha();
 	float		FlashDuration();
-	
+
 	int 		Health();
 	int 		GlowIndex();
 	int 		ShotsFired();
-	
+
 	bool 		HasMovedSinceSpawn();
 	bool 		IsJumping();
 	bool 		IsCrouching();
-	
+
 	void 		GetAllWeapons(uint64_t* weaponArray);
 	uint64_t 	GetActiveWeapon();
-	
+
 	void 		SetFlashMaxAlpha(double x);
-	
+
 	void 		Print();
-	
+
 };
 
 struct Wall::sBaseCombatWeapon_t: public sBaseEntity_t {
@@ -158,7 +160,7 @@ struct Wall::sEntityList_t: public sBaseEntity_t {
 	char 		m_SerialNum[0x8];
 	uint64_t 	m_pPrevious;
 	uint64_t 	m_pNext;
-	
+
 	void 		Print();
 };
 
@@ -168,7 +170,7 @@ struct Wall::sGlowDefinitionObject_t: public sBaseEntity_t {
 		float g;
 		float b;
 	};
-	
+
 	Vector 		m_vGlowColor;
 	float 		m_flGlowAlpha;
 	char 		unk1[0x10];
@@ -176,7 +178,7 @@ struct Wall::sGlowDefinitionObject_t: public sBaseEntity_t {
 	bool 		m_bRenderWhenUnoccluded;
 	bool 		FullBloom;
 	char 		unk2[0x15];
-	
+
 	void 		Print();
 };
 
@@ -185,20 +187,20 @@ struct Wall::sGlowManager_t: public sBaseEntity_t {
 	char 		unk1[0x4]; // padding
 	int			m_iGlowListSize;
 	char 		unk2[0x4]; // padding
-	
+
 	sGlowDefinitionObject_t Get(int index);
-	
+
 	int			Capacity();
 	int 		Size();
-	
+
 	void 		Write(Wall::sGlowDefinitionObject_t* glowObject, int index);
-	
+
 	void 		Print();
 };
 
 struct Wall::sPlayerResource_t: public sBaseEntity_t {
 	std::string Clan(int index);
-	
+
 	int 		Kills(int index);
 	int		 	Assists(int index);
 	int		 	Deaths(int index);
@@ -211,11 +213,11 @@ struct Wall::sPlayerResource_t: public sBaseEntity_t {
 	int			CompetitiveWins(int index);
 	int 		TotalCashSpent(int index);
 	int 		CashSpentThisRound(int index);
-	
+
 	bool 		Connected(int index);
 	bool		HasDefuser(int index);
 	bool 		HasHelmet(int index);
-	
+
 	void 		Print();
 };
 

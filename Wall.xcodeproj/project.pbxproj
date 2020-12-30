@@ -12,6 +12,7 @@
 		6057394424CA203B006E0D11 /* MemMngr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6057394324CA203B006E0D11 /* MemMngr.cpp */; };
 		6057394624CA212B006E0D11 /* Scanner.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6057394524CA212B006E0D11 /* Scanner.cpp */; };
 		6057394824CA219A006E0D11 /* Wall.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 6057394724CA219A006E0D11 /* Wall.cpp */; };
+		EA59F1E52596774100CDF1AE /* SDK.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA59F1E32596774100CDF1AE /* SDK.cpp */; };
 		EA7F508223867EDD00DE777B /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA7F508023867EDD00DE777B /* main.cpp */; };
 /* End PBXBuildFile section */
 
@@ -36,6 +37,8 @@
 		6057394324CA203B006E0D11 /* MemMngr.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MemMngr.cpp; sourceTree = "<group>"; };
 		6057394524CA212B006E0D11 /* Scanner.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Scanner.cpp; sourceTree = "<group>"; };
 		6057394724CA219A006E0D11 /* Wall.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Wall.cpp; sourceTree = "<group>"; };
+		EA59F1E32596774100CDF1AE /* SDK.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SDK.cpp; sourceTree = "<group>"; };
+		EA59F1E42596774100CDF1AE /* SDK.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = SDK.hpp; sourceTree = "<group>"; };
 		EA7F508023867EDD00DE777B /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		EA7F508123867EDD00DE777B /* Offsets.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Offsets.hpp; sourceTree = "<group>"; };
 		EA87B8672380933800C4597F /* MemMngr.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = MemMngr.hpp; sourceTree = "<group>"; };
@@ -76,6 +79,8 @@
 			isa = PBXGroup;
 			children = (
 				EA7F508123867EDD00DE777B /* Offsets.hpp */,
+				EA59F1E42596774100CDF1AE /* SDK.hpp */,
+				EA59F1E32596774100CDF1AE /* SDK.cpp */,
 				60496661249941CC004DE196 /* ColorText.hpp */,
 				EA87B8682380933800C4597F /* Process.hpp */,
 				6057394124CA1F81006E0D11 /* Process.cpp */,
@@ -147,6 +152,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EA59F1E52596774100CDF1AE /* SDK.cpp in Sources */,
 				EA7F508223867EDD00DE777B /* main.cpp in Sources */,
 				6057394424CA203B006E0D11 /* MemMngr.cpp in Sources */,
 				6057394624CA212B006E0D11 /* Scanner.cpp in Sources */,
