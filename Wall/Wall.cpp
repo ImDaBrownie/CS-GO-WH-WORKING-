@@ -360,12 +360,12 @@ void Wall::ApplyGlow()
 		}
 	}
 	
-	for (auto& entity: entities) {
-		printf("%s -> 0x%llx\n", entity.EntityClass().c_str(), entity.m_hBase);
-//		entity.Print();
-	}
+//	for (auto& entity: entities) {
+//		printf("%s -> 0x%llx\n", entity.EntityClass().c_str(), entity.m_hBase);
+////		entity.Print();
+//	}
 
-	stop.store(true);
+//	stop.store(true);
 	
 	entities.clear();
 }
