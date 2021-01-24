@@ -269,7 +269,7 @@ void Wall::ApplyGlow()
 							glow->m_flGlowAlpha = 1.0f;
 
 							// Enables Glow
-							glow->m_bRenderWhenOccluded = !noUtils;
+							glow->m_bRenderWhenOccluded = (!noUtils | (reinterpret_cast<sBasePlantedC4_t*>(glow)->State() == 1));
 							glow->m_bRenderWhenUnoccluded = false;
 
 							// Write to Memory
@@ -672,7 +672,21 @@ void Wall::sBasePlayer_t::Print()
 	printf("\n\n");
 }
 
+void Wall::sBaseCombatWeapon_t::Print()
+{
+	reinterpret_cast<sBaseEntity_t*>(this)->Print();
+	printf("m_iEquipped = %i\n", m_iEquipped);
+	printf("m_iClip1 = %i\n", m_iClip1);
+	printf("m_iClip2 = %i\n", m_iClip2);
+	printf("m_primaryReserveAmmoCount = %i\n", m_primaryReserveAmmoCount);
+	printf("m_secondaryReserveAmmoCount = %i\n", m_secondaryReserveAmmoCount);
+	printf("\n\n");
+}
 
+int Wall::sBasePlantedC4_t::State()
+{
+	return mem->read<int>(m_hBase + off->client.m_iC4State);
+}
 
 
 void Wall::sEntityList_t::Print()

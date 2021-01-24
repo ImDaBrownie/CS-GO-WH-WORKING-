@@ -36,6 +36,7 @@ class Wall {
 	struct sBaseEntity_t;
 	struct sBasePlayer_t;
 	struct sBaseCombatWeapon_t;
+	struct sBasePlantedC4_t;
 	struct sEntityList_t;
 	struct sGlowDefinitionObject_t;
 	struct sGlowManager_t;
@@ -154,6 +155,13 @@ struct Wall::sBaseCombatWeapon_t: public sBaseEntity_t {
 	char		unk4[0x4];
 	int 		m_secondaryReserveAmmoCount;
 	char		unk5[0x4];
+	
+	void 		Print();
+};
+
+struct Wall::sBasePlantedC4_t: public sBaseEntity_t {
+	int			State();
+//	void 		Print();
 };
 
 struct Wall::sEntityList_t: public sBaseEntity_t {
