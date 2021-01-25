@@ -21,10 +21,6 @@ Wall::Wall(double refreshRate, double maxFlash, bool noTeammates, bool noUtils)
 	
 	stop.store(false);
 	
-	g_cProc 			= new Process;
-	mem 				= new MemMngr(g_cProc);
-	off 				= new sOffsets;
-	
 	g_cProc->mainPid() 	= g_cProc->get("csgo_osx64");
 	
 	if (g_cProc->mainPid() != -1) {
@@ -388,9 +384,8 @@ bool Wall::ClientCheck()
 {
 	bool cmp = (off->client.m_dwLocalPlayer == 0x0 || off->client.m_dwEntityList == 0x0 || off->client.m_dwGlowManager == 0x0);
 	
-	GetClientPointers();
-	
 	if (cmp) {
+		GetClientPointers();
 		printf("Local Player\t\t\t= %s0x%llx%s\n", cT::getColor(cT::fG::green).c_str(), off->client.m_dwLocalPlayer, cT::getStyle(cT::sT::bold).c_str());
 		printf("Entity List\t\t\t= %s0x%llx%s\n", cT::getColor(cT::fG::green).c_str(), off->client.m_dwEntityList, cT::getStyle(cT::sT::bold).c_str());
 		printf("Glow Manager\t\t\t= %s0x%llx%s\n", cT::getColor(cT::fG::green).c_str(), off->client.m_dwGlowManager, cT::getStyle(cT::sT::bold).c_str());
@@ -471,8 +466,6 @@ Process* Wall::g_cProc = new Process;
 MemMngr* Wall::mem = new MemMngr(g_cProc);
 
 sOffsets* Wall::off = new sOffsets;
-
-
 
 
 std::string Wall::sBaseEntity_t::EntityClass()
