@@ -34,16 +34,20 @@ We believe that you know what you are doing. You should get this software for fr
 
 
 ## Usage: 
-	sudo ./Wall [-f <max flash alpha>] [-r <refresh rate>] [-t] [-u] [-o] [-h]
+	Usage:
+	sudo ./Wall [-f <max flash alpha>] [-r <refresh rate>] [-a <glow alpha>] [-s] [-t] [-u] [-o] [-h]
 
-	-f <flash alpha>	: Antiflash alpha max amount (default: 100.0, disable: -1, range: [0-2700])
+	Terminate:
+	Type "stop" or "exit" or "quit" or "q" and press the Return key or terminate csgo
+
+	-f <flash alpha>	: Antiflash alpha max amount (default: -1, disable: -1, range: [0-2700])
 	-r <refresh rate>	: Refresh rate in microseconds (default: 10000.0)
-	-t			: Disables teammate glow
-	-u			: Disables weapons/utility/bomb/chicken glow
+	-a <glow alpha>		: Glow alpha (default 0.5, range: [0-1])
+	-s			: Enables Spotted on Radar
+	-t			: Enable teammate glow
+	-u			: Enable weapons/utility/bomb/chicken glow
 	-o			: Get new offsets (only use with -insecure launch option flag in CSGO)
 	-h			: Display this message
-		
-	Stop by typing "stop", "exit", "quit", "q" or terminating csgo
 	
 	Note:
 	1) -o is currently unavailable

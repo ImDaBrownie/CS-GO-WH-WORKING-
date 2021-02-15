@@ -39,11 +39,15 @@
 
 void usage(const char* exec) {
 	printf("%s\n", cT::print("\nUsage:", cT::fG::green).c_str());
-	printf("\tsudo %s [-f <max flash alpha>] [-r <refresh rate>] [-t] [-u] [-o] [-h]\n\n", cT::print(exec, cT::fG::yellow).c_str());
-	printf("\t-f <flash alpha>\t: Antiflash alpha max amount (default: 100.0, disable: -1, range: [0-2700])\n");
+	printf("\tsudo %s [-f <max flash alpha>] [-r <refresh rate>] [-a <glow alpha>] [-s] [-t] [-u] [-o] [-h]\n", cT::print(exec, cT::fG::yellow).c_str());
+	printf("%s\n", cT::print("\nTerminate:", cT::fG::red).c_str());
+	printf("\tType \"%s\" or \"%s\" or \"%s\" or \"%s\" and press the Return key or terminate csgo\n\n", cT::print("stop", cT::fG::yellow).c_str(), cT::print("exit", cT::fG::yellow).c_str(), cT::print("quit", cT::fG::yellow).c_str(), cT::print("q", cT::fG::yellow).c_str());
+	printf("\t-f <flash alpha>\t: Antiflash alpha max amount (default: -1, disable: -1, range: [0-2700])\n");
 	printf("\t-r <refresh rate>\t: Refresh rate in microseconds (default: 10000.0)\n");
-	printf("\t-t\t\t\t: Disables teammate glow\n");
-	printf("\t-u\t\t\t: Disables weapons/utility/bomb/chicken glow\n");
+	printf("\t-a <glow alpha>\t\t: Glow alpha (default 0.5, range: [0-1])\n");
+	printf("\t-s\t\t\t: Enables Spotted on Radar\n");
+	printf("\t-t\t\t\t: Enable teammate glow\n");
+	printf("\t-u\t\t\t: Enable weapons/utility/bomb/chicken glow\n");
 	
 	printf("\t-o\t\t\t: Get new offsets (only use with -insecure launch option flag in CSGO)\n");
 	printf("\t-h\t\t\t: Display this message\n\n");
@@ -52,15 +56,17 @@ void usage(const char* exec) {
 int main(int argc, char** argv) {
 	
 	double refreshRate 	= 10000.0f;
-	double maxFlash 	= 100.0f;
+	double maxFlash 	= -1.0f;
+	double glowAlpha 	= 0.5f;
 
 	int opt;
 
 	bool getOffsets 	= false;
-	bool noTeammates 	= false;
-	bool noUtils 		= false;
+	bool noTeammates 	= true;
+	bool noUtils 		= true;
+	bool spotted 		= false;
 	
-	while ((opt =  getopt(argc, argv, "f:r:tuoh")) != -1) {
+	while ((opt =  getopt(argc, argv, "f:r:a:stuoh")) != -1) {
 		switch (opt) {
 			case 'f':
 				try {
@@ -86,11 +92,25 @@ int main(int argc, char** argv) {
 					return 0;
 				}
 				break;
+			case 'a':
+				try {
+					if (strlen(optarg))
+						glowAlpha = std::stod(optarg);
+				} catch (const std::invalid_argument&) {
+					printf("%s%s%s\n", cT::print("Error: ", cT::fG::red).c_str(), optarg, cT::print(" is not a number", cT::fG::red).c_str());
+					return 0;
+				} catch (const std::out_of_range&) {
+					printf("%s%s%s\n", cT::print("Error: ", cT::fG::red).c_str(), optarg, cT::print(" is out of range for a double", cT::fG::red).c_str());
+					return 0;
+				}
+				break;
+			case 's':
+				spotted = true;
 			case 't':
-				noTeammates = true;
+				noTeammates = false;
 				break;
 			case 'u':
-				noUtils = true;
+				noUtils = false;
 				break;
 			case 'o': // temporarily disabled
 				getOffsets = true;
@@ -105,7 +125,7 @@ int main(int argc, char** argv) {
 	std::system("defaults write .GlobalPreferences com.apple.mouse.scaling -1");
 	std::system("clear");
 	
-	Wall wall(refreshRate, maxFlash, noTeammates, noUtils);
+	Wall wall(refreshRate, maxFlash, glowAlpha, noTeammates, noUtils, spotted);
 
 	wall.Run();
 	

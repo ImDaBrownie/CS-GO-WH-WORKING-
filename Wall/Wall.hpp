@@ -63,9 +63,11 @@ class Wall {
 	off_t client_moduleLength 			= 0;
 	
 	double refreshRate 					= 10000.0f;
-	double maxFlash 					= 100.0f;
-	bool noTeammates 					= false;
-	bool noUtils 						= false;
+	double maxFlash 					= -1.0f;
+	double glowAlpha 					= 0.5f;
+	bool noTeammates 					= true;
+	bool noUtils 						= true;
+	bool spotted 						= false;
 	
 	static Process* g_cProc;
 	static MemMngr* mem;
@@ -74,7 +76,7 @@ class Wall {
 	static std::atomic<bool> stop;
 	
 public:
-	explicit Wall(double refreshRate = 10000.0f, double maxFlash = 100.0f, bool noTeammates = false, bool noUtils = false);
+	explicit Wall(double refreshRate, double maxFlash, double glowAlpha, bool noTeammates, bool noUtils, bool spotted);
 	~Wall();
 	
 	void 		Run();
@@ -119,6 +121,7 @@ struct Wall::sBaseEntity_t {
 
 	bool 		operator == (const sBaseEntity_t& rhs);
 
+	void 		SetSpotted(bool x);
 	void 		Print();
 };
 
