@@ -209,7 +209,7 @@ void Wall::ApplyGlow()
 							cmp ? float((health)/100.0) : 0.0f,
 							cmp ? 0.0f : float((health)/100.0)
 						};
-						glow->m_flGlowAlpha = 0.5f;
+						glow->m_flGlowAlpha = glowAlpha;
 
 						// Enables Glow
 						glow->m_bRenderWhenOccluded = true;
@@ -228,7 +228,7 @@ void Wall::ApplyGlow()
 
 						// Glow Colors
 						glow->m_vGlowColor = {0.0f, 1.0f, 1.0f};
-						glow->m_flGlowAlpha = 0.8f;
+						glow->m_flGlowAlpha = glowAlpha;
 
 						// Enables Glow
 						glow->m_bRenderWhenOccluded = !noUtils;
@@ -251,7 +251,7 @@ void Wall::ApplyGlow()
 						
 						// Glow Colors
 						glow->m_vGlowColor = {0.0f, 1.0f, 0.0f};
-						glow->m_flGlowAlpha = 0.8f;
+						glow->m_flGlowAlpha = glowAlpha;
 
 						// Enables Glow
 						glow->m_bRenderWhenOccluded = !noUtils;
@@ -268,7 +268,7 @@ void Wall::ApplyGlow()
 						
 						// Glow Colors
 						glow->m_vGlowColor = {1.0f, 0.0f, 0.0f};
-						glow->m_flGlowAlpha = 1.0f;
+						glow->m_flGlowAlpha = glowAlpha;
 
 						// Enables Glow
 						glow->m_bRenderWhenOccluded = (!noUtils | (reinterpret_cast<sBasePlantedC4_t*>(glow)->State() == 1));
@@ -291,7 +291,7 @@ void Wall::ApplyGlow()
 						
 						// Glow Colors
 						glow->m_vGlowColor = {1.0f, 1.0f, 1.0f};
-						glow->m_flGlowAlpha = 0.8f;
+						glow->m_flGlowAlpha = glowAlpha;
 
 						// Enables Glow
 						glow->m_bRenderWhenOccluded = !noUtils;
@@ -314,7 +314,7 @@ void Wall::ApplyGlow()
 						
 						// Glow Colors
 						glow->m_vGlowColor = {1.0f, 0.0f, 1.0f};
-						glow->m_flGlowAlpha = 0.8f;
+						glow->m_flGlowAlpha = glowAlpha;
 						
 						// Enables Glow
 						glow->m_bRenderWhenOccluded = !noUtils;
@@ -337,7 +337,7 @@ void Wall::ApplyGlow()
 
 						// Glow Colors
 						glow->m_vGlowColor = {1.0f, 1.0f, 1.0f};
-						glow->m_flGlowAlpha = 0.8f;
+						glow->m_flGlowAlpha = glowAlpha;
 
 						// Enables Glow
 						glow->m_bRenderWhenOccluded = !noUtils;
