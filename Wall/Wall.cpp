@@ -80,6 +80,7 @@ Wall::Wall(double refreshRate, double maxFlash, double glowAlpha, bool noTeammat
 	localPlayer 		= new sBasePlayer_t;
 	entityList 			= new sEntityList_t;
 	glowManager 		= new sGlowManager_t;
+	radarManager 		= new sRadarManager_t;
 	playerResource 		= new sPlayerResource_t;
 	
 	glow 				= new sGlowDefinitionObject_t;
@@ -109,6 +110,8 @@ void Wall::Deinit()
 		delete entityList;
 	if (glowManager)
 		delete glowManager;
+	if (radarManager)
+		delete radarManager;
 	if (playerResource)
 		delete playerResource;
 	if (glow)
