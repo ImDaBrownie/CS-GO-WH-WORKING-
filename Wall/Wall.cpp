@@ -125,8 +125,10 @@ void Wall::Run()
 	
 	while (g_cProc->mainPid() != -1 && g_cProc->mainPid() != -1 && !stop.load()) {
 		if (EngineCheck()) {
-			if (ClientCheck() && mem->read<int>(off->engine.m_dwCEngineClientBase + off->engine.m_dwIsInGame) == 6) {
-				ApplyGlow();
+			if (mem->read<int>(off->engine.m_dwCEngineClientBase + off->engine.m_dwIsInGame) == 6) {
+				if (ClientCheck()) {
+					ApplyGlow();
+				}
 			}
 		}
 		
@@ -150,195 +152,188 @@ void Wall::ApplyGlow()
 		
 		*glow = glowManager->Get(i);
 		
-		if (glow->IsValid()) {
+		if (glow->IsValid() && !glow->IsDormant()) {
 			
 			team = glow->Team();
-
-			if (!glow->IsDormant() && team) {
 				
-				switch (glow->Type()) {
-					case sOffsets::player:
-						
-						player = reinterpret_cast<sBasePlayer_t*>(glow);
-						
-						if (player->LifeState()) {
-							break;
-						}
-						
-						if (*player == *localPlayer) {
-							if (maxFlash != -1 && player->FlashMaxAlpha() > maxFlash) {
-								player->SetFlashMaxAlpha(maxFlash);
-							}
-							break;
-						}
-						
-						if (spotted) {
-							player->SetSpotted(spotted);
-						}
-
-						if (noTeammates && team == i_teamNum) {
-							break;
-						}
-
-						health = player->Health();
-						health += (health == 0 ? 100 : health);
-
-						cmp = team != i_teamNum;
-						
-						// Glow Colors
-						glow->m_vGlowColor = {
-							float((100 - health)/100.0),
-							cmp ? float((health)/100.0) : 0.0f,
-							cmp ? 0.0f : float((health)/100.0)
-						};
-						glow->m_flGlowAlpha = glowAlpha;
-
-						// Enables Glow
-						glow->m_bRenderWhenOccluded = true;
-						glow->m_bRenderWhenUnoccluded = false;
-
-						// Write to Memory
-						glowManager->Write(glow, i);
+			switch (glow->Type()) {
+				case sOffsets::player:
+					
+					player = reinterpret_cast<sBasePlayer_t*>(glow);
+					
+					if (player->LifeState()) {
 						break;
-					case sOffsets::hostage:
-						break;
-					case sOffsets::chicken:
-						
-						if (glow->LifeState()) {
-							break;
+					}
+					
+					if (*player == *localPlayer) {
+						if (maxFlash != -1 && player->FlashMaxAlpha() > maxFlash) {
+							player->SetFlashMaxAlpha(maxFlash);
 						}
-
-						// Glow Colors
-						glow->m_vGlowColor = {0.0f, 1.0f, 1.0f};
-						glow->m_flGlowAlpha = glowAlpha;
-
-						// Enables Glow
-						glow->m_bRenderWhenOccluded = !noUtils;
-						glow->m_bRenderWhenUnoccluded = false;
-
-						// Write to Memory
-						glowManager->Write(glow, i);
 						break;
-					case sOffsets::C4:
-						
-						if (glow->LifeState()) {
-							break;
-						}
-						
-						weapon = reinterpret_cast<sBaseCombatWeapon_t*>(glow);
-						
-						if (weapon->m_iEquipped) {
-							break;
-						}
-						
-						// Glow Colors
-						glow->m_vGlowColor = {0.0f, 1.0f, 0.0f};
-						glow->m_flGlowAlpha = glowAlpha;
+					}
+					
+					if (spotted) {
+						player->SetSpotted(spotted);
+					}
 
-						// Enables Glow
-						glow->m_bRenderWhenOccluded = !noUtils;
-						glow->m_bRenderWhenUnoccluded = false;
+					if (noTeammates && team == i_teamNum) {
+						break;
+					}
 
-						// Write to Memory
-						glowManager->Write(glow, i);
-						break;
-					case sOffsets::plantedC4:
-						
-						if (glow->LifeState()) {
-							break;
-						}
-						
-						// Glow Colors
-						glow->m_vGlowColor = {1.0f, 0.0f, 0.0f};
-						glow->m_flGlowAlpha = glowAlpha;
+					health = player->Health();
+					health += (health == 0 ? 100 : health);
 
-						// Enables Glow
-						glow->m_bRenderWhenOccluded = (!noUtils | (reinterpret_cast<sBasePlantedC4_t*>(glow)->State() == 1));
-						glow->m_bRenderWhenUnoccluded = false;
+					cmp = team != i_teamNum;
+					
+					// Glow Colors
+					glow->m_vGlowColor = {
+						float((100 - health)/100.0),
+						cmp ? float((health)/100.0) : 0.0f,
+						cmp ? 0.0f : float((health)/100.0)
+					};
+					glow->m_flGlowAlpha = glowAlpha;
 
-						// Write to Memory
-						glowManager->Write(glow, i);
-						break;
-					case sOffsets::weapon:
-						
-						if (glow->LifeState()) {
-							break;
-						}
-						
-						weapon = reinterpret_cast<sBaseCombatWeapon_t*>(glow);
-						
-						if (weapon->m_iEquipped) {
-							break;
-						}
-						
-						// Glow Colors
-						glow->m_vGlowColor = {1.0f, 1.0f, 1.0f};
-						glow->m_flGlowAlpha = glowAlpha;
+					// Enables Glow
+					glow->m_bRenderWhenOccluded = true;
+					glow->m_bRenderWhenUnoccluded = false;
 
-						// Enables Glow
-						glow->m_bRenderWhenOccluded = !noUtils;
-						glow->m_bRenderWhenUnoccluded = false;
+					// Write to Memory
+					glowManager->Write(glow, i);
+					break;
+				case sOffsets::hostage:
+					break;
+				case sOffsets::chicken:
+					
+					if (glow->LifeState()) {
+						break;
+					}
 
-						// Write to Memory
-						glowManager->Write(glow, i);
-						break;
-					case sOffsets::kit:
-						
-						if (glow->LifeState()) {
-							break;
-						}
-						
-						weapon = reinterpret_cast<sBaseCombatWeapon_t*>(glow);
-						
-						if (weapon->m_iEquipped) {
-							break;
-						}
-						
-						// Glow Colors
-						glow->m_vGlowColor = {1.0f, 0.0f, 1.0f};
-						glow->m_flGlowAlpha = glowAlpha;
-						
-						// Enables Glow
-						glow->m_bRenderWhenOccluded = !noUtils;
-						glow->m_bRenderWhenUnoccluded = false;
-						
-						// Write to Memory
-						glowManager->Write(glow, i);
-						break;
-					case sOffsets::grenade:
-						
-						if (glow->LifeState()) {
-							break;
-						}
-						
-						weapon = reinterpret_cast<sBaseCombatWeapon_t*>(glow);
+					// Glow Colors
+					glow->m_vGlowColor = {0.0f, 1.0f, 1.0f};
+					glow->m_flGlowAlpha = 1.0f;
 
-						if (weapon->m_iEquipped) {
-							break;
-						}
+					// Enables Glow
+					glow->m_bRenderWhenOccluded = !noUtils;
+					glow->m_bRenderWhenUnoccluded = false;
 
-						// Glow Colors
-						glow->m_vGlowColor = {1.0f, 1.0f, 1.0f};
-						glow->m_flGlowAlpha = glowAlpha;
+					// Write to Memory
+					glowManager->Write(glow, i);
+					break;
+				case sOffsets::C4:
+					
+					weapon = reinterpret_cast<sBaseCombatWeapon_t*>(glow);
+					
+					if (weapon->State()) {
+						break;
+					}
+					
+					// Glow Colors
+					glow->m_vGlowColor = {0.0f, 1.0f, 0.0f};
+					glow->m_flGlowAlpha = 1.0f;
 
-						// Enables Glow
-						glow->m_bRenderWhenOccluded = !noUtils;
-						glow->m_bRenderWhenUnoccluded = false;
+					// Enables Glow
+					glow->m_bRenderWhenOccluded = !noUtils;
+					glow->m_bRenderWhenUnoccluded = false;
 
-						// Write to Memory
-						glowManager->Write(glow, i);
+					// Write to Memory
+					glowManager->Write(glow, i);
+					break;
+				case sOffsets::plantedC4:
+					
+					if (glow->LifeState()) {
 						break;
-					case sOffsets::projectile:
+					}
+					
+					// Glow Colors
+					glow->m_vGlowColor = {1.0f, 0.0f, 0.0f};
+					glow->m_flGlowAlpha = 1.0f;
+
+					// Enables Glow
+					glow->m_bRenderWhenOccluded = (!noUtils | (reinterpret_cast<sBasePlantedC4_t*>(glow)->State() == 1));
+					glow->m_bRenderWhenUnoccluded = false;
+
+					// Write to Memory
+					glowManager->Write(glow, i);
+					break;
+				case sOffsets::weapon:
+					
+					weapon = reinterpret_cast<sBaseCombatWeapon_t*>(glow);
+					
+					if (weapon->State()) {
 						break;
-					case sOffsets::props:
+					}
+					
+					// Glow Colors
+					glow->m_vGlowColor = {1.0f, 1.0f, 1.0f};
+					glow->m_flGlowAlpha = 1.0f;
+
+					// Enables Glow
+					glow->m_bRenderWhenOccluded = !noUtils;
+					glow->m_bRenderWhenUnoccluded = false;
+
+					// Write to Memory
+					glowManager->Write(glow, i);
+					break;
+				case sOffsets::kit:
+					
+					// Glow Colors
+					glow->m_vGlowColor = {1.0f, 0.0f, 1.0f};
+					glow->m_flGlowAlpha = 1.0f;
+					
+					// Enables Glow
+					glow->m_bRenderWhenOccluded = !noUtils;
+					glow->m_bRenderWhenUnoccluded = false;
+					
+					// Write to Memory
+					glowManager->Write(glow, i);
+					break;
+				case sOffsets::grenade:
+					
+					weapon = reinterpret_cast<sBaseCombatWeapon_t*>(glow);
+
+					if (weapon->State()) {
 						break;
-					case sOffsets::resource:
+					}
+
+					// Glow Colors
+					glow->m_vGlowColor = {1.0f, 1.0f, 1.0f};
+					glow->m_flGlowAlpha = 1.0f;
+
+					// Enables Glow
+					glow->m_bRenderWhenOccluded = !noUtils;
+					glow->m_bRenderWhenUnoccluded = false;
+
+					// Write to Memory
+					glowManager->Write(glow, i);
+					break;
+				case sOffsets::projectile:
+					
+					proj = reinterpret_cast<sBaseCSGrenadeProjectile_t*>(glow);
+					
+					if (proj->State() && proj->ExplodeEffectIndex()) {
 						break;
-					case sOffsets::team:
-						break;
-					case sOffsets::other:
-						break;
-				}
+					}
+					
+					// Glow Colors
+					glow->m_vGlowColor = {1.0f, 1.0f, 1.0f};
+					glow->m_flGlowAlpha = 1.0f;
+					
+					// Enables Glow
+					glow->m_bRenderWhenOccluded = !noUtils;
+					glow->m_bRenderWhenUnoccluded = false;
+					
+					// Write to Memory
+					glowManager->Write(glow, i);
+					
+					break;
+				case sOffsets::props:
+					break;
+				case sOffsets::resource:
+					break;
+				case sOffsets::team:
+					break;
+				case sOffsets::other:
+					break;
 			}
 		}
 	}
@@ -380,23 +375,11 @@ bool Wall::ClientCheck()
 		printf("PlayerResource\t\t\t= %s0x%llx%s\n", cT::getColor(cT::fG::green).c_str(), off->client.m_dwPlayerResource, cT::getStyle(cT::sT::bold).c_str());
 	}
 	
-	bool inGame = mem->read<int>(off->engine.m_dwCEngineClientBase + off->engine.m_dwIsInGame) == 6;
-	
-	if (!localPlayer->IsValid() || !inGame) {
-		*localPlayer = mem->read<sBasePlayer_t>(off->client.m_dwLocalPlayer);
-	}
-	if (!entityList->IsValid() || !inGame) {
-		*entityList = mem->read<sEntityList_t>(off->client.m_dwEntityList);
-	}
-	if (!glowManager->IsValid() || !inGame) {
-		*glowManager = mem->read<sGlowManager_t>(off->client.m_dwGlowManager);
-	}
-	if (!radarManager->IsValid() || !inGame) {
-		*radarManager = mem->read<sRadarManager_t>(off->client.m_dwRadarBase);
-	}
-	if (!playerResource->IsValid() || !inGame) {
-		*playerResource = mem->read<sPlayerResource_t>(off->client.m_dwPlayerResource);
-	}
+	*localPlayer = mem->read<sBasePlayer_t>(off->client.m_dwLocalPlayer);
+	*entityList = mem->read<sEntityList_t>(off->client.m_dwEntityList);
+	*glowManager = mem->read<sGlowManager_t>(off->client.m_dwGlowManager);
+	*radarManager = mem->read<sRadarManager_t>(off->client.m_dwRadarBase);
+	*playerResource = mem->read<sPlayerResource_t>(off->client.m_dwPlayerResource);
 	
 	return localPlayer->IsValid() && entityList->IsValid() && glowManager->IsValid() && radarManager->IsValid() && playerResource->IsValid();
 }
@@ -435,10 +418,10 @@ void Wall::GetClientPointers()
 	 0x3D
 	 ) + 0x3C;
 
-	 printf("Radar Base: 0x%llx\n", off->client.m_dwRadarBase);
+//	 printf("Radar Base: 0x%llx\n", off->client.m_dwRadarBase);
 	
 	off->client.m_dwPlayerResource = client_moduleStartAddress + 0x1FD0458;
-	printf("Player Resource: 0x%llx\n", off->client.m_dwPlayerResource);
+//	printf("Player Resource: 0x%llx\n", off->client.m_dwPlayerResource);
 	
 	
 	/*
@@ -675,14 +658,20 @@ void Wall::sBasePlayer_t::Print()
 	printf("\n\n");
 }
 
+int Wall::sBaseCombatWeapon_t::State()
+{
+	return mem->read<int>(m_hBase + 0x3ad8);
+}
+
+int Wall::sBaseCSGrenadeProjectile_t::ExplodeEffectIndex()
+{
+	return mem->read<int>(m_hBase + 0x3078);
+}
+
 void Wall::sBaseCombatWeapon_t::Print()
 {
 	reinterpret_cast<sBaseEntity_t*>(this)->Print();
-	printf("m_iEquipped = %i\n", m_iEquipped);
-	printf("m_iClip1 = %i\n", m_iClip1);
-	printf("m_iClip2 = %i\n", m_iClip2);
-	printf("m_primaryReserveAmmoCount = %i\n", m_primaryReserveAmmoCount);
-	printf("m_secondaryReserveAmmoCount = %i\n", m_secondaryReserveAmmoCount);
+	printf("m_iState = %i\n", State());
 	printf("\n\n");
 }
 

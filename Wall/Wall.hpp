@@ -36,6 +36,7 @@ class Wall {
 	struct sBaseEntity_t;
 	struct sBasePlayer_t;
 	struct sBaseCombatWeapon_t;
+	struct sBaseCSGrenadeProjectile_t;
 	struct sBasePlantedC4_t;
 	struct sEntityList_t;
 	struct sGlowDefinitionObject_t;
@@ -57,6 +58,7 @@ class Wall {
 	sBasePlayer_t* player 				= nullptr;
 	sGlowDefinitionObject_t* glow 		= nullptr;
 	sBaseCombatWeapon_t* weapon 		= nullptr;
+	sBaseCSGrenadeProjectile_t* proj	= nullptr;
 	
 	mach_vm_address_t engine_moduleStartAddress;
 	off_t engine_moduleLength 			= 0;
@@ -127,7 +129,7 @@ struct Wall::sBaseEntity_t {
 	void 		Print();
 };
 
-struct Wall::sBasePlayer_t: public sBaseEntity_t {
+struct Wall::sBasePlayer_t: public Wall::sBaseEntity_t {
 	double		FlashMaxAlpha();
 	float		FlashDuration();
 
@@ -148,28 +150,21 @@ struct Wall::sBasePlayer_t: public sBaseEntity_t {
 
 };
 
-struct Wall::sBaseCombatWeapon_t: public sBaseEntity_t {
-	char 		unk[0x3AD0];
-	int 		m_iEquipped;
-	char 		unk1[0x8];
-	int			m_iClip1;
-	char		unk2[0x4];
-	int 		m_iClip2;
-	char		unk3[0x4];
-	int			m_primaryReserveAmmoCount;
-	char		unk4[0x4];
-	int 		m_secondaryReserveAmmoCount;
-	char		unk5[0x4];
-	
+struct Wall::sBaseCombatWeapon_t: public Wall::sBaseEntity_t {
+	int 		State();	
 	void 		Print();
 };
 
-struct Wall::sBasePlantedC4_t: public sBaseEntity_t {
+struct Wall::sBaseCSGrenadeProjectile_t: public Wall::sBaseCombatWeapon_t {
+	int 		ExplodeEffectIndex();
+};
+
+struct Wall::sBasePlantedC4_t: public Wall::sBaseEntity_t {
 	int			State();
 //	void 		Print();
 };
 
-struct Wall::sEntityList_t: public sBaseEntity_t {
+struct Wall::sEntityList_t: public Wall::sBaseEntity_t {
 	char 		m_SerialNum[0x8];
 	uint64_t 	m_pPrevious;
 	uint64_t 	m_pNext;
@@ -177,7 +172,7 @@ struct Wall::sEntityList_t: public sBaseEntity_t {
 	void 		Print();
 };
 
-struct Wall::sGlowDefinitionObject_t: public sBaseEntity_t {
+struct Wall::sGlowDefinitionObject_t: public Wall::sBaseEntity_t {
 	struct Vector {
 		float r;
 		float g;
@@ -195,7 +190,7 @@ struct Wall::sGlowDefinitionObject_t: public sBaseEntity_t {
 	void 		Print();
 };
 
-struct Wall::sGlowManager_t: public sBaseEntity_t {
+struct Wall::sGlowManager_t: public Wall::sBaseEntity_t {
 	int			m_iGlowListMaxSize;
 	char 		unk1[0x4]; // padding
 	int			m_iGlowListSize;
@@ -211,9 +206,9 @@ struct Wall::sGlowManager_t: public sBaseEntity_t {
 	void 		Print();
 };
 
-struct Wall::sRadarManager_t: public sBaseEntity_t {};
+struct Wall::sRadarManager_t: public Wall::sBaseEntity_t {};
 
-struct Wall::sPlayerResource_t: public sBaseEntity_t {
+struct Wall::sPlayerResource_t: public Wall::sBaseEntity_t {
 	std::string Clan(int index);
 
 	int 		Kills(int index);
