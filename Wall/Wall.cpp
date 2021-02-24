@@ -122,10 +122,8 @@ void Wall::Run()
 	
 	while (g_cProc->mainPid() != -1 && g_cProc->mainPid() != -1 && !stop.load()) {
 		if (EngineCheck()) {
-			if (mem->read<int>(off->engine.m_dwCEngineClientBase + off->engine.m_dwIsInGame) == 6) {
-				if (ClientCheck()) {
-					ApplyGlow();
-				}
+			if (ClientCheck() && mem->read<int>(off->engine.m_dwCEngineClientBase + off->engine.m_dwIsInGame) == 6) {
+				ApplyGlow();
 			}
 		}
 		
@@ -144,31 +142,12 @@ void Wall::ApplyGlow()
 	int i_teamNum = localPlayer->Team();
 	
 	bool cmp = false;
-	
-//	while (entityList->IsValid()) {
-//
-//		entities.emplace_back(*entityList);
-//
-//		*entityList = mem->read<sEntityList_t>(entityList->m_pNext);
-//
-//		if (entities.size() > MAX_ENTITIES) {
-//			entities.clear();
-//			return;
-//		}
-//
-//		if (entityList->Type() == sOffsets::resource) {
-//			*playerResource = mem->read<sPlayerResource_t>(entityList->m_hBase);
-//		}
-//	}
 
 	for (int i = 0; i < glowManager->Capacity(); ++i) {
 		
 		*glow = glowManager->Get(i);
 		
 		if (glow->IsValid()) {
-			
-//			auto ent = std::find(entities.begin(), entities.end(), *glow);
-//			if(ent != entities.end()) {
 			
 			team = glow->Team();
 
@@ -387,22 +366,37 @@ bool Wall::EngineCheck()
 
 bool Wall::ClientCheck()
 {
-	bool cmp = (off->client.m_dwLocalPlayer == 0x0 || off->client.m_dwEntityList == 0x0 || off->client.m_dwGlowManager == 0x0);
+	bool cmp = (off->client.m_dwLocalPlayer == 0x0 || off->client.m_dwEntityList == 0x0 || off->client.m_dwGlowManager == 0x0 || off->client.m_dwRadarBase == 0x0) || off->client.m_dwPlayerResource == 0x0;
 	
 	if (cmp) {
 		GetClientPointers();
 		printf("Local Player\t\t\t= %s0x%llx%s\n", cT::getColor(cT::fG::green).c_str(), off->client.m_dwLocalPlayer, cT::getStyle(cT::sT::bold).c_str());
 		printf("Entity List\t\t\t= %s0x%llx%s\n", cT::getColor(cT::fG::green).c_str(), off->client.m_dwEntityList, cT::getStyle(cT::sT::bold).c_str());
 		printf("Glow Manager\t\t\t= %s0x%llx%s\n", cT::getColor(cT::fG::green).c_str(), off->client.m_dwGlowManager, cT::getStyle(cT::sT::bold).c_str());
+		printf("Radar Base\t\t\t= %s0x%llx%s\n", cT::getColor(cT::fG::green).c_str(), off->client.m_dwRadarBase, cT::getStyle(cT::sT::bold).c_str());
+		printf("PlayerResource\t\t\t= %s0x%llx%s\n", cT::getColor(cT::fG::green).c_str(), off->client.m_dwPlayerResource, cT::getStyle(cT::sT::bold).c_str());
 	}
 	
-	*localPlayer = mem->read<sBasePlayer_t>(off->client.m_dwLocalPlayer);
-	*entityList = mem->read<sEntityList_t>(off->client.m_dwEntityList);
-	*glowManager = mem->read<sGlowManager_t>(off->client.m_dwGlowManager);
+	bool inGame = mem->read<int>(off->engine.m_dwCEngineClientBase + off->engine.m_dwIsInGame) == 6;
 	
-	return localPlayer->IsValid() && entityList->IsValid() && glowManager->IsValid();
+	if (!localPlayer->IsValid() || !inGame) {
+		*localPlayer = mem->read<sBasePlayer_t>(off->client.m_dwLocalPlayer);
+	}
+	if (!entityList->IsValid() || !inGame) {
+		*entityList = mem->read<sEntityList_t>(off->client.m_dwEntityList);
+	}
+	if (!glowManager->IsValid() || !inGame) {
+		*glowManager = mem->read<sGlowManager_t>(off->client.m_dwGlowManager);
+	}
+	if (!radarManager->IsValid() || !inGame) {
+		*radarManager = mem->read<sRadarManager_t>(off->client.m_dwRadarBase);
+	}
+	if (!playerResource->IsValid() || !inGame) {
+		*playerResource = mem->read<sPlayerResource_t>(off->client.m_dwPlayerResource);
+	}
+	
+	return localPlayer->IsValid() && entityList->IsValid() && glowManager->IsValid() && radarManager->IsValid() && playerResource->IsValid();
 }
-
 void Wall::GetEnginePointers()
 {
 	off->engine.m_dwCEngineClient = engine_moduleStartAddress + engineScanner->getPointer(
@@ -432,13 +426,16 @@ void Wall::GetClientPointers()
 																						0x22
 																						) + 0x4;
 	
-	 off->client. m_dwRadarBase = client_moduleStartAddress + clientScanner->getPointer(
+	 off->client.m_dwRadarBase = client_moduleStartAddress + clientScanner->getPointer(
 	 (Byte*)"\x55\x48\x89\xE5\x41\x57\x41\x56\x41\x55\x41\x54\x53\x50\x49\x89\xFD\x49\x8B\x7D\x00\x48\x85\xFF\x74\x56\x41\x8B\x75\x00\xE8\x6D\x00\x00\x00\x41\x88\xC6\x45\x84\xF6\x75\x45\x41\x80\xF6\x00\x45\x8B\x65\x00\x45\x85\xE4\x7E\x3B\x31\xDB\x4C\x8D\x3D\x00\x00\x00\x00\x66\x66\x66\x66\x66\x66\x2E\x0F\x1F\x84\x00\x00\x00\x00\x00",
 	 "xxxxxxxxxxxxxxxxxxxx?xxxxxxxx?xxxxxxxxxxxxxxxx?xxx?xxxxxxxxxx????xxxxxxxxxxxxxxx",
 	 0x3D
 	 ) + 0x3C;
 
 	 printf("Radar Base: 0x%llx\n", off->client.m_dwRadarBase);
+	
+	off->client.m_dwPlayerResource = client_moduleStartAddress + 0x1FD0458;
+	printf("Player Resource: 0x%llx\n", off->client.m_dwPlayerResource);
 	
 	
 	/*

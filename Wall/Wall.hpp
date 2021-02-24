@@ -40,6 +40,7 @@ class Wall {
 	struct sEntityList_t;
 	struct sGlowDefinitionObject_t;
 	struct sGlowManager_t;
+	struct sRadarManager_t;
 	struct sPlayerResource_t;
 	
 	std::vector<sEntityList_t> entities;
@@ -50,6 +51,7 @@ class Wall {
 	sBasePlayer_t* localPlayer			= nullptr;
 	sEntityList_t* entityList 			= nullptr;
 	sGlowManager_t* glowManager 		= nullptr;
+	sRadarManager_t* radarManager 		= nullptr;
 	sPlayerResource_t* playerResource	= nullptr;
 	
 	sBasePlayer_t* player 				= nullptr;
@@ -208,6 +210,8 @@ struct Wall::sGlowManager_t: public sBaseEntity_t {
 
 	void 		Print();
 };
+
+struct Wall::sRadarManager_t: public sBaseEntity_t {};
 
 struct Wall::sPlayerResource_t: public sBaseEntity_t {
 	std::string Clan(int index);

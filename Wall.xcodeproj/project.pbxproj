@@ -36,6 +36,7 @@
 		6057394324CA203B006E0D11 /* MemMngr.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MemMngr.cpp; sourceTree = "<group>"; };
 		6057394524CA212B006E0D11 /* Scanner.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Scanner.cpp; sourceTree = "<group>"; };
 		6057394724CA219A006E0D11 /* Wall.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Wall.cpp; sourceTree = "<group>"; };
+		EA2DA07625E055E7003BB97F /* cacelinesize.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = cacelinesize.h; sourceTree = "<group>"; };
 		EA7F508023867EDD00DE777B /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		EA7F508123867EDD00DE777B /* Offsets.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Offsets.hpp; sourceTree = "<group>"; };
 		EA87B8672380933800C4597F /* MemMngr.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = MemMngr.hpp; sourceTree = "<group>"; };
@@ -86,6 +87,7 @@
 				6011E95F24982B3200F4BEDA /* Wall.hpp */,
 				6057394724CA219A006E0D11 /* Wall.cpp */,
 				EA7F508023867EDD00DE777B /* main.cpp */,
+				EA2DA07625E055E7003BB97F /* cacelinesize.h */,
 			);
 			path = Wall;
 			sourceTree = "<group>";
