@@ -34,17 +34,21 @@ int Process::get(const char* procname)
 			continue;
 		char name[1024];
 		proc_name(pids[i], name, sizeof(name));
-		if (!strncmp(name, (const char*)procname, sizeof(procname)))
-			return pids[i];
+        if (!strncmp(name, (const char*)procname, sizeof(procname))) {
+            mainPid_ = pids[i];
+			return mainPid_;
+        }
 	}
-	return -1;
+    mainPid_ = -1;
+	return mainPid_;
 }
 
 int Process::task(pid_t pid)
 {
 	task_t task = 0;
 	task_for_pid(current_task(), pid, &task);
-	return task;
+    mainTask_ = task;
+	return mainTask_;
 }
 
 void Process::getModule(task_t task, mach_vm_address_t* start, off_t* length, const char* module, Byte* buffer, bool readBuffer)

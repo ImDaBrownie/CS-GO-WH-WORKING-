@@ -25,54 +25,54 @@ Wall::Wall(double refreshRate, double maxFlash, double glowAlpha, bool noTeammat
 	
 	g_cProc->mainPid() 	= g_cProc->get("csgo_osx64");
 	
-	if (g_cProc->mainPid() != -1) {
-		printf("Found CSGO's PID\t\t= %s\n", cT::print(std::to_string(g_cProc->mainPid()).c_str(), cT::fG::green, cT::sT::bold).c_str());
-	} else {
+	if (g_cProc->mainPid() == -1) {
 		printf("%s\n", cT::print("Error: Can't find CSGO's PID", cT::fG::red, cT::sT::bold).c_str());
 		Deinit();
 		exit(0);
 	}
+    
+    printf("Found CSGO's PID\t\t= %s\n", cT::print(std::to_string(g_cProc->mainPid()).c_str(), cT::fG::green, cT::sT::bold).c_str());
 	
 	g_cProc->mainTask() = g_cProc->task(g_cProc->mainPid());
 	
-	if (g_cProc->mainTask()) {
-		g_cProc->getModule(g_cProc->mainTask(), &engine_moduleStartAddress, &engine_moduleLength, "/engine.dylib");
-		
-		if (engine_moduleStartAddress != 0x0) {
-			printf("Found the %s address\t= %s0x%llx%s ... %s0x%llx%s\n", cT::print("engine.dylib", cT::fG::yellow).c_str(),  cT::getColor(cT::fG::green).c_str(),
-				   engine_moduleStartAddress,
-				   cT::getStyle(cT::sT::bold).c_str(),
-				   cT::getColor(cT::fG::green).c_str(),
-				   engine_moduleStartAddress +
-				   engine_moduleLength,
-				   cT::getStyle(cT::sT::bold).c_str());
-		} else {
-			printf("%s\n", cT::print("Error: Failed to get the engine.dylib address", cT::fG::red, cT::sT::bold).c_str());
-			Deinit();
-			exit(0);
-		}
-		
-		g_cProc->getModule(g_cProc->mainTask(), &client_moduleStartAddress, &client_moduleLength, "/client.dylib");
-		
-		if (client_moduleStartAddress != 0x0) {
-			printf("Found the %s address\t= %s0x%llx%s ... %s0x%llx%s\n", cT::print("client.dylib", cT::fG::yellow).c_str(),
-				   cT::getColor(cT::fG::green).c_str(),
-				   client_moduleStartAddress,
-				   cT::getStyle(cT::sT::bold).c_str(),
-				   cT::getColor(cT::fG::green).c_str(),
-				   client_moduleStartAddress +
-				   client_moduleLength,
-				   cT::getStyle(cT::sT::bold).c_str());
-		} else {
-			printf("%s\n", cT::print("Error: Failed to get the client.dylib address", cT::fG::red, cT::sT::bold).c_str());
-			Deinit();
-			exit(0);
-		}
-	} else {
+	if (!g_cProc->mainTask()) {
 		printf("%s\n", cT::print("Error: Failed to find main task", cT::fG::red, cT::sT::bold).c_str());
 		Deinit();
 		exit(0);
 	}
+    
+    g_cProc->getModule(g_cProc->mainTask(), &engine_moduleStartAddress, &engine_moduleLength, "/engine.dylib");
+    
+    if (engine_moduleStartAddress == 0x0) {
+        printf("%s\n", cT::print("Error: Failed to get the engine.dylib address", cT::fG::red, cT::sT::bold).c_str());
+        Deinit();
+        exit(0);
+    }
+    
+    printf("Found the %s address\t= %s0x%llx%s ... %s0x%llx%s\n", cT::print("engine.dylib", cT::fG::yellow).c_str(),  cT::getColor(cT::fG::green).c_str(),
+           engine_moduleStartAddress,
+           cT::getStyle(cT::sT::bold).c_str(),
+           cT::getColor(cT::fG::green).c_str(),
+           engine_moduleStartAddress +
+           engine_moduleLength,
+           cT::getStyle(cT::sT::bold).c_str());
+    
+    g_cProc->getModule(g_cProc->mainTask(), &client_moduleStartAddress, &client_moduleLength, "/client.dylib");
+    
+    if (client_moduleStartAddress == 0x0) {
+       printf("%s\n", cT::print("Error: Failed to get the client.dylib address", cT::fG::red, cT::sT::bold).c_str());
+        Deinit();
+        exit(0);
+    }
+    
+    printf("Found the %s address\t= %s0x%llx%s ... %s0x%llx%s\n", cT::print("client.dylib", cT::fG::yellow).c_str(),
+           cT::getColor(cT::fG::green).c_str(),
+           client_moduleStartAddress,
+           cT::getStyle(cT::sT::bold).c_str(),
+           cT::getColor(cT::fG::green).c_str(),
+           client_moduleStartAddress +
+           client_moduleLength,
+           cT::getStyle(cT::sT::bold).c_str());
 	
 	engineScanner		= new Scanner(engine_moduleStartAddress, engine_moduleLength, mem);
 	clientScanner 		= new Scanner(client_moduleStartAddress, client_moduleLength, mem);
@@ -124,17 +124,14 @@ void Wall::Run()
 	s_thread.detach();
 	
 	while (g_cProc->mainPid() != -1 && g_cProc->mainPid() != -1 && !stop.load()) {
-		if (EngineCheck()) {
-			if (mem->read<int>(off->engine.m_dwCEngineClientBase + off->engine.m_dwIsInGame) == 6) {
-				if (ClientCheck()) {
-					ApplyGlow();
-				}
-			}
-		}
-		
-		g_cProc->mainPid() = g_cProc->get("csgo_osx64");
-		g_cProc->mainTask() = g_cProc->task(g_cProc->mainPid());
-		usleep(refreshRate); // 800
+        if (!EngineCheck()) { goto procCheck; }
+        if (mem->read<int>(off->engine.m_dwCEngineClientBase + off->engine.m_dwIsInGame) != 6) { goto procCheck; }
+        if (!ClientCheck()) { goto procCheck; }
+        ApplyGlow();
+        procCheck:
+            usleep(refreshRate); // 800
+            g_cProc->mainPid() = g_cProc->get("csgo_osx64");
+            g_cProc->mainTask() = g_cProc->task(g_cProc->mainPid());
 	}
 	stop.store(true);
 	std::system("clear");
@@ -152,191 +149,210 @@ void Wall::ApplyGlow()
 		
 		*glow = glowManager->Get(i);
 		
-		if (glow->IsValid() && !glow->IsDormant()) {
+        if (!glow->IsValid() && glow->IsDormant()) { continue; }
 			
-			team = glow->Team();
-				
-			switch (glow->Type()) {
-				case sOffsets::player:
-					
-					player = reinterpret_cast<sBasePlayer_t*>(glow);
-					
-					if (player->LifeState()) {
-						break;
-					}
-					
-					if (*player == *localPlayer) {
-						if (maxFlash != -1 && player->FlashMaxAlpha() > maxFlash) {
-							player->SetFlashMaxAlpha(maxFlash);
-						}
-						break;
-					}
-					
-					if (spotted) {
-						player->SetSpotted(spotted);
-					}
+        switch (glow->Type()) {
+            case sOffsets::player:
+                
+                player = reinterpret_cast<sBasePlayer_t*>(glow);
+                
+                if (player->LifeState()) {
+                    break;
+                }
+                
+                if (*player == *localPlayer) {
+                    if (maxFlash != -1 && player->FlashMaxAlpha() > maxFlash) {
+                        player->SetFlashMaxAlpha(maxFlash);
+                    }
+                    break;
+                }
+                
+                if (spotted) {
+                    player->SetSpotted(spotted);
+                }
+                
+                team = glow->Team();
 
-					if (noTeammates && team == i_teamNum) {
-						break;
-					}
+                if (noTeammates && team == i_teamNum) {
+                    break;
+                }
 
-					health = player->Health();
-					health += (health == 0 ? 100 : health);
+                health = player->Health();
+                health += (health == 0 ? 100 : health);
 
-					cmp = team != i_teamNum;
-					
-					// Glow Colors
-					glow->m_vGlowColor = {
-						float((100 - health)/100.0),
-						cmp ? float((health)/100.0) : 0.0f,
-						cmp ? 0.0f : float((health)/100.0)
-					};
-					glow->m_flGlowAlpha = glowAlpha;
+                cmp = team != i_teamNum;
+                
+                // Glow Colors
+                glow->m_vGlowColor = {
+                    float((100 - health)/100.0),
+                    cmp ? float((health)/100.0) : 0.0f,
+                    cmp ? 0.0f : float((health)/100.0)
+                };
+                glow->m_flGlowAlpha = glowAlpha;
 
-					// Enables Glow
-					glow->m_bRenderWhenOccluded = true;
-					glow->m_bRenderWhenUnoccluded = false;
+                // Enables Glow
+                glow->m_bRenderWhenOccluded = true;
+                glow->m_bRenderWhenUnoccluded = false;
 
-					// Write to Memory
-					glowManager->Write(glow, i);
-					break;
-				case sOffsets::hostage:
-					break;
-				case sOffsets::chicken:
-					
-					if (glow->LifeState()) {
-						break;
-					}
+                // Write to Memory
+                glowManager->Write(glow, i);
+                break;
+            case sOffsets::hostage:
+                break;
+            case sOffsets::chicken:
+                
+                if (noUtils && glow->LifeState()) {
+                    break;
+                }
 
-					// Glow Colors
-					glow->m_vGlowColor = {0.0f, 1.0f, 1.0f};
-					glow->m_flGlowAlpha = 1.0f;
+                // Glow Colors
+                glow->m_vGlowColor = {0.0f, 1.0f, 1.0f};
+                glow->m_flGlowAlpha = 1.0f;
 
-					// Enables Glow
-					glow->m_bRenderWhenOccluded = !noUtils;
-					glow->m_bRenderWhenUnoccluded = false;
+                // Enables Glow
+                glow->m_bRenderWhenOccluded = !noUtils;
+                glow->m_bRenderWhenUnoccluded = false;
 
-					// Write to Memory
-					glowManager->Write(glow, i);
-					break;
-				case sOffsets::C4:
-					
-					weapon = reinterpret_cast<sBaseCombatWeapon_t*>(glow);
-					
-					if (weapon->State()) {
-						break;
-					}
-					
-					// Glow Colors
-					glow->m_vGlowColor = {0.0f, 1.0f, 0.0f};
-					glow->m_flGlowAlpha = 1.0f;
+                // Write to Memory
+                glowManager->Write(glow, i);
+                break;
+            case sOffsets::C4:
+                
+                if (noUtils) {
+                    break;
+                }
+                
+                weapon = reinterpret_cast<sBaseCombatWeapon_t*>(glow);
+                
+                if (weapon->State()) {
+                    break;
+                }
+                
+                // Glow Colors
+                glow->m_vGlowColor = {0.0f, 1.0f, 0.0f};
+                glow->m_flGlowAlpha = 1.0f;
 
-					// Enables Glow
-					glow->m_bRenderWhenOccluded = !noUtils;
-					glow->m_bRenderWhenUnoccluded = false;
+                // Enables Glow
+                glow->m_bRenderWhenOccluded = !noUtils;
+                glow->m_bRenderWhenUnoccluded = false;
 
-					// Write to Memory
-					glowManager->Write(glow, i);
-					break;
-				case sOffsets::plantedC4:
-					
-					if (glow->LifeState()) {
-						break;
-					}
-					
-					// Glow Colors
-					glow->m_vGlowColor = {1.0f, 0.0f, 0.0f};
-					glow->m_flGlowAlpha = 1.0f;
+                // Write to Memory
+                glowManager->Write(glow, i);
+                break;
+            case sOffsets::plantedC4:
+                
+                if (noUtils && glow->LifeState()) {
+                    break;
+                }
+                
+                // Glow Colors
+                glow->m_vGlowColor = {1.0f, 0.0f, 0.0f};
+                glow->m_flGlowAlpha = 1.0f;
 
-					// Enables Glow
-					glow->m_bRenderWhenOccluded = (!noUtils | (reinterpret_cast<sBasePlantedC4_t*>(glow)->State() == 1));
-					glow->m_bRenderWhenUnoccluded = false;
+                // Enables Glow
+                glow->m_bRenderWhenOccluded = (!noUtils | (reinterpret_cast<sBasePlantedC4_t*>(glow)->State() == 1));
+                glow->m_bRenderWhenUnoccluded = false;
 
-					// Write to Memory
-					glowManager->Write(glow, i);
-					break;
-				case sOffsets::weapon:
-					
-					weapon = reinterpret_cast<sBaseCombatWeapon_t*>(glow);
-					
-					if (weapon->State()) {
-						break;
-					}
-					
-					// Glow Colors
-					glow->m_vGlowColor = {1.0f, 1.0f, 1.0f};
-					glow->m_flGlowAlpha = 1.0f;
+                // Write to Memory
+                glowManager->Write(glow, i);
+                break;
+            case sOffsets::weapon:
+                
+                if (noUtils) {
+                    break;
+                }
+                
+                weapon = reinterpret_cast<sBaseCombatWeapon_t*>(glow);
+                
+                if (weapon->State()) {
+                    break;
+                }
+                
+                // Glow Colors
+                glow->m_vGlowColor = {1.0f, 1.0f, 1.0f};
+                glow->m_flGlowAlpha = 1.0f;
 
-					// Enables Glow
-					glow->m_bRenderWhenOccluded = !noUtils;
-					glow->m_bRenderWhenUnoccluded = false;
+                // Enables Glow
+                glow->m_bRenderWhenOccluded = !noUtils;
+                glow->m_bRenderWhenUnoccluded = false;
 
-					// Write to Memory
-					glowManager->Write(glow, i);
-					break;
-				case sOffsets::kit:
-					
-					// Glow Colors
-					glow->m_vGlowColor = {1.0f, 0.0f, 1.0f};
-					glow->m_flGlowAlpha = 1.0f;
-					
-					// Enables Glow
-					glow->m_bRenderWhenOccluded = !noUtils;
-					glow->m_bRenderWhenUnoccluded = false;
-					
-					// Write to Memory
-					glowManager->Write(glow, i);
-					break;
-				case sOffsets::grenade:
-					
-					weapon = reinterpret_cast<sBaseCombatWeapon_t*>(glow);
+                // Write to Memory
+                glowManager->Write(glow, i);
+                break;
+            case sOffsets::kit:
+                
+                if (noUtils) {
+                    break;
+                }
+                
+                // Glow Colors
+                glow->m_vGlowColor = {1.0f, 0.0f, 1.0f};
+                glow->m_flGlowAlpha = 1.0f;
+                
+                // Enables Glow
+                glow->m_bRenderWhenOccluded = !noUtils;
+                glow->m_bRenderWhenUnoccluded = false;
+                
+                // Write to Memory
+                glowManager->Write(glow, i);
+                break;
+            case sOffsets::grenade:
+                
+                if (noUtils) {
+                    break;
+                }
+                
+                weapon = reinterpret_cast<sBaseCombatWeapon_t*>(glow);
 
-					if (weapon->State()) {
-						break;
-					}
+                if (weapon->State()) {
+                    break;
+                }
 
-					// Glow Colors
-					glow->m_vGlowColor = {1.0f, 1.0f, 1.0f};
-					glow->m_flGlowAlpha = 1.0f;
+                // Glow Colors
+                glow->m_vGlowColor = {1.0f, 1.0f, 1.0f};
+                glow->m_flGlowAlpha = 1.0f;
 
-					// Enables Glow
-					glow->m_bRenderWhenOccluded = !noUtils;
-					glow->m_bRenderWhenUnoccluded = false;
+                // Enables Glow
+                glow->m_bRenderWhenOccluded = !noUtils;
+                glow->m_bRenderWhenUnoccluded = false;
 
-					// Write to Memory
-					glowManager->Write(glow, i);
-					break;
-				case sOffsets::projectile:
-					
-					proj = reinterpret_cast<sBaseCSGrenadeProjectile_t*>(glow);
-					
-					if (proj->State() && proj->ExplodeEffectIndex()) {
-						break;
-					}
-					
-					// Glow Colors
-					glow->m_vGlowColor = {1.0f, 1.0f, 1.0f};
-					glow->m_flGlowAlpha = 1.0f;
-					
-					// Enables Glow
-					glow->m_bRenderWhenOccluded = !noUtils;
-					glow->m_bRenderWhenUnoccluded = false;
-					
-					// Write to Memory
-					glowManager->Write(glow, i);
-					
-					break;
-				case sOffsets::props:
-					break;
-				case sOffsets::resource:
-					break;
-				case sOffsets::team:
-					break;
-				case sOffsets::other:
-					break;
-			}
-		}
-	}
+                // Write to Memory
+                glowManager->Write(glow, i);
+                break;
+            case sOffsets::projectile:
+                
+                if (noUtils) {
+                    break;
+                }
+                
+                proj = reinterpret_cast<sBaseCSGrenadeProjectile_t*>(glow);
+                
+                if (proj->State() && proj->ExplodeEffectIndex()) {
+                    break;
+                }
+                
+                // Glow Colors
+                glow->m_vGlowColor = {1.0f, 1.0f, 1.0f};
+                glow->m_flGlowAlpha = 1.0f;
+                
+                // Enables Glow
+                glow->m_bRenderWhenOccluded = !noUtils;
+                glow->m_bRenderWhenUnoccluded = false;
+                
+                // Write to Memory
+                glowManager->Write(glow, i);
+                
+                break;
+            case sOffsets::props:
+                break;
+            case sOffsets::resource:
+                break;
+            case sOffsets::team:
+                break;
+            case sOffsets::other:
+                break;
+        }
+    }
 	
 //	for (auto& entity: entities) {
 //		printf("%s -> 0x%llx\n", entity.EntityClass().c_str(), entity.m_hBase);
@@ -443,7 +459,7 @@ void Wall::StopThread()
 		if (str == "q" || str == "quit" || str == "stop" || str == "exit") {
 			stop.store(true);
 		}
-		usleep(refreshRate);
+		usleep(100000);
 	}
 }
 
@@ -535,12 +551,12 @@ bool Wall::sBaseEntity_t::IsPlayer()
 
 bool Wall::sBaseEntity_t::IsValid()
 {
-	return m_hBase != 0x0;
+	return m_hBase > 0x0;
 }
 
 bool Wall::sBaseEntity_t::IsValid(uint64_t ptr)
 {
-	return m_hBase != 0x0 && m_hBase == ptr;
+	return m_hBase > 0x0 && m_hBase == ptr;
 }
 
 bool Wall::sBaseEntity_t::operator == (const sBaseEntity_t& rhs)
