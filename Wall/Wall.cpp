@@ -130,8 +130,8 @@ void Wall::Run()
         ApplyGlow();
         procCheck:
             usleep(refreshRate); // 800
-            g_cProc->mainPid() = g_cProc->get("csgo_osx64");
-            g_cProc->mainTask() = g_cProc->task(g_cProc->mainPid());
+            g_cProc->get("csgo_osx64");
+            g_cProc->task(g_cProc->mainPid());
 	}
 	stop.store(true);
 	std::system("clear");
@@ -218,11 +218,7 @@ void Wall::ApplyGlow()
                 break;
             case sOffsets::C4:
                 
-                if (noUtils) {
-                    break;
-                }
-                
-                weapon = reinterpret_cast<sBaseCombatWeapon_t*>(glow);
+                 weapon = reinterpret_cast<sBaseCombatWeapon_t*>(glow);
                 
                 if (weapon->State()) {
                     break;
@@ -241,7 +237,7 @@ void Wall::ApplyGlow()
                 break;
             case sOffsets::plantedC4:
                 
-                if (noUtils && glow->LifeState()) {
+                if (glow->LifeState()) {
                     break;
                 }
                 
@@ -257,10 +253,6 @@ void Wall::ApplyGlow()
                 glowManager->Write(glow, i);
                 break;
             case sOffsets::weapon:
-                
-                if (noUtils) {
-                    break;
-                }
                 
                 weapon = reinterpret_cast<sBaseCombatWeapon_t*>(glow);
                 
@@ -281,11 +273,13 @@ void Wall::ApplyGlow()
                 break;
             case sOffsets::kit:
                 
-                if (noUtils) {
+                weapon = reinterpret_cast<sBaseCombatWeapon_t*>(glow);
+                
+                if (weapon->State()) {
                     break;
                 }
                 
-                // Glow Colors
+                 // Glow Colors
                 glow->m_vGlowColor = {1.0f, 0.0f, 1.0f};
                 glow->m_flGlowAlpha = 1.0f;
                 
@@ -297,10 +291,6 @@ void Wall::ApplyGlow()
                 glowManager->Write(glow, i);
                 break;
             case sOffsets::grenade:
-                
-                if (noUtils) {
-                    break;
-                }
                 
                 weapon = reinterpret_cast<sBaseCombatWeapon_t*>(glow);
 
@@ -320,10 +310,6 @@ void Wall::ApplyGlow()
                 glowManager->Write(glow, i);
                 break;
             case sOffsets::projectile:
-                
-                if (noUtils) {
-                    break;
-                }
                 
                 proj = reinterpret_cast<sBaseCSGrenadeProjectile_t*>(glow);
                 
