@@ -108,7 +108,6 @@ struct Wall::sBaseEntity_t {
 
 	Byte		EFlags();
 
-	//	int 		GetOwner();
 	int 		Team();
 	int 		SpottedBy();
 
@@ -157,6 +156,7 @@ struct Wall::sBaseCombatWeapon_t: public Wall::sBaseEntity_t {
 
 struct Wall::sBaseCSGrenadeProjectile_t: public Wall::sBaseCombatWeapon_t {
 	int 		ExplodeEffectIndex();
+	int 		ExplodeEffectTickBegin();
 };
 
 struct Wall::sBasePlantedC4_t: public Wall::sBaseEntity_t {

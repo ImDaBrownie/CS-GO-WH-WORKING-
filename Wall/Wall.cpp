@@ -311,22 +311,22 @@ void Wall::ApplyGlow()
                 break;
             case sOffsets::projectile:
                 
-                proj = reinterpret_cast<sBaseCSGrenadeProjectile_t*>(glow);
-                
-                if (proj->State() && proj->ExplodeEffectIndex()) {
-                    break;
-                }
-                
-                // Glow Colors
-                glow->m_vGlowColor = {1.0f, 1.0f, 1.0f};
-                glow->m_flGlowAlpha = 1.0f;
-                
-                // Enables Glow
-                glow->m_bRenderWhenOccluded = !noUtils;
-                glow->m_bRenderWhenUnoccluded = false;
-                
-                // Write to Memory
-                glowManager->Write(glow, i);
+//                proj = reinterpret_cast<sBaseCSGrenadeProjectile_t*>(glow);
+//				
+//                if (!proj->State()) {
+//                    break;
+//                }
+//
+//                // Glow Colors
+//                glow->m_vGlowColor = {1.0f, 1.0f, 1.0f};
+//                glow->m_flGlowAlpha = 1.0f;
+//
+//                // Enables Glow
+//                glow->m_bRenderWhenOccluded = !noUtils;
+//                glow->m_bRenderWhenUnoccluded = false;
+//
+//                // Write to Memory
+//                glowManager->Write(glow, i);
                 
                 break;
             case sOffsets::props:
@@ -470,15 +470,6 @@ std::string Wall::sBaseEntity_t::EntityClass()
 	}
 	return clsName;
 }
-
-
-//int Wall::sBaseEntity_t::GetOwner()
-//{
-////	return mem->read<int>(m_hBase + off->client.m_hOwner);
-//	return 0;
-//}
-
-
 
 sOffsets::EntityType Wall::sBaseEntity_t::Type()
 {
@@ -668,6 +659,11 @@ int Wall::sBaseCombatWeapon_t::State()
 int Wall::sBaseCSGrenadeProjectile_t::ExplodeEffectIndex()
 {
 	return mem->read<int>(m_hBase + 0x3078);
+}
+
+int Wall::sBaseCSGrenadeProjectile_t::ExplodeEffectTickBegin()
+{
+	return mem->read<int>(m_hBase + 0x307c);
 }
 
 void Wall::sBaseCombatWeapon_t::Print()
