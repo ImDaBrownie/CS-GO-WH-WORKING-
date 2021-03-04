@@ -288,7 +288,7 @@ void Wall::ApplyGlow()
                 
 				// Glow Colors
                 glow->m_vGlowColor = {1.0f, 0.0f, 1.0f};
-                glow->m_flGlowAlpha = 1.0f;
+                glow->m_flGlowAlpha = 0.5f;
                 
                 // Enables Glow
                 glow->m_bRenderWhenOccluded = !noUtils;
