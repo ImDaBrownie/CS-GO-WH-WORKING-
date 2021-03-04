@@ -123,18 +123,27 @@ void Wall::Run()
 	std::thread s_thread(&Wall::StopThread, this);
 	s_thread.detach();
 	
-	while (g_cProc->mainPid() != -1 && g_cProc->mainPid() != -1 && !stop.load()) {
+	while (g_cProc->get("csgo_osx64") != -1 && g_cProc->task(g_cProc->mainPid()) != -1 && !stop.load()) {
         if (!EngineCheck()) { goto procCheck; }
         if (mem->read<int>(off->engine.m_dwCEngineClientBase + off->engine.m_dwIsInGame) != 6) { goto procCheck; }
         if (!ClientCheck()) { goto procCheck; }
         ApplyGlow();
         procCheck:
             usleep(refreshRate); // 800
-            g_cProc->get("csgo_osx64");
-            g_cProc->task(g_cProc->mainPid());
 	}
 	stop.store(true);
 	std::system("clear");
+}
+
+void Wall::ParseEntityList()
+{
+	entities.clear();
+	sEntityList_t* tmp = &entities.emplace_back(*entityList);
+	uint64_t next_ptr = tmp->m_pNext;
+	while (next_ptr) {
+		tmp = &entities.emplace_back(mem->read<sEntityList_t>(next_ptr));
+		next_ptr = tmp->m_pNext;
+	}
 }
 
 void Wall::ApplyGlow()
@@ -172,15 +181,15 @@ void Wall::ApplyGlow()
                 }
                 
                 team = glow->Team();
+				
+				cmp = team != i_teamNum;
 
-                if (noTeammates && team == i_teamNum) {
+                if (noTeammates && !cmp) {
                     break;
                 }
 
                 health = player->Health();
                 health += (health == 0 ? 100 : health);
-
-                cmp = team != i_teamNum;
                 
                 // Glow Colors
                 glow->m_vGlowColor = {
@@ -220,7 +229,7 @@ void Wall::ApplyGlow()
                 
                  weapon = reinterpret_cast<sBaseCombatWeapon_t*>(glow);
                 
-                if (weapon->State()) {
+                if (noUtils && weapon->State()) {
                     break;
                 }
                 
@@ -237,7 +246,7 @@ void Wall::ApplyGlow()
                 break;
             case sOffsets::plantedC4:
                 
-                if (glow->LifeState()) {
+                if (noUtils && glow->LifeState()) {
                     break;
                 }
                 
@@ -256,7 +265,7 @@ void Wall::ApplyGlow()
                 
                 weapon = reinterpret_cast<sBaseCombatWeapon_t*>(glow);
                 
-                if (weapon->State()) {
+                if (noUtils && weapon->State()) {
                     break;
                 }
                 
@@ -273,13 +282,11 @@ void Wall::ApplyGlow()
                 break;
             case sOffsets::kit:
                 
-                weapon = reinterpret_cast<sBaseCombatWeapon_t*>(glow);
-                
-                if (weapon->State()) {
+				if (noUtils) {
                     break;
                 }
                 
-                 // Glow Colors
+				// Glow Colors
                 glow->m_vGlowColor = {1.0f, 0.0f, 1.0f};
                 glow->m_flGlowAlpha = 1.0f;
                 
@@ -294,7 +301,7 @@ void Wall::ApplyGlow()
                 
                 weapon = reinterpret_cast<sBaseCombatWeapon_t*>(glow);
 
-                if (weapon->State()) {
+                if (noUtils && weapon->State()) {
                     break;
                 }
 
@@ -311,22 +318,22 @@ void Wall::ApplyGlow()
                 break;
             case sOffsets::projectile:
                 
-//                proj = reinterpret_cast<sBaseCSGrenadeProjectile_t*>(glow);
-//				
-//                if (!proj->State()) {
-//                    break;
-//                }
-//
-//                // Glow Colors
-//                glow->m_vGlowColor = {1.0f, 1.0f, 1.0f};
-//                glow->m_flGlowAlpha = 1.0f;
-//
-//                // Enables Glow
-//                glow->m_bRenderWhenOccluded = !noUtils;
-//                glow->m_bRenderWhenUnoccluded = false;
-//
-//                // Write to Memory
-//                glowManager->Write(glow, i);
+                proj = reinterpret_cast<sBaseCSGrenadeProjectile_t*>(glow);
+				
+                if (noUtils && !proj->State()) {
+                    break;
+                }
+
+                // Glow Colors
+                glow->m_vGlowColor = {1.0f, 1.0f, 1.0f};
+                glow->m_flGlowAlpha = 1.0f;
+
+                // Enables Glow
+                glow->m_bRenderWhenOccluded = !noUtils;
+                glow->m_bRenderWhenUnoccluded = false;
+
+                // Write to Memory
+                glowManager->Write(glow, i);
                 
                 break;
             case sOffsets::props:
@@ -340,14 +347,15 @@ void Wall::ApplyGlow()
         }
     }
 	
+//	ParseEntityList();
 //	for (auto& entity: entities) {
 //		printf("%s -> 0x%llx\n", entity.EntityClass().c_str(), entity.m_hBase);
 ////		entity.Print();
 //	}
-
+//
 //	stop.store(true);
 	
-//	entities.clear();
+	entities.clear();
 }
 
 bool Wall::EngineCheck()

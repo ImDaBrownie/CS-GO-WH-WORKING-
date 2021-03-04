@@ -88,6 +88,7 @@ public:
 private:
 	void 		Deinit();
 	
+	void 		ParseEntityList();
 	void		ApplyGlow();
 	
 	bool 		EngineCheck();
