@@ -41,8 +41,12 @@ class Wall {
 	struct sEntityList_t;
 	struct sGlowDefinitionObject_t;
 	struct sGlowManager_t;
-	struct sRadarManager_t;
 	struct sPlayerResource_t;
+
+	class C_RadarBase;
+	class C_RadarManager;
+	class C_RadarObject;
+	class C_RadarStruct;
 	
 	std::vector<sEntityList_t> entities;
 	
@@ -52,7 +56,7 @@ class Wall {
 	sBasePlayer_t* localPlayer			= nullptr;
 	sEntityList_t* entityList 			= nullptr;
 	sGlowManager_t* glowManager 		= nullptr;
-	sRadarManager_t* radarManager 		= nullptr;
+	C_RadarManager* radarManager 		= nullptr;
 	sPlayerResource_t* playerResource	= nullptr;
 	
 	sBasePlayer_t* player 				= nullptr;
@@ -78,6 +82,7 @@ class Wall {
 	static sOffsets* off;
 	
 	static std::atomic<bool> stop;
+	static std::atomic<bool> revealRank;
 	
 public:
 	explicit Wall(double refreshRate, double maxFlash, double glowAlpha, bool noTeammates, bool noUtils, bool spotted);
@@ -109,6 +114,7 @@ struct Wall::sBaseEntity_t {
 
 	Byte		EFlags();
 
+	int 		ID();
 	int 		Team();
 	int 		SpottedBy();
 
@@ -162,7 +168,6 @@ struct Wall::sBaseCSGrenadeProjectile_t: public Wall::sBaseCombatWeapon_t {
 
 struct Wall::sBasePlantedC4_t: public Wall::sBaseEntity_t {
 	int			State();
-//	void 		Print();
 };
 
 struct Wall::sEntityList_t: public Wall::sBaseEntity_t {
@@ -207,8 +212,6 @@ struct Wall::sGlowManager_t: public Wall::sBaseEntity_t {
 	void 		Print();
 };
 
-struct Wall::sRadarManager_t: public Wall::sBaseEntity_t {};
-
 struct Wall::sPlayerResource_t: public Wall::sBaseEntity_t {
 	std::string Clan(int index);
 
@@ -230,6 +233,42 @@ struct Wall::sPlayerResource_t: public Wall::sBaseEntity_t {
 	bool 		HasHelmet(int index);
 
 	void 		Print();
+};
+
+class Wall::C_RadarObject {
+	char					unk[0x170];
+	int 					m_iRadarHealth;
+	char		 			m_szRadarName[0x8C];
+public:
+	C_RadarObject();
+	
+	int 					GetRadarHealth();
+	std::string 			GetRadarName();
+};
+
+class Wall::C_RadarBase {
+	char 					unk1[0x370]; // 0x370
+	C_RadarObject 			m_dwRadarArray[0x40];
+public:
+	C_RadarBase();
+	
+	C_RadarObject 			GetRadarObject(int index);
+};
+
+class Wall::C_RadarStruct {
+	char 					unk[0xF0]; // 0xF0
+	uint64_t 				m_dwRadarBase;
+public:
+	C_RadarStruct();
+	
+	C_RadarBase 			GetRadarBase();
+};
+
+class Wall::C_RadarManager: public sBaseEntity_t {
+public:
+	C_RadarManager();
+	
+	C_RadarStruct 			GetRadarStruct();
 };
 
 #endif /* WALL_HPP */

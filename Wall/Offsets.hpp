@@ -44,6 +44,7 @@ public:
 //		uint64_t m_dwGlowStructSize						= 0x40;
 		// uint64_t m_dwGlowColorStruct					= 0x8;
 		// uint64_t m_dwGlowEnable						= 0x28;
+		uint64_t m_iID 									= 0x94;
 		uint64_t m_bDormant								= 0x125;
 		uint64_t m_iTeam								= 0x12C;
 		uint64_t m_iHealth								= 0x138;
@@ -89,25 +90,23 @@ public:
 		*/
 		
 //		 0x44 -> Entity List
-		uint64_t m_iKills                              	= 0x12CC;
-		uint64_t m_iAssists                            	= 0x13D0;
-		uint64_t m_iDeaths                             	= 0x14D4;
-		uint64_t m_iTeam2                              	= 0x15D8;
-		uint64_t m_bConnected                          	= 0x17DD;
-		uint64_t m_iHealth2                            	= 0x1824;
-		uint64_t m_iMVPs								= 0x1D90;
-		uint64_t m_bHasDefuser                         	= 0x1E91;
-		uint64_t m_bHasHelmet                          	= 0x1ED2;
-		uint64_t m_iArmor                              	= 0x1F18;
-		uint64_t m_iScore								= 0x201C;
-//		uint64_t m_iCompetitiveRanking                 	= 0x2124;
-//		uint64_t m_iCompetitiveWins                    	= 0x2228;
-
-//		uint64_t m_iCompetitiveRanking                 	= 0x20E0;
-//		uint64_t m_iCompetitiveWins                    	= 0x21E4;
-		
-		uint64_t m_iCompetitiveRanking                 	= 0x98E8;
-		uint64_t m_iCompetitiveWins                    	= 0x99EC;
+		uint64_t m_iPing 								= 0x11c4;
+		uint64_t m_iKills 								= 0x12c8;
+		uint64_t m_iAssists 							= 0x13cc;
+		uint64_t m_iDeaths 								= 0x14d0;
+		uint64_t m_bConnected 							= 0x1180;
+		uint64_t m_iTeam2 								= 0x15d4;
+		uint64_t m_iPendingTeam 						= 0x16d8;
+		uint64_t m_bAlive 								= 0x17dc;
+		uint64_t m_iHealth2 							= 0x1820;
+		uint64_t m_iCoachingTeam 						= 0x1924;
+		uint64_t m_iMVPs 								= 0x1d8c;
+		uint64_t m_iArmor 								= 0x1f14;
+		uint64_t m_bHasHelmet 							= 0x1ed1;
+		uint64_t m_bHasDefuser 							= 0x1e90;
+		uint64_t m_iScore 								= 0x2018;
+		uint64_t m_iCompetitiveRanking 					= 0x211c;
+		uint64_t m_iCompetitiveWins 					= 0x2220;
 
 //		m_iCompTeammateColor
 //		m_bControllingBot
@@ -139,6 +138,13 @@ public:
 		uint64_t m_iGetMaxClients                      	= 0x428; // 0x3A0;
 		//uint64_t m_setViewAngle                         = 0x8E20;
 	} engine;
+	
+	const char* TeamNames[4] = {
+		"UNASSIGNED",
+		"SPECTATOR",
+		"TERRORIST",
+		"CT"
+	};
 	
 	const char* ranks[19] = {
 		"Unranked",

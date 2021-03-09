@@ -23,7 +23,7 @@ Wall::Wall(double refreshRate, double maxFlash, double glowAlpha, bool noTeammat
 	
 	stop.store(false);
 	
-	g_cProc->mainPid() 	= g_cProc->get("csgo_osx64");
+	g_cProc->get("csgo_osx64");
 	
 	if (g_cProc->mainPid() == -1) {
 		printf("%s\n", cT::print("Error: Can't find CSGO's PID", cT::fG::red, cT::sT::bold).c_str());
@@ -33,7 +33,7 @@ Wall::Wall(double refreshRate, double maxFlash, double glowAlpha, bool noTeammat
     
     printf("Found CSGO's PID\t\t= %s\n", cT::print(std::to_string(g_cProc->mainPid()).c_str(), cT::fG::green, cT::sT::bold).c_str());
 	
-	g_cProc->mainTask() = g_cProc->task(g_cProc->mainPid());
+	g_cProc->task(g_cProc->mainPid());
 	
 	if (!g_cProc->mainTask()) {
 		printf("%s\n", cT::print("Error: Failed to find main task", cT::fG::red, cT::sT::bold).c_str());
@@ -80,7 +80,7 @@ Wall::Wall(double refreshRate, double maxFlash, double glowAlpha, bool noTeammat
 	localPlayer 		= new sBasePlayer_t;
 	entityList 			= new sEntityList_t;
 	glowManager 		= new sGlowManager_t;
-	radarManager 		= new sRadarManager_t;
+	radarManager 		= new C_RadarManager;
 	playerResource 		= new sPlayerResource_t;
 	
 	glow 				= new sGlowDefinitionObject_t;
@@ -124,9 +124,9 @@ void Wall::Run()
 	s_thread.detach();
 	
 	while (g_cProc->get("csgo_osx64") != -1 && g_cProc->task(g_cProc->mainPid()) != -1 && !stop.load()) {
-        if (!EngineCheck()) { goto procCheck; }
+        if (!EngineCheck()) { printf("EngineCheck Failed\n"); goto procCheck; }
         if (mem->read<int>(off->engine.m_dwCEngineClientBase + off->engine.m_dwIsInGame) != 6) { goto procCheck; }
-        if (!ClientCheck()) { goto procCheck; }
+		if (!ClientCheck()) { printf("ClientCheck Failed\n"); goto procCheck; }
         ApplyGlow();
         procCheck:
             usleep(refreshRate); // 800
@@ -158,7 +158,8 @@ void Wall::ApplyGlow()
 		
 		*glow = glowManager->Get(i);
 		
-        if (!glow->IsValid() && glow->IsDormant()) { continue; }
+		if (!glow->IsValid()) { continue; }
+		if (glow->IsDormant()) { continue; }
 			
         switch (glow->Type()) {
             case sOffsets::player:
@@ -319,7 +320,7 @@ void Wall::ApplyGlow()
             case sOffsets::projectile:
                 
                 proj = reinterpret_cast<sBaseCSGrenadeProjectile_t*>(glow);
-				
+
                 if (noUtils && !proj->State()) {
                     break;
                 }
@@ -347,6 +348,34 @@ void Wall::ApplyGlow()
         }
     }
 	
+	if (revealRank.load()) {
+		C_RadarBase radarBase = radarManager->GetRadarStruct().GetRadarBase();
+		
+		ParseEntityList();
+		
+		int index = 1;
+		printf("######### RANKS #########\n");
+		for (int i = 0; i < entities.size(); ++i) {
+			if (!entities[i].IsPlayer()) {
+				continue;
+			}
+			
+			index = entities[i].ID();
+			printf("name: %s\n", radarBase.GetRadarObject(index).GetRadarName().c_str());
+			printf("team: %s\n", off->TeamNames[playerResource->Team2(index)]);
+			
+			printf("rank: %s\n", off->ranks[playerResource->CompetitiveRanking(index)]);
+			printf("wins: %i\n", playerResource->CompetitiveWins(index));
+			printf("\n");
+		}
+		
+		entities.clear();
+		
+		printf("######### DONE #########\n");
+		
+		revealRank.store(false);
+	}
+	
 //	ParseEntityList();
 //	for (auto& entity: entities) {
 //		printf("%s -> 0x%llx\n", entity.EntityClass().c_str(), entity.m_hBase);
@@ -354,8 +383,8 @@ void Wall::ApplyGlow()
 //	}
 //
 //	stop.store(true);
-	
-	entities.clear();
+//
+//	entities.clear();
 }
 
 bool Wall::EngineCheck()
@@ -374,10 +403,10 @@ bool Wall::EngineCheck()
 
 bool Wall::ClientCheck()
 {
-	bool cmp = (off->client.m_dwLocalPlayer == 0x0 || off->client.m_dwEntityList == 0x0 || off->client.m_dwGlowManager == 0x0 || off->client.m_dwRadarBase == 0x0) || off->client.m_dwPlayerResource == 0x0;
+	bool cmp = off->client.m_dwLocalPlayer == 0x0 || off->client.m_dwEntityList == 0x0 || off->client.m_dwGlowManager == 0x0 || off->client.m_dwRadarBase == 0x0 || off->client.m_dwPlayerResource == 0x0;
 	
+	GetClientPointers();
 	if (cmp) {
-		GetClientPointers();
 		printf("Local Player\t\t\t= %s0x%llx%s\n", cT::getColor(cT::fG::green).c_str(), off->client.m_dwLocalPlayer, cT::getStyle(cT::sT::bold).c_str());
 		printf("Entity List\t\t\t= %s0x%llx%s\n", cT::getColor(cT::fG::green).c_str(), off->client.m_dwEntityList, cT::getStyle(cT::sT::bold).c_str());
 		printf("Glow Manager\t\t\t= %s0x%llx%s\n", cT::getColor(cT::fG::green).c_str(), off->client.m_dwGlowManager, cT::getStyle(cT::sT::bold).c_str());
@@ -388,8 +417,24 @@ bool Wall::ClientCheck()
 	*localPlayer = mem->read<sBasePlayer_t>(off->client.m_dwLocalPlayer);
 	*entityList = mem->read<sEntityList_t>(off->client.m_dwEntityList);
 	*glowManager = mem->read<sGlowManager_t>(off->client.m_dwGlowManager);
-	*radarManager = mem->read<sRadarManager_t>(off->client.m_dwRadarBase);
+	*radarManager = mem->read<C_RadarManager>(off->client.m_dwRadarBase);
 	*playerResource = mem->read<sPlayerResource_t>(off->client.m_dwPlayerResource);
+	
+	if (!localPlayer->IsValid()) {
+		printf("localPlayer: 0x%llx failed", localPlayer->m_hBase);
+	}
+	if (!entityList->IsValid()) {
+		printf("entityList: 0x%llx failed", entityList->m_hBase);
+	}
+	if (!glowManager->IsValid()) {
+		printf("glowManager: 0x%llx failed", glowManager->m_hBase);
+	}
+	if (!radarManager->IsValid()) {
+		printf("radarManager: 0x%llx failed", radarManager->m_hBase);
+	}
+	if (!playerResource->IsValid()) {
+		printf("playerResource: 0x%llx failed", playerResource->m_hBase);
+	}
 	
 	return localPlayer->IsValid() && entityList->IsValid() && glowManager->IsValid() && radarManager->IsValid() && playerResource->IsValid();
 }
@@ -453,11 +498,16 @@ void Wall::StopThread()
 		if (str == "q" || str == "quit" || str == "stop" || str == "exit") {
 			stop.store(true);
 		}
+		if (str == "ranks") {
+			revealRank.store(true);
+		}
 		usleep(100000);
 	}
 }
 
 std::atomic<bool> Wall::stop{false};
+
+std::atomic<bool> Wall::revealRank{false};
 
 Process* Wall::g_cProc = new Process;
 
@@ -487,6 +537,11 @@ sOffsets::EntityType Wall::sBaseEntity_t::Type()
 Byte Wall::sBaseEntity_t::EFlags()
 {
 	return mem->read<Byte>(m_hBase + off->client.m_iEFlags);
+}
+
+int Wall::sBaseEntity_t::ID()
+{
+	return mem->read<int>(m_hBase + off->client.m_iID);
 }
 
 int Wall::sBaseEntity_t::Team()
@@ -733,9 +788,12 @@ int Wall::sGlowManager_t::Size()
 
 void Wall::sGlowManager_t::Write(Wall::sGlowDefinitionObject_t* glowObject, int index)
 {
-	if (this->IsValid() && glowObject->IsValid()) {
-		mem->write<sGlowDefinitionObject_t>(m_hBase + (sizeof(sGlowDefinitionObject_t) * index), *glowObject);
+	if (!this->IsValid() || !glowObject->IsValid()) {
+		printf("GlowManager 0x%llx Failed To Write 0x%llx At Index %i\n", this->m_hBase, glowObject->m_hBase, index);
+		return;
 	}
+	
+	mem->write<sGlowDefinitionObject_t>(m_hBase + (sizeof(sGlowDefinitionObject_t) * index), *glowObject);
 }
 
 void Wall::sGlowManager_t::Print()
@@ -851,6 +909,44 @@ void Wall::sPlayerResource_t::Print()
 		printf("m_iCompetitiveWins = %i\n", CompetitiveWins(i));
 		printf("\n");
 	}
+}
+
+Wall::C_RadarBase::C_RadarBase() {}
+
+Wall::C_RadarObject Wall::C_RadarBase::GetRadarObject(int index)
+{
+	return m_dwRadarArray[index-1];
+}
+
+Wall::C_RadarManager::C_RadarManager() {}
+
+Wall::C_RadarStruct Wall::C_RadarManager::GetRadarStruct()
+{
+	return mem->read<C_RadarStruct>(m_hBase);
+}
+
+Wall::C_RadarObject::C_RadarObject()
+{
+	printf("unk: %s\n", unk);
+	printf("health: %i\n", m_iRadarHealth);
+	printf("name: %s\n", m_szRadarName);
+}
+
+int Wall::C_RadarObject::GetRadarHealth()
+{
+	return m_iRadarHealth;
+}
+
+std::string Wall::C_RadarObject::GetRadarName()
+{
+	return m_szRadarName;
+}
+
+Wall::C_RadarStruct::C_RadarStruct() {}
+
+Wall::C_RadarBase Wall::C_RadarStruct::GetRadarBase()
+{
+	return mem->read<C_RadarBase>(m_dwRadarBase);
 }
 
 
