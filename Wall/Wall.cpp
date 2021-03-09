@@ -420,22 +420,6 @@ bool Wall::ClientCheck()
 	*radarManager = mem->read<C_RadarManager>(off->client.m_dwRadarBase);
 	*playerResource = mem->read<sPlayerResource_t>(off->client.m_dwPlayerResource);
 	
-	if (!localPlayer->IsValid()) {
-		printf("localPlayer: 0x%llx failed", localPlayer->m_hBase);
-	}
-	if (!entityList->IsValid()) {
-		printf("entityList: 0x%llx failed", entityList->m_hBase);
-	}
-	if (!glowManager->IsValid()) {
-		printf("glowManager: 0x%llx failed", glowManager->m_hBase);
-	}
-	if (!radarManager->IsValid()) {
-		printf("radarManager: 0x%llx failed", radarManager->m_hBase);
-	}
-	if (!playerResource->IsValid()) {
-		printf("playerResource: 0x%llx failed", playerResource->m_hBase);
-	}
-	
 	return localPlayer->IsValid() && entityList->IsValid() && glowManager->IsValid() && radarManager->IsValid() && playerResource->IsValid();
 }
 void Wall::GetEnginePointers()
@@ -789,7 +773,6 @@ int Wall::sGlowManager_t::Size()
 void Wall::sGlowManager_t::Write(Wall::sGlowDefinitionObject_t* glowObject, int index)
 {
 	if (!this->IsValid() || !glowObject->IsValid()) {
-		printf("GlowManager 0x%llx Failed To Write 0x%llx At Index %i\n", this->m_hBase, glowObject->m_hBase, index);
 		return;
 	}
 	
