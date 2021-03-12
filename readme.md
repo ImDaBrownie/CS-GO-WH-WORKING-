@@ -49,6 +49,10 @@ We believe that you know what you are doing. You should get this software for fr
 	-o			: Get new offsets (only use with -insecure launch option flag in CSGO)
 	-h			: Display this message
 	
+	Rank Reveal:
+	Type "ranks" and press the Return key
+		- use command-K to clear the screen
+	
 	Note:
 	1) -o is currently unavailable
 	2) use sv_dump_class_info to find more entity classes
