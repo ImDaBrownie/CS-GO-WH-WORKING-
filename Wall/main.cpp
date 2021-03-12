@@ -31,6 +31,14 @@
  -u			: Enable weapons/utility/bomb/chicken glow
  -o			: Get new offsets (only use with -insecure launch option flag in CSGO)
  -h			: Display this message
+ 
+ Rank Reveal:
+ Type "ranks" and press the Return key
+ - use command-K to clear the screen
+ 
+ Note:
+ 1) -o is currently unavailable
+ 2) use sv_dump_class_info to find more entity classes
 */
 
 #include "Wall.hpp"
@@ -51,7 +59,9 @@ void usage(const char* exec) {
 	printf("\t-s\t\t\t: Enables Spotted on Radar\n");
 	printf("\t-t\t\t\t: Enable teammate glow\n");
 	printf("\t-u\t\t\t: Enable weapons/utility/bomb/chicken glow\n");
-	
+	printf("\tRank Reveal:\n");
+	printf("\tType \"%s\" and press the Return key\n", cT::print("ranks", cT::fG::yellow).c_str());
+	printf("\t\t- use %s to clear the screen\n", cT::print("command-K", cT::fG::yellow).c_str());
 	printf("\t-o\t\t\t: Get new offsets (only use with -insecure launch option flag in CSGO)\n");
 	printf("\t-h\t\t\t: Display this message\n\n");
 }
