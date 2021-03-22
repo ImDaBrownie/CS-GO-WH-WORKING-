@@ -125,7 +125,7 @@ void Wall::Run()
 	
 	while (g_cProc->get("csgo_osx64") != -1 && g_cProc->task(g_cProc->mainPid()) != -1 && !stop.load()) {
         if (!EngineCheck()) { printf("EngineCheck Failed\n"); goto procCheck; }
-        if (mem->read<int>(off->engine.m_dwCEngineClientBase + off->engine.m_dwIsInGame) != 6) { goto procCheck; }
+		if (mem->read<int>(off->engine.m_dwCEngineClientBase + off->engine.m_dwIsInGame) != 6) { goto procCheck; }
 		if (!ClientCheck()) { printf("ClientCheck Failed\n"); goto procCheck; }
         ApplyGlow();
         procCheck:
@@ -185,7 +185,7 @@ void Wall::ApplyGlow()
 				
 				cmp = team != i_teamNum;
 
-                if (noTeammates && !cmp) {
+				if (noTeammates && !cmp) {
                     break;
                 }
 
@@ -383,7 +383,7 @@ void Wall::ApplyGlow()
 //	}
 //
 //	stop.store(true);
-//
+
 //	entities.clear();
 }
 
@@ -404,8 +404,9 @@ bool Wall::EngineCheck()
 bool Wall::ClientCheck()
 {
 	bool cmp = off->client.m_dwLocalPlayer == 0x0 || off->client.m_dwEntityList == 0x0 || off->client.m_dwGlowManager == 0x0 || off->client.m_dwRadarBase == 0x0 || off->client.m_dwPlayerResource == 0x0;
-	
+		
 	GetClientPointers();
+
 	if (cmp) {
 		printf("Local Player\t\t\t= %s0x%llx%s\n", cT::getColor(cT::fG::green).c_str(), off->client.m_dwLocalPlayer, cT::getStyle(cT::sT::bold).c_str());
 		printf("Entity List\t\t\t= %s0x%llx%s\n", cT::getColor(cT::fG::green).c_str(), off->client.m_dwEntityList, cT::getStyle(cT::sT::bold).c_str());
@@ -419,6 +420,22 @@ bool Wall::ClientCheck()
 	*glowManager = mem->read<sGlowManager_t>(off->client.m_dwGlowManager);
 	*radarManager = mem->read<C_RadarManager>(off->client.m_dwRadarBase);
 	*playerResource = mem->read<sPlayerResource_t>(off->client.m_dwPlayerResource);
+	
+	if (!localPlayer->IsValid()) {
+		printf("localPlayer: 0x%llx failed\n", localPlayer->m_hBase);
+	}
+	if (!entityList->IsValid()) {
+		printf("entityList: 0x%llx failed\n", entityList->m_hBase);
+	}
+	if (!glowManager->IsValid()) {
+		printf("glowManager: 0x%llx failed\n", glowManager->m_hBase);
+	}
+	if (!radarManager->IsValid()) {
+		printf("radarManager: 0x%llx failed\n", radarManager->m_hBase);
+	}
+	if (!playerResource->IsValid()) {
+		printf("playerResource: 0x%llx failed\n", playerResource->m_hBase);
+	}
 	
 	return localPlayer->IsValid() && entityList->IsValid() && glowManager->IsValid() && radarManager->IsValid() && playerResource->IsValid();
 }
@@ -459,7 +476,7 @@ void Wall::GetClientPointers()
 
 //	 printf("Radar Base: 0x%llx\n", off->client.m_dwRadarBase);
 	
-	off->client.m_dwPlayerResource = client_moduleStartAddress + 0x1FD0458;
+	off->client.m_dwPlayerResource = client_moduleStartAddress + 0x1FD24B8;
 //	printf("Player Resource: 0x%llx\n", off->client.m_dwPlayerResource);
 	
 	
@@ -773,6 +790,7 @@ int Wall::sGlowManager_t::Size()
 void Wall::sGlowManager_t::Write(Wall::sGlowDefinitionObject_t* glowObject, int index)
 {
 	if (!this->IsValid() || !glowObject->IsValid()) {
+		printf("GlowManager 0x%llx Failed To Write 0x%llx At Index %i\n", this->m_hBase, glowObject->m_hBase, index);
 		return;
 	}
 	
