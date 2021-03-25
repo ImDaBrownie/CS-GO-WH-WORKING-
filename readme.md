@@ -2,6 +2,30 @@
 
 **Thanks to @gabsens and @e-retailer’s contribution to this project**
 
+## Usage: 
+	Usage:
+	sudo ./Wall [-f <max flash alpha>] [-r <refresh rate>] [-a <glow alpha>] [-s] [-t] [-u] [-o] [-h]
+
+	Terminate:
+	Type "stop" or "exit" or "quit" or "q" and press the Return key or terminate csgo
+
+	-f <flash alpha>	: Antiflash alpha max amount (default: -1, disable: -1, range: [0-2700])
+	-r <refresh rate>	: Refresh rate in microseconds (default: 10000.0)
+	-a <glow alpha>		: Glow alpha (default 0.5, range: [0-1])
+	-s			: Enables Spotted on Radar
+	-t			: Enable teammate glow
+	-u			: Enable weapons/utility/bomb/chicken glow
+	-o			: Get new offsets (only use with -insecure launch option flag in CSGO)
+	-h			: Display this message
+	
+	Rank Reveal:
+	Type "ranks" and press the Return key
+		- use command-K to clear the screen
+	
+	Note:
+	1) -o is currently unavailable
+	2) use sv_dump_class_info to find more entity classes
+
 ### Hello World
 if you are newbie and have never use Xcode, go and watch @gabsens’s [Video at Youtube](https://www.youtube.com/watch?v=AefIiBg2HKU)
 
@@ -30,29 +54,3 @@ sorry for another delay, there some new trouble.
 
 We believe that you know what you are doing. You should get this software for free.
 请确定你在免费试用这个外挂！
-
-
-
-## Usage: 
-	Usage:
-	sudo ./Wall [-f <max flash alpha>] [-r <refresh rate>] [-a <glow alpha>] [-s] [-t] [-u] [-o] [-h]
-
-	Terminate:
-	Type "stop" or "exit" or "quit" or "q" and press the Return key or terminate csgo
-
-	-f <flash alpha>	: Antiflash alpha max amount (default: -1, disable: -1, range: [0-2700])
-	-r <refresh rate>	: Refresh rate in microseconds (default: 10000.0)
-	-a <glow alpha>		: Glow alpha (default 0.5, range: [0-1])
-	-s			: Enables Spotted on Radar
-	-t			: Enable teammate glow
-	-u			: Enable weapons/utility/bomb/chicken glow
-	-o			: Get new offsets (only use with -insecure launch option flag in CSGO)
-	-h			: Display this message
-	
-	Rank Reveal:
-	Type "ranks" and press the Return key
-		- use command-K to clear the screen
-	
-	Note:
-	1) -o is currently unavailable
-	2) use sv_dump_class_info to find more entity classes
