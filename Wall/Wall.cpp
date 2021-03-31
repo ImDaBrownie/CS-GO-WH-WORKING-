@@ -346,6 +346,8 @@ void Wall::ApplyGlow()
             case sOffsets::other:
                 break;
         }
+		
+	*glowManager = mem->read<sGlowManager_t>(off->client.m_dwGlowManager);
     }
 	
 	if (revealRank.load()) {
