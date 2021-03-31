@@ -5,6 +5,8 @@
 ## Usage: 
 	Usage:
 	sudo ./Wall [-f <max flash alpha>] [-r <refresh rate>] [-a <glow alpha>] [-s] [-t] [-u] [-o] [-h]
+	
+		example: sudo ./Wall -f 0 -r 10000 -a 1 -s -t -u
 
 	Terminate:
 	Type "stop" or "exit" or "quit" or "q" and press the Return key or terminate csgo
