@@ -230,7 +230,7 @@ void Wall::ApplyGlow()
                 
                  weapon = reinterpret_cast<sBaseCombatWeapon_t*>(glow);
                 
-                if (noUtils && weapon->State()) {
+                if (noUtils && !weapon->State()) {
                     break;
                 }
                 
@@ -247,7 +247,7 @@ void Wall::ApplyGlow()
                 break;
             case sOffsets::plantedC4:
                 
-                if (noUtils && glow->LifeState()) {
+                if (noUtils) {
                     break;
                 }
                 
@@ -266,7 +266,7 @@ void Wall::ApplyGlow()
                 
                 weapon = reinterpret_cast<sBaseCombatWeapon_t*>(glow);
                 
-                if (noUtils && weapon->State()) {
+                if (noUtils && !weapon->State()) {
                     break;
                 }
                 
@@ -302,7 +302,7 @@ void Wall::ApplyGlow()
                 
                 weapon = reinterpret_cast<sBaseCombatWeapon_t*>(glow);
 
-                if (noUtils && weapon->State()) {
+                if (noUtils && !weapon->State()) {
                     break;
                 }
 
@@ -346,8 +346,6 @@ void Wall::ApplyGlow()
             case sOffsets::other:
                 break;
         }
-		
-	*glowManager = mem->read<sGlowManager_t>(off->client.m_dwGlowManager);
     }
 	
 	if (revealRank.load()) {
