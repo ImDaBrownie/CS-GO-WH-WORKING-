@@ -211,7 +211,7 @@ void Wall::ApplyGlow()
                 break;
             case sOffsets::chicken:
                 
-                if (noUtils && glow->LifeState()) {
+                if (noUtils || glow->LifeState()) {
                     break;
                 }
 
@@ -230,7 +230,7 @@ void Wall::ApplyGlow()
                 
                  weapon = reinterpret_cast<sBaseCombatWeapon_t*>(glow);
                 
-                if (noUtils && weapon->State()) {
+                if (noUtils || weapon->State()) {
                     break;
                 }
                 
@@ -266,7 +266,7 @@ void Wall::ApplyGlow()
                 
                 weapon = reinterpret_cast<sBaseCombatWeapon_t*>(glow);
                 
-                if (noUtils && weapon->State()) {
+                if (noUtils || weapon->State()) {
                     break;
                 }
                 
@@ -302,7 +302,7 @@ void Wall::ApplyGlow()
                 
                 weapon = reinterpret_cast<sBaseCombatWeapon_t*>(glow);
 
-                if (noUtils && weapon->State()) {
+                if (noUtils || weapon->State()) {
                     break;
                 }
 
@@ -321,7 +321,7 @@ void Wall::ApplyGlow()
                 
                 proj = reinterpret_cast<sBaseCSGrenadeProjectile_t*>(glow);
 
-                if (noUtils && proj->State()) {
+                if (noUtils || proj->State()) {
                     break;
                 }
 
