@@ -774,7 +774,7 @@ void Wall::sGlowDefinitionObject_t::Print()
 
 Wall::sGlowDefinitionObject_t Wall::sGlowManager_t::Get(int index)
 {
-	return mem->read<sGlowDefinitionObject_t>(m_hBase + (sizeof(sGlowDefinitionObject_t) * index));
+	return mem->read<sGlowDefinitionObject_t>(m_hBase + 0x8 + (sizeof(sGlowDefinitionObject_t) * index));
 }
 
 int Wall::sGlowManager_t::Capacity()
@@ -794,7 +794,7 @@ void Wall::sGlowManager_t::Write(Wall::sGlowDefinitionObject_t* glowObject, int 
 		return;
 	}
 	
-	mem->write<sGlowDefinitionObject_t>(m_hBase + (sizeof(sGlowDefinitionObject_t) * index), *glowObject);
+	mem->write<sGlowDefinitionObject_t>(m_hBase + 0x8 + (sizeof(sGlowDefinitionObject_t) * index), *glowObject);
 }
 
 void Wall::sGlowManager_t::Print()
