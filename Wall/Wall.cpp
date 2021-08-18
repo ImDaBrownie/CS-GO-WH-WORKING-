@@ -476,7 +476,7 @@ void Wall::GetClientPointers()
 
 //	 printf("Radar Base: 0x%llx\n", off->client.m_dwRadarBase);
 	
-	off->client.m_dwPlayerResource = client_moduleStartAddress + 0x1FD6768; // 0x1FD5728; //0x1FD24B8;
+	off->client.m_dwPlayerResource = client_moduleStartAddress + 0x1FD1018; //0x1FD6768; // 0x1FD5728; //0x1FD24B8;
 //	printf("Player Resource: 0x%llx\n", off->client.m_dwPlayerResource);
 	
 	
