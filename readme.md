@@ -3,12 +3,10 @@
 **Thanks to @gabsens and @e-retailer’s contribution to this project**
 
 ## Usage: 
-	Usage:
 	sudo ./Wall [-f <max flash alpha>] [-r <refresh rate>] [-a <glow alpha>] [-s] [-t] [-u] [-o] [-h]
-	
-		example: sudo ./Wall -f 0 -r 10000 -a 1 -s -t -u
-
-	Terminate:
+## Example:
+	example: sudo ./Wall -f 0 -r 10000 -a 1 -s -t -u
+## Terminate:
 	Type "stop" or "exit" or "quit" or "q" and press the Return key or terminate csgo
 
 	-f <flash alpha>	: Antiflash alpha max amount (default: -1, disable: -1, range: [0-2700])
@@ -20,13 +18,13 @@
 	-o			: Get new offsets (only use with -insecure launch option flag in CSGO)
 	-h			: Display this message
 	
-	Rank Reveal:
-	Type "ranks" and press the Return key
-		- use command-K to clear the screen
-	
 	Note:
 	1) -o is currently unavailable
 	2) use sv_dump_class_info to find more entity classes
+	
+## Rank Reveal:
+	Type "ranks" and press the Return key
+		- use command-K to clear the screen
 
 ### Hello World
 if you are newbie and have never use Xcode, go and watch @gabsens’s [Video at Youtube](https://www.youtube.com/watch?v=AefIiBg2HKU)
