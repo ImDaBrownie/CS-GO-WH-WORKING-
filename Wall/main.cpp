@@ -62,7 +62,7 @@ void usage(const char* exec) {
 	printf("\t-h\t\t\t: Display this message\n\n");
 	
 	printf("%s\n", cT::print("\nExample:", cT::fG::white).c_str());
-	printf("\texample: sudo %s -f 0 -r 10000 -a 1 -s -t -u", cT::print(exec, cT::fG::yellow).c_str());
+	printf("\texample: sudo %s -f 0 -r 10000 -a 1 -s -t -u\n", cT::print(exec, cT::fG::yellow).c_str());
 	
 	printf("%s\n", cT::print("\nTerminate:", cT::fG::red).c_str());
 	printf("\tType \"%s\" or \"%s\" or \"%s\" or \"%s\" and press the Return key or terminate csgo\n\n", cT::print("stop", cT::fG::yellow).c_str(), cT::print("exit", cT::fG::yellow).c_str(), cT::print("quit", cT::fG::yellow).c_str(), cT::print("q", cT::fG::yellow).c_str());
