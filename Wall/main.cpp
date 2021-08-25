@@ -18,27 +18,30 @@
 
 /*
  Usage:
- sudo ./Wall [-f <max flash alpha>] [-r <refresh rate>] [-a <glow alpha>] [-s] [-t] [-u] [-o] [-h]
- 
- Terminate:
- Type "stop" or "exit" or "quit" or "q" and press the Return key or terminate csgo
- 
- -f <flash alpha>	: Antiflash alpha max amount (default: -1, disable: -1, range: [0-2700])
- -r <refresh rate>	: Refresh rate in microseconds (default: 10000.0)
- -a <glow alpha>		: Glow alpha (default 0.5, range: [0-1])
- -s			: Enables Spotted on Radar
- -t			: Enable teammate glow
- -u			: Enable weapons/utility/bomb/chicken glow
- -o			: Get new offsets (only use with -insecure launch option flag in CSGO)
- -h			: Display this message
- 
- Rank Reveal:
- Type "ranks" and press the Return key
- - use command-K to clear the screen
- 
- Note:
- 1) -o is currently unavailable
- 2) use sv_dump_class_info to find more entity classes
+	sudo ./Wall [-f <max flash alpha>] [-r <refresh rate>] [-a <glow alpha>] [-s] [-t] [-u] [-o] [-h]
+
+	-f <flash alpha>	: Antiflash alpha max amount (default: -1, disable: -1, range: [0-2700])
+	-r <refresh rate>	: Refresh rate in microseconds (default: 10000.0)
+	-a <glow alpha>		: Glow alpha (default 0.5, range: [0-1])
+	-s			: Enables Spotted on Radar
+	-t			: Enable teammate glow
+	-u			: Enable weapons/utility/bomb/chicken glow
+	-o			: Get new offsets (only use with -insecure launch option flag in CSGO)
+	-h			: Display this message
+
+Example:
+	example: sudo ./Wall -f 0 -r 10000 -a 0.5 -s -t -u
+
+Terminate:
+	Type "stop" or "exit" or "quit" or "q" and press the Return key or terminate csgo
+
+Rank Reveal:
+	Type "ranks" and press the Return key
+		- use command-K to clear the screen
+
+Note:
+	1) -o is currently unavailable
+	2) use sv_dump_class_info to find more entity classes
 */
 
 #include "Wall.hpp"
@@ -50,7 +53,7 @@
 
 void usage(const char* exec) {
 	printf("%s\n", cT::print("\nUsage:", cT::fG::green).c_str());
-	printf("\tsudo %s [-f <max flash alpha>] [-r <refresh rate>] [-a <glow alpha>] [-s] [-t] [-u] [-o] [-h]\n", cT::print(exec, cT::fG::yellow).c_str());
+	printf("\tsudo %s [-f <max flash alpha>] [-r <refresh rate>] [-a <glow alpha>] [-s] [-t] [-u] [-o] [-h]\n\n", cT::print(exec, cT::fG::yellow).c_str());
 	
 	printf("\t-f <flash alpha>\t: Antiflash alpha max amount (default: -1, disable: -1, range: [0-2700])\n");
 	printf("\t-r <refresh rate>\t: Refresh rate in microseconds (default: 10000.0)\n");
@@ -59,13 +62,13 @@ void usage(const char* exec) {
 	printf("\t-t\t\t\t: Enable teammate glow\n");
 	printf("\t-u\t\t\t: Enable weapons/utility/bomb/chicken glow\n");
 	printf("\t-o\t\t\t: Get new offsets (only use with -insecure launch option flag in CSGO)\n");
-	printf("\t-h\t\t\t: Display this message\n\n");
+	printf("\t-h\t\t\t: Display this message\n");
 	
 	printf("%s\n", cT::print("\nExample:", cT::fG::white).c_str());
-	printf("\texample: sudo %s -f 0 -r 10000 -a 1 -s -t -u\n", cT::print(exec, cT::fG::yellow).c_str());
+	printf("\texample: sudo %s -f 0 -r 10000 -a 0.5 -s -t -u\n", cT::print(exec, cT::fG::yellow).c_str());
 	
 	printf("%s\n", cT::print("\nTerminate:", cT::fG::red).c_str());
-	printf("\tType \"%s\" or \"%s\" or \"%s\" or \"%s\" and press the Return key or terminate csgo\n\n", cT::print("stop", cT::fG::yellow).c_str(), cT::print("exit", cT::fG::yellow).c_str(), cT::print("quit", cT::fG::yellow).c_str(), cT::print("q", cT::fG::yellow).c_str());
+	printf("\tType \"%s\" or \"%s\" or \"%s\" or \"%s\" and press the Return key or terminate csgo\n", cT::print("stop", cT::fG::yellow).c_str(), cT::print("exit", cT::fG::yellow).c_str(), cT::print("quit", cT::fG::yellow).c_str(), cT::print("q", cT::fG::yellow).c_str());
 	
 	printf("%s\n", cT::print("\nRank Reveal:", cT::fG::white).c_str());
 	printf("\tType \"%s\" and press the Return key\n", cT::print("ranks", cT::fG::yellow).c_str());
