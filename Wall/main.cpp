@@ -51,19 +51,29 @@
 void usage(const char* exec) {
 	printf("%s\n", cT::print("\nUsage:", cT::fG::green).c_str());
 	printf("\tsudo %s [-f <max flash alpha>] [-r <refresh rate>] [-a <glow alpha>] [-s] [-t] [-u] [-o] [-h]\n", cT::print(exec, cT::fG::yellow).c_str());
-	printf("%s\n", cT::print("\nTerminate:", cT::fG::red).c_str());
-	printf("\tType \"%s\" or \"%s\" or \"%s\" or \"%s\" and press the Return key or terminate csgo\n\n", cT::print("stop", cT::fG::yellow).c_str(), cT::print("exit", cT::fG::yellow).c_str(), cT::print("quit", cT::fG::yellow).c_str(), cT::print("q", cT::fG::yellow).c_str());
+	
 	printf("\t-f <flash alpha>\t: Antiflash alpha max amount (default: -1, disable: -1, range: [0-2700])\n");
 	printf("\t-r <refresh rate>\t: Refresh rate in microseconds (default: 10000.0)\n");
 	printf("\t-a <glow alpha>\t\t: Glow alpha (default 0.5, range: [0-1])\n");
 	printf("\t-s\t\t\t: Enables Spotted on Radar\n");
 	printf("\t-t\t\t\t: Enable teammate glow\n");
 	printf("\t-u\t\t\t: Enable weapons/utility/bomb/chicken glow\n");
-	printf("\tRank Reveal:\n");
-	printf("\tType \"%s\" and press the Return key\n", cT::print("ranks", cT::fG::yellow).c_str());
-	printf("\t\t- use %s to clear the screen\n", cT::print("command-K", cT::fG::yellow).c_str());
 	printf("\t-o\t\t\t: Get new offsets (only use with -insecure launch option flag in CSGO)\n");
 	printf("\t-h\t\t\t: Display this message\n\n");
+	
+	printf("%s\n", cT::print("\nExample:", cT::fG::white).c_str());
+	printf("\texample: sudo %s -f 0 -r 10000 -a 1 -s -t -u", cT::print(exec, cT::fG::yellow).c_str());
+	
+	printf("%s\n", cT::print("\nTerminate:", cT::fG::red).c_str());
+	printf("\tType \"%s\" or \"%s\" or \"%s\" or \"%s\" and press the Return key or terminate csgo\n\n", cT::print("stop", cT::fG::yellow).c_str(), cT::print("exit", cT::fG::yellow).c_str(), cT::print("quit", cT::fG::yellow).c_str(), cT::print("q", cT::fG::yellow).c_str());
+	
+	printf("%s\n", cT::print("\nRank Reveal:", cT::fG::white).c_str());
+	printf("\tType \"%s\" and press the Return key\n", cT::print("ranks", cT::fG::yellow).c_str());
+	printf("\t\t- use %s to clear the screen\n", cT::print("command-K", cT::fG::yellow).c_str());
+	
+	printf("%s\n", cT::print("\nNote:", cT::fG::white).c_str());
+	printf("\t1) -o is currently unavailable\n");
+	printf("\t2) use sv_dump_class_info to find more entity classes\n");
 }
 
 int main(int argc, char** argv) {
