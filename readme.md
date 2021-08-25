@@ -18,7 +18,7 @@
 	1) -o is currently unavailable
 	2) use sv_dump_class_info to find more entity classes
 ## Example:
-	example: sudo ./Wall -f 0 -r 10000 -a 1 -s -t -u
+	example: sudo ./Wall -f 0 -r 10000 -a 0.5 -s -t -u
 ## Terminate:
 	Type "stop" or "exit" or "quit" or "q" and press the Return key or terminate csgo
 ## Rank Reveal:
