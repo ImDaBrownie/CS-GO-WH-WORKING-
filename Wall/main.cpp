@@ -78,7 +78,7 @@ void usage(const char* exec) {
 	printf("%s\n", cT::print("\nRank Reveal:", cT::fG::white).c_str());
 	printf("\tType \"%s\" and press the Return key\n", cT::print("ranks", cT::fG::yellow).c_str());
 	printf("\t\t- use %s to clear the screen\n", cT::print("command-K", cT::fG::yellow).c_str());
-	printf("\If \"%s\"\n", cT::print("playerResource: 0x0 failed", cT::fG::yellow).c_str());
+	printf("\tIf \"%s\"\n", cT::print("playerResource: 0x0 failed", cT::fG::yellow).c_str());
 	printf("\t\t- use %s option to disable the rank revealer\n", cT::print("-n", cT::fG::yellow).c_str());
 	
 	printf("%s\n", cT::print("\nNote:", cT::fG::white).c_str());
