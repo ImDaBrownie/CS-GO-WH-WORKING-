@@ -12,13 +12,14 @@
 
 #include "Wall.hpp"
 
-Wall::Wall(double refreshRate, double maxFlash, double glowAlpha, bool noTeammates, bool noUtils, bool spotted)
+Wall::Wall(double refreshRate, double maxFlash, double glowAlpha, bool noTeammates, bool noUtils, bool noRanks, bool spotted)
 {
 	this->refreshRate 	= refreshRate;
 	this->maxFlash 		= maxFlash;
 	this->glowAlpha 	= glowAlpha;
 	this->noTeammates 	= noTeammates;
 	this->noUtils		= noUtils;
+	this->noRanks 		= noRanks;
 	this->spotted 		= spotted;
 	
 	stop.store(false);
@@ -403,7 +404,9 @@ bool Wall::EngineCheck()
 
 bool Wall::ClientCheck()
 {
-	bool cmp = off->client.m_dwLocalPlayer == 0x0 || off->client.m_dwEntityList == 0x0 || off->client.m_dwGlowManager == 0x0 || off->client.m_dwRadarBase == 0x0 || off->client.m_dwPlayerResource == 0x0;
+	bool cmp = off->client.m_dwLocalPlayer == 0x0 || off->client.m_dwEntityList == 0x0 || off->client.m_dwGlowManager == 0x0 || off->client.m_dwRadarBase == 0x0;
+	
+	if (!noRanks) { cmp |= off->client.m_dwPlayerResource == 0x0; }
 		
 	GetClientPointers();
 
@@ -412,14 +415,19 @@ bool Wall::ClientCheck()
 		printf("Entity List\t\t\t= %s0x%llx%s\n", cT::getColor(cT::fG::green).c_str(), off->client.m_dwEntityList, cT::getStyle(cT::sT::bold).c_str());
 		printf("Glow Manager\t\t\t= %s0x%llx%s\n", cT::getColor(cT::fG::green).c_str(), off->client.m_dwGlowManager, cT::getStyle(cT::sT::bold).c_str());
 		printf("Radar Base\t\t\t= %s0x%llx%s\n", cT::getColor(cT::fG::green).c_str(), off->client.m_dwRadarBase, cT::getStyle(cT::sT::bold).c_str());
-		printf("PlayerResource\t\t\t= %s0x%llx%s\n", cT::getColor(cT::fG::green).c_str(), off->client.m_dwPlayerResource, cT::getStyle(cT::sT::bold).c_str());
+		if (!noRanks) { 
+			printf("PlayerResource\t\t\t= %s0x%llx%s\n", cT::getColor(cT::fG::green).c_str(), off->client.m_dwPlayerResource, cT::getStyle(cT::sT::bold).c_str());
+		}
 	}
 	
 	*localPlayer = mem->read<sBasePlayer_t>(off->client.m_dwLocalPlayer);
 	*entityList = mem->read<sEntityList_t>(off->client.m_dwEntityList);
 	*glowManager = mem->read<sGlowManager_t>(off->client.m_dwGlowManager);
 	*radarManager = mem->read<C_RadarManager>(off->client.m_dwRadarBase);
-	*playerResource = mem->read<sPlayerResource_t>(off->client.m_dwPlayerResource);
+	
+	if (!noRanks) { 
+		*playerResource = mem->read<sPlayerResource_t>(off->client.m_dwPlayerResource);
+	}
 	
 	if (!localPlayer->IsValid()) {
 		printf("localPlayer: 0x%llx failed\n", localPlayer->m_hBase);
@@ -433,11 +441,17 @@ bool Wall::ClientCheck()
 	if (!radarManager->IsValid()) {
 		printf("radarManager: 0x%llx failed\n", radarManager->m_hBase);
 	}
-	if (!playerResource->IsValid()) {
-		printf("playerResource: 0x%llx failed\n", playerResource->m_hBase);
+	if (!noRanks) { 
+		if (!playerResource->IsValid()) {
+			printf("playerResource: 0x%llx failed\n", playerResource->m_hBase);
+		}
 	}
 	
-	return localPlayer->IsValid() && entityList->IsValid() && glowManager->IsValid() && radarManager->IsValid() && playerResource->IsValid();
+	cmp = localPlayer->IsValid() && entityList->IsValid() && glowManager->IsValid() && radarManager->IsValid();
+	
+	if (!noRanks) { cmp &= playerResource->IsValid();}
+	
+	return cmp;
 }
 void Wall::GetEnginePointers()
 {
