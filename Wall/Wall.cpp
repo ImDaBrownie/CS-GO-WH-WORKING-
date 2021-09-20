@@ -444,6 +444,7 @@ bool Wall::ClientCheck()
 	if (!noRanks) { 
 		if (!playerResource->IsValid()) {
 			printf("playerResource: 0x%llx failed\n", playerResource->m_hBase);
+			noRanks = true;
 		}
 	}
 	
