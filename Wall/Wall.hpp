@@ -73,6 +73,7 @@ class Wall {
 	double refreshRate 					= 10000.0f;
 	double maxFlash 					= -1.0f;
 	double glowAlpha 					= 0.5f;
+	bool noRanks 						= false;
 	bool noTeammates 					= true;
 	bool noUtils 						= true;
 	bool spotted 						= false;
@@ -85,7 +86,7 @@ class Wall {
 	static std::atomic<bool> revealRank;
 	
 public:
-	explicit Wall(double refreshRate, double maxFlash, double glowAlpha, bool noTeammates, bool noUtils, bool spotted);
+	explicit Wall(double refreshRate, double maxFlash, double glowAlpha, bool noTeammates, bool noUtils, bool noRanks, bool spotted);
 	~Wall();
 	
 	void 		Run();
