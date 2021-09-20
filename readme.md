@@ -3,11 +3,12 @@
 **Thanks to @gabsens and @e-retailer’s contribution to this project**
 
 ## Usage: 
-	sudo ./Wall [-f <max flash alpha>] [-r <refresh rate>] [-a <glow alpha>] [-s] [-t] [-u] [-o] [-h]
+	sudo ./Wall [-f <max flash alpha>] [-r <refresh rate>] [-a <glow alpha>] [-n] [-s] [-t] [-u] [-o] [-h]
 	
 	-f <flash alpha>	: Antiflash alpha max amount (default: -1, disable: -1, range: [0-2700])
 	-r <refresh rate>	: Refresh rate in microseconds (default: 10000.0)
 	-a <glow alpha>		: Glow alpha (default 0.5, range: [0-1])
+	-n			: Disables Ranks
 	-s			: Enables Spotted on Radar
 	-t			: Enable teammate glow
 	-u			: Enable weapons/utility/bomb/chicken glow
@@ -24,6 +25,8 @@
 ## Rank Reveal:
 	Type "ranks" and press the Return key
 		- use command-K to clear the screen
+	If "playerResource: 0x0 failed"
+		- use '-n' to disable the rank revealer until the offset is updated
 
 ### Hello World
 if you are newbie and have never use Xcode, go and watch @gabsens’s [Video at Youtube](https://www.youtube.com/watch?v=AefIiBg2HKU)
