@@ -18,11 +18,12 @@
 
 /*
  Usage:
-	sudo ./Wall [-f <max flash alpha>] [-r <refresh rate>] [-a <glow alpha>] [-s] [-t] [-u] [-o] [-h]
+	sudo ./Wall [-f <max flash alpha>] [-r <refresh rate>] [-a <glow alpha>] [-n] [-s] [-t] [-u] [-o] [-h]
 
 	-f <flash alpha>	: Antiflash alpha max amount (default: -1, disable: -1, range: [0-2700])
 	-r <refresh rate>	: Refresh rate in microseconds (default: 10000.0)
 	-a <glow alpha>		: Glow alpha (default 0.5, range: [0-1])
+	-n			: Disables Ranks
 	-s			: Enables Spotted on Radar
 	-t			: Enable teammate glow
 	-u			: Enable weapons/utility/bomb/chicken glow
@@ -30,7 +31,7 @@
 	-h			: Display this message
 
 Example:
-	example: sudo ./Wall -f 0 -r 10000 -a 0.5 -s -t -u
+	example: sudo ./Wall -f 0 -r 10000 -a 0.5 -n -s -t -u
 
 Terminate:
 	Type "stop" or "exit" or "quit" or "q" and press the Return key or terminate csgo
@@ -38,6 +39,9 @@ Terminate:
 Rank Reveal:
 	Type "ranks" and press the Return key
 		- use command-K to clear the screen
+		
+	If "playerResource: 0x0 failed"
+		- use '-n' to disable the rank revealer until the offset is updated
 
 Note:
 	1) -o is currently unavailable
@@ -58,6 +62,7 @@ void usage(const char* exec) {
 	printf("\t-f <flash alpha>\t: Antiflash alpha max amount (default: -1, disable: -1, range: [0-2700])\n");
 	printf("\t-r <refresh rate>\t: Refresh rate in microseconds (default: 10000.0)\n");
 	printf("\t-a <glow alpha>\t\t: Glow alpha (default 0.5, range: [0-1])\n");
+	printf("\t-n\t\t\t: Disables Ranks\n");
 	printf("\t-s\t\t\t: Enables Spotted on Radar\n");
 	printf("\t-t\t\t\t: Enable teammate glow\n");
 	printf("\t-u\t\t\t: Enable weapons/utility/bomb/chicken glow\n");
@@ -73,6 +78,8 @@ void usage(const char* exec) {
 	printf("%s\n", cT::print("\nRank Reveal:", cT::fG::white).c_str());
 	printf("\tType \"%s\" and press the Return key\n", cT::print("ranks", cT::fG::yellow).c_str());
 	printf("\t\t- use %s to clear the screen\n", cT::print("command-K", cT::fG::yellow).c_str());
+	printf("\If \"%s\"\n", cT::print("playerResource: 0x0 failed", cT::fG::yellow).c_str());
+	printf("\t\t- use %s option to disable the rank revealer\n", cT::print("-n", cT::fG::yellow).c_str());
 	
 	printf("%s\n", cT::print("\nNote:", cT::fG::white).c_str());
 	printf("\t1) -o is currently unavailable\n");
@@ -88,11 +95,12 @@ int main(int argc, char** argv) {
 	int opt;
 
 	bool getOffsets 	= false;
+	bool noRanks 		= false;
 	bool noTeammates 	= true;
 	bool noUtils 		= true;
 	bool spotted 		= false;
 	
-	while ((opt =  getopt(argc, argv, "f:r:a:stuoh")) != -1) {
+	while ((opt =  getopt(argc, argv, "f:r:a:nstuoh")) != -1) {
 		switch (opt) {
 			case 'f':
 				try {
@@ -130,6 +138,8 @@ int main(int argc, char** argv) {
 					return 0;
 				}
 				break;
+			case 'n':
+				noRanks = true;
 			case 's':
 				spotted = true;
 			case 't':
@@ -151,7 +161,7 @@ int main(int argc, char** argv) {
 	std::system("defaults write .GlobalPreferences com.apple.mouse.scaling -1");
 	std::system("clear");
 	
-	Wall wall(refreshRate, maxFlash, glowAlpha, noTeammates, noUtils, spotted);
+	Wall wall(refreshRate, maxFlash, glowAlpha, noTeammates, noUtils, noRanks, spotted);
 
 	wall.Run();
 	
