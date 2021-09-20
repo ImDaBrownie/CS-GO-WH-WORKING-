@@ -406,7 +406,7 @@ bool Wall::ClientCheck()
 {
 	bool cmp = off->client.m_dwLocalPlayer == 0x0 || off->client.m_dwEntityList == 0x0 || off->client.m_dwGlowManager == 0x0 || off->client.m_dwRadarBase == 0x0;
 	
-	if (!noRanks) { cmp |= off->client.m_dwPlayerResource == 0x0; }
+	if (!noRanks) { cmp = cmp || off->client.m_dwPlayerResource == 0x0; }
 		
 	GetClientPointers();
 
@@ -450,7 +450,7 @@ bool Wall::ClientCheck()
 	
 	cmp = localPlayer->IsValid() && entityList->IsValid() && glowManager->IsValid() && radarManager->IsValid();
 	
-	if (!noRanks) { cmp &= playerResource->IsValid();}
+	if (!noRanks) { cmp = cmp && playerResource->IsValid();}
 	
 	return cmp;
 }
