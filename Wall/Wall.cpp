@@ -197,9 +197,8 @@ void Wall::ApplyGlow()
 					click_up    = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseUp, cursor, kCGMouseButtonLeft);
 	
 					CGEventPost(kCGHIDEventTap, click_down);
-					usleep((((double) rand() / (RAND_MAX)) + 1) * 100);
+					usleep((((double) rand() / (RAND_MAX)) + 1) * 10);
 					CGEventPost(kCGHIDEventTap, click_up);
-					usleep((((double) rand() / (RAND_MAX)) + 1) * 100);
 	
 					CFRelease(click_down);
 					CFRelease(click_up);
