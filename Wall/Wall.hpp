@@ -82,7 +82,7 @@ class Wall {
 	bool noTeammates 					= true;
 	bool noUtils 						= true;
 	bool spotted 						= false;
-	bool triggerbot 					= false;
+	bool triggerBot 					= false;
 	
 	static Process* g_cProc;
 	static MemMngr* mem;
@@ -92,7 +92,7 @@ class Wall {
 	static std::atomic<bool> revealRank;
 	
 public:
-	explicit Wall(double refreshRate, double maxFlash, double glowAlpha, bool noTeammates, bool noUtils, bool noRanks, bool spotted, bool triggerbot);
+	explicit Wall(double refreshRate, double maxFlash, double glowAlpha, bool noTeammates, bool noUtils, bool noRanks, bool spotted, bool triggerBot);
 	~Wall();
 	
 	void 		Run();
