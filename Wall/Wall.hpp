@@ -48,6 +48,11 @@ class Wall {
 	class C_RadarObject;
 	class C_RadarStruct;
 	
+	CGEventRef event;
+	CGPoint cursor;
+	CGEventRef click_down;
+	CGEventRef click_up;
+	
 	std::vector<sEntityList_t> entities;
 	
 	Scanner* engineScanner 				= nullptr;
