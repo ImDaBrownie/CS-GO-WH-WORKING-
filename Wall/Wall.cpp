@@ -378,31 +378,33 @@ void Wall::ApplyGlow()
 		revealRank.store(false);
 	}
 	
-	uint64_t crosshairid =  mem->read<uint64_t>(localPlayer->m_hBase + off->client.m_dwCrosshairID);
-	
-	if (crosshairid > 0 && crosshairid < 60) {
-		ParseEntityList();
-		
-		if (crosshairid < entities.size()) {
-			if (entities[crosshairid].Team() != localPlayer->Team()) {
-				event       = CGEventCreate(NULL);
-				cursor      = CGEventGetLocation(event);
-				
-				click_down  = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseDown, cursor, kCGMouseButtonLeft);
-				click_up    = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseUp, cursor, kCGMouseButtonLeft);
-				
-				CGEventPost(kCGHIDEventTap, click_down);
-				usleep((((double) rand() / (RAND_MAX)) + 1) * 1000);
-				CGEventPost(kCGHIDEventTap, click_up);
-				usleep((((double) rand() / (RAND_MAX)) + 1) * 100);
-				
-				CFRelease(click_down);
-				CFRelease(click_up);
-				CFRelease(event);
+	if (triggerbot) {
+		uint64_t crosshairid =  mem->read<uint64_t>(localPlayer->m_hBase + off->client.m_dwCrosshairID);
+
+		if (crosshairid > 0 && crosshairid < 60) {
+			ParseEntityList();
+
+			if (crosshairid < entities.size()) {
+				if (entities[crosshairid].Team() != localPlayer->Team()) {
+					event       = CGEventCreate(NULL);
+					cursor      = CGEventGetLocation(event);
+
+					click_down  = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseDown, cursor, kCGMouseButtonLeft);
+					click_up    = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseUp, cursor, kCGMouseButtonLeft);
+
+					CGEventPost(kCGHIDEventTap, click_down);
+					usleep((((double) rand() / (RAND_MAX)) + 1) * 1000);
+					CGEventPost(kCGHIDEventTap, click_up);
+					usleep((((double) rand() / (RAND_MAX)) + 1) * 100);
+
+					CFRelease(click_down);
+					CFRelease(click_up);
+					CFRelease(event);
+				}
 			}
+
+			entities.clear();
 		}
-		
-		entities.clear();
 	}
 	
 //	ParseEntityList();
