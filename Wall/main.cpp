@@ -18,11 +18,12 @@
 
 /*
  Usage:
-	sudo ./Wall [-f <max flash alpha>] [-r <refresh rate>] [-a <glow alpha>] [-n] [-s] [-t] [-u] [-o] [-h]
+	sudo ./Wall [-f <max flash alpha>] [-r <refresh rate>] [-a <glow alpha>] [-g] [-n] [-s] [-t] [-u] [-o] [-h]
 
 	-f <flash alpha>	: Antiflash alpha max amount (default: -1, disable: -1, range: [0-2700])
 	-r <refresh rate>	: Refresh rate in microseconds (default: 10000.0)
 	-a <glow alpha>		: Glow alpha (default 0.5, range: [0-1])
+	-g			: Enables TriggerBot
 	-n			: Disables Ranks
 	-s			: Enables Spotted on Radar
 	-t			: Enable teammate glow
@@ -31,7 +32,7 @@
 	-h			: Display this message
 
 Example:
-	example: sudo ./Wall -f 0 -r 10000 -a 0.5 -n -s -t -u
+	example: sudo ./Wall -f 0 -r 10000 -a 0.5 -g -n -s -t -u
 
 Terminate:
 	Type "stop" or "exit" or "quit" or "q" and press the Return key or terminate csgo
@@ -42,7 +43,12 @@ Rank Reveal:
 		
 	If "playerResource: 0x0 failed"
 		- use '-n' to disable the rank revealer until the offset is updated
-
+		
+TriggerBot:
+	Only works in Fullscreen or Fullscreen Windowed
+	Still buggy when tabbing out
+	Random click up & down times
+	
 Note:
 	1) -o is currently unavailable
 	2) use sv_dump_class_info to find more entity classes
@@ -57,11 +63,12 @@ Note:
 
 void usage(const char* exec) {
 	printf("%s\n", cT::print("\nUsage:", cT::fG::green).c_str());
-	printf("\tsudo %s [-f <max flash alpha>] [-r <refresh rate>] [-a <glow alpha>] [-s] [-t] [-u] [-o] [-h]\n\n", cT::print(exec, cT::fG::yellow).c_str());
+	printf("\tsudo %s [-f <max flash alpha>] [-r <refresh rate>] [-a <glow alpha>] [-g] [-n] [-s] [-t] [-u] [-o] [-h]\n\n", cT::print(exec, cT::fG::yellow).c_str());
 	
 	printf("\t-f <flash alpha>\t: Antiflash alpha max amount (default: -1, disable: -1, range: [0-2700])\n");
 	printf("\t-r <refresh rate>\t: Refresh rate in microseconds (default: 10000.0)\n");
 	printf("\t-a <glow alpha>\t\t: Glow alpha (default 0.5, range: [0-1])\n");
+	printf("\t-g\t\t\t: Enables TriggerBot\n");
 	printf("\t-n\t\t\t: Disables Ranks\n");
 	printf("\t-s\t\t\t: Enables Spotted on Radar\n");
 	printf("\t-t\t\t\t: Enable teammate glow\n");
@@ -70,7 +77,7 @@ void usage(const char* exec) {
 	printf("\t-h\t\t\t: Display this message\n");
 	
 	printf("%s\n", cT::print("\nExample:", cT::fG::white).c_str());
-	printf("\texample: sudo %s -f 0 -r 10000 -a 0.5 -s -t -u\n", cT::print(exec, cT::fG::yellow).c_str());
+	printf("\texample: sudo %s -f 0 -r 10000 -a 0.5 -g -n -s -t -u\n", cT::print(exec, cT::fG::yellow).c_str());
 	
 	printf("%s\n", cT::print("\nTerminate:", cT::fG::red).c_str());
 	printf("\tType \"%s\" or \"%s\" or \"%s\" or \"%s\" and press the Return key or terminate csgo\n", cT::print("stop", cT::fG::yellow).c_str(), cT::print("exit", cT::fG::yellow).c_str(), cT::print("quit", cT::fG::yellow).c_str(), cT::print("q", cT::fG::yellow).c_str());
@@ -80,6 +87,11 @@ void usage(const char* exec) {
 	printf("\t\t- use %s to clear the screen\n", cT::print("command-K", cT::fG::yellow).c_str());
 	printf("\tIf \"%s\"\n", cT::print("playerResource: 0x0 failed", cT::fG::yellow).c_str());
 	printf("\t\t- use %s option to disable the rank revealer\n", cT::print("-n", cT::fG::yellow).c_str());
+	
+	printf("%s\n", cT::print("\nTriggerBot:", cT::fG::white).c_str());
+	printf("\tOnly works in %s or %s\n", cT::print("Fullscreen", cT::fG::yellow).c_str(), cT::print("Fullscreen Windowed", cT::fG::yellow).c_str());
+	printf("\tStill buggy when tabbing out\n");
+	printf("\tRandom click up & down times\n");
 	
 	printf("%s\n", cT::print("\nNote:", cT::fG::white).c_str());
 	printf("\t1) -o is currently unavailable\n");
@@ -94,6 +106,7 @@ int main(int argc, char** argv) {
 
 	int opt;
 
+	bool triggerBot 	= false;
 	bool getOffsets 	= false;
 	bool noRanks 		= false;
 	bool noTeammates 	= true;
@@ -138,6 +151,8 @@ int main(int argc, char** argv) {
 					return 0;
 				}
 				break;
+			case 'g':
+				triggerbot = true;
 			case 'n':
 				noRanks = true;
 			case 's':
@@ -161,7 +176,7 @@ int main(int argc, char** argv) {
 	std::system("defaults write .GlobalPreferences com.apple.mouse.scaling -1");
 	std::system("clear");
 	
-	Wall wall(refreshRate, maxFlash, glowAlpha, noTeammates, noUtils, noRanks, spotted);
+	Wall wall(refreshRate, maxFlash, glowAlpha, noTeammates, noUtils, noRanks, spotted, triggerbot);
 
 	wall.Run();
 	
