@@ -12,7 +12,7 @@
 
 #include "Wall.hpp"
 
-Wall::Wall(double refreshRate, double maxFlash, double glowAlpha, bool noTeammates, bool noUtils, bool noRanks, bool spotted)
+Wall::Wall(double refreshRate, double maxFlash, double glowAlpha, bool noTeammates, bool noUtils, bool noRanks, bool spotted, bool triggerbot)
 {
 	this->refreshRate 	= refreshRate;
 	this->maxFlash 		= maxFlash;
@@ -21,6 +21,7 @@ Wall::Wall(double refreshRate, double maxFlash, double glowAlpha, bool noTeammat
 	this->noUtils		= noUtils;
 	this->noRanks 		= noRanks;
 	this->spotted 		= spotted;
+	this->triggerbot 	= triggerbot;
 	
 	stop.store(false);
 	
@@ -377,6 +378,33 @@ void Wall::ApplyGlow()
 		revealRank.store(false);
 	}
 	
+	uint64_t crosshairid =  mem->read<uint64_t>(localPlayer->m_hBase + off->client.m_dwCrosshairID);
+	
+	if (crosshairid > 0 && crosshairid < 60) {
+		ParseEntityList();
+		
+		if (crosshairid < entities.size()) {
+			if (entities[crosshairid].Team() != localPlayer->Team()) {
+				event       = CGEventCreate(NULL);
+				cursor      = CGEventGetLocation(event);
+				
+				click_down  = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseDown, cursor, kCGMouseButtonLeft);
+				click_up    = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseUp, cursor, kCGMouseButtonLeft);
+				
+				CGEventPost(kCGHIDEventTap, click_down);
+				usleep((((double) rand() / (RAND_MAX)) + 1) * 1000);
+				CGEventPost(kCGHIDEventTap, click_up);
+				usleep((((double) rand() / (RAND_MAX)) + 1) * 100);
+				
+				CFRelease(click_down);
+				CFRelease(click_up);
+				CFRelease(event);
+			}
+		}
+		
+		entities.clear();
+	}
+	
 //	ParseEntityList();
 //	for (auto& entity: entities) {
 //		printf("%s -> 0x%llx\n", entity.EntityClass().c_str(), entity.m_hBase);
@@ -504,6 +532,8 @@ void Wall::GetClientPointers()
 	 
 	 printf("Player Resource: 0x%llx\n", off->client.m_dwPlayerResource);
 	 */
+	
+	off->client.m_dwCrosshairID = clientScanner->getOffset((Byte *) "\x76\x35\x8B\x83\x00\x00\x00\x00\x85\xC0\x75\x2D\x83\xBB\x00\x00\x00\x00\x00\x74\x2B\x48\x8D\xBB", "xxxx????xxxxxx????xxxxxx", 0x4);
 }
 
 void Wall::StopThread()
