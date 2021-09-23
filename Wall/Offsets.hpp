@@ -71,7 +71,7 @@ public:
 		uint64_t m_flFlashMaxAlpha						= 0xAD4C; // 0xAD2C
 		uint64_t m_flFlashDuration						= 0xAD50; // 0xAD30
 		uint64_t m_iGlowIndex							= 0xAD68; // 0xAD48 // 0xAD2C
-//		uint64_t m_dwCrosshairID               		 	= 0xBC08;
+		uint64_t m_dwCrosshairID               		 			= 0x11D88; // 0xBC08;
 		
 //		uint64_t m_iClip1 								= 0x3AE4;
 		uint64_t m_bInReload 							= 0x3B29;
