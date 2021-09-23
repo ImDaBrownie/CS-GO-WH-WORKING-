@@ -152,7 +152,7 @@ int main(int argc, char** argv) {
 				}
 				break;
 			case 'g':
-				triggerbot = true;
+				triggerBot = true;
 			case 'n':
 				noRanks = true;
 			case 's':
@@ -176,7 +176,7 @@ int main(int argc, char** argv) {
 	std::system("defaults write .GlobalPreferences com.apple.mouse.scaling -1");
 	std::system("clear");
 	
-	Wall wall(refreshRate, maxFlash, glowAlpha, noTeammates, noUtils, noRanks, spotted, triggerbot);
+	Wall wall(refreshRate, maxFlash, glowAlpha, noTeammates, noUtils, noRanks, spotted, triggerBot);
 
 	wall.Run();
 	
