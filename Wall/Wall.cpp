@@ -155,6 +155,8 @@ void Wall::ApplyGlow()
 	int i_teamNum = localPlayer->Team();
 	
 	bool cmp = false;
+	
+	uint64_t crosshairid =  mem->read<uint64_t>(localPlayer->m_hBase + off->client.m_dwCrosshairID);
 
 	for (int i = 0; i < glowManager->Capacity(); ++i) {
 		
@@ -186,6 +188,23 @@ void Wall::ApplyGlow()
                 team = glow->Team();
 				
 				cmp = team != i_teamNum;
+			
+			if (triggerBot && player->ID() == crosshairid && cmp) {
+					event       = CGEventCreate(NULL);
+					cursor      = CGEventGetLocation(event);
+	
+					click_down  = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseDown, cursor, kCGMouseButtonLeft);
+					click_up    = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseUp, cursor, kCGMouseButtonLeft);
+	
+					CGEventPost(kCGHIDEventTap, click_down);
+					usleep((((double) rand() / (RAND_MAX)) + 1) * 100);
+					CGEventPost(kCGHIDEventTap, click_up);
+					usleep((((double) rand() / (RAND_MAX)) + 1) * 100);
+	
+					CFRelease(click_down);
+					CFRelease(click_up);
+					CFRelease(event);
+				}
 
 				if (noTeammates && !cmp) {
                     break;
@@ -376,35 +395,6 @@ void Wall::ApplyGlow()
 		printf("######### DONE #########\n");
 		
 		revealRank.store(false);
-	}
-	
-	if (triggerBot) {
-		uint64_t crosshairid =  mem->read<uint64_t>(localPlayer->m_hBase + off->client.m_dwCrosshairID);
-
-		if (crosshairid > 0 && crosshairid < 60) {
-			ParseEntityList();
-
-			if (crosshairid < entities.size()) {
-				if (entities[crosshairid].Team() != localPlayer->Team()) {
-					event       = CGEventCreate(NULL);
-					cursor      = CGEventGetLocation(event);
-
-					click_down  = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseDown, cursor, kCGMouseButtonLeft);
-					click_up    = CGEventCreateMouseEvent(NULL, kCGEventLeftMouseUp, cursor, kCGMouseButtonLeft);
-
-					CGEventPost(kCGHIDEventTap, click_down);
-					usleep((((double) rand() / (RAND_MAX)) + 1) * 1000);
-					CGEventPost(kCGHIDEventTap, click_up);
-					usleep((((double) rand() / (RAND_MAX)) + 1) * 100);
-
-					CFRelease(click_down);
-					CFRelease(click_up);
-					CFRelease(event);
-				}
-			}
-
-			entities.clear();
-		}
 	}
 	
 //	ParseEntityList();
