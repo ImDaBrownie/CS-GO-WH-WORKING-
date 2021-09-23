@@ -12,7 +12,7 @@
 
 #include "Wall.hpp"
 
-Wall::Wall(double refreshRate, double maxFlash, double glowAlpha, bool noTeammates, bool noUtils, bool noRanks, bool spotted, bool triggerbot)
+Wall::Wall(double refreshRate, double maxFlash, double glowAlpha, bool noTeammates, bool noUtils, bool noRanks, bool spotted, bool triggerBot)
 {
 	this->refreshRate 	= refreshRate;
 	this->maxFlash 		= maxFlash;
@@ -21,7 +21,7 @@ Wall::Wall(double refreshRate, double maxFlash, double glowAlpha, bool noTeammat
 	this->noUtils		= noUtils;
 	this->noRanks 		= noRanks;
 	this->spotted 		= spotted;
-	this->triggerbot 	= triggerbot;
+	this->triggerBot 	= triggerBot;
 	
 	stop.store(false);
 	
@@ -378,7 +378,7 @@ void Wall::ApplyGlow()
 		revealRank.store(false);
 	}
 	
-	if (triggerbot) {
+	if (triggerBot) {
 		uint64_t crosshairid =  mem->read<uint64_t>(localPlayer->m_hBase + off->client.m_dwCrosshairID);
 
 		if (crosshairid > 0 && crosshairid < 60) {
