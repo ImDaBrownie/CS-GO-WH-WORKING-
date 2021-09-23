@@ -3,11 +3,12 @@
 **Thanks to @gabsens and @e-retailer’s contribution to this project**
 
 ## Usage: 
-	sudo ./Wall [-f <max flash alpha>] [-r <refresh rate>] [-a <glow alpha>] [-n] [-s] [-t] [-u] [-o] [-h]
+	sudo ./Wall [-f <max flash alpha>] [-r <refresh rate>] [-a <glow alpha>] [-g] [-n] [-s] [-t] [-u] [-o] [-h]
 	
 	-f <flash alpha>	: Antiflash alpha max amount (default: -1, disable: -1, range: [0-2700])
 	-r <refresh rate>	: Refresh rate in microseconds (default: 10000.0)
 	-a <glow alpha>		: Glow alpha (default 0.5, range: [0-1])
+	-g			: Enables TriggerBot
 	-n			: Disables Ranks
 	-s			: Enables Spotted on Radar
 	-t			: Enable teammate glow
@@ -19,7 +20,7 @@
 	1) -o is currently unavailable
 	2) use sv_dump_class_info to find more entity classes
 ## Example:
-	sudo ./Wall -f 0 -r 10000 -a 0.5 -s -t -u
+	sudo ./Wall -f 0 -r 10000 -a 0.5 -g -n -s -t -u
 ## Terminate:
 	Type "stop" or "exit" or "quit" or "q" and press the Return key or terminate csgo
 ## Rank Reveal:
@@ -27,6 +28,11 @@
 		- use command-K to clear the screen
 	If "playerResource: 0x0 failed"
 		- use '-n' to disable the rank revealer until the offset is updated
+		
+## TriggerBot:
+	Only works in Fullscreen or Fullscreen Windowed
+	Still buggy when tabbing out
+	Random click up & down times
 
 ### Hello World
 if you are newbie and have never use Xcode, go and watch @gabsens’s [Video at Youtube](https://www.youtube.com/watch?v=AefIiBg2HKU)
