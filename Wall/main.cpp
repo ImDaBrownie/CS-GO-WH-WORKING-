@@ -113,7 +113,7 @@ int main(int argc, char** argv) {
 	bool noUtils 		= true;
 	bool spotted 		= false;
 	
-	while ((opt =  getopt(argc, argv, "f:r:a:nstuoh")) != -1) {
+	while ((opt =  getopt(argc, argv, "f:r:a:gnstuoh")) != -1) {
 		switch (opt) {
 			case 'f':
 				try {
