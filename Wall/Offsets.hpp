@@ -64,35 +64,31 @@ public:
 //		uint64_t m_hLocalPlayer							= 0x3700;
 //		uint64_t m_hViewModelIndex						= 0x3AE4;
 		uint64_t m_iEquipped 							= 0x3AD8;
-		uint64_t m_bHasMovedSinceSpawn						= 0x4245;
+		uint64_t m_bHasMovedSinceSpawn					= 0x4245;
 		uint64_t m_iShotFired							= 0x10D00; // 0xACC0;
 		uint64_t m_flFlashMaxAlpha						= 0x10D90; // 0xAD4C; // 0xAD2C
 		uint64_t m_flFlashDuration						= 0x10D8C; // 0xAD50; // 0xAD30
 		uint64_t m_iGlowIndex							= 0xAD68; // 0xAD48 // 0xAD2C
-		uint64_t m_dwCrosshairID               		 			= 0x11D88; // 0xBC08;
-		uint64_t m_iItemDefinitionIndex 					= 0x37BA;
+		uint64_t m_dwCrosshairID               		 	= 0x11D88; // 0xBC08;
+		uint64_t m_iItemDefinitionIndex 				= 0x37BA;
 		uint64_t m_iItemIDHigh 							= 0x37D0;
 		uint64_t m_iAccountID 							= 0x37D8;
-		uint64_t m_OriginalOwnerXuidHigh 					= 0x3A2C;
-		uint64_t m_OriginalOwnerXuidLow 					= 0x3A28;
+		uint64_t m_OriginalOwnerXuidHigh 				= 0x3A2C;
+		uint64_t m_OriginalOwnerXuidLow 				= 0x3A28;
 		uint64_t m_iEntityQuality 						= 0x37BC;
 		uint64_t m_szCustomName 						= 0x3890;
-		uint64_t m_nFallbackPaintKit 						= 0x3A30;
+		uint64_t m_nFallbackPaintKit 					= 0x3A30;
 		uint64_t m_nFallbackSeed 						= 0x3A34;
 		uint64_t m_flFallbackWear 						= 0x3A38;
-		uint64_t m_nFallbackStatTrak 						= 0x3A3C;
+		uint64_t m_nFallbackStatTrak 					= 0x3A3C;
 		uint64_t m_nModelIndex 							= 0x290;
-		uint64_t m_hWeapon 							= 0x3078; // 0x3538;
-		uint64_t m_hOwner 							= 0x307C; // 0x3AB0;
-		uint64_t m_fAccuracyPenalty 						= 0x3BCC;
+		uint64_t m_hWeapon 								= 0x3078; // 0x3538;
+		uint64_t m_fAccuracyPenalty 					= 0x3BCC;
 		uint64_t m_bStartedArming						= 0x3C9C;
-		uint64_t m_flNextPrimaryAttack 						= 0x3AC0;
-		uint64_t m_hOwner 							= 0x3AB8;
-		uint64_t m_iClip1 							= 0x3AEC; // 0x3AE4;
+		uint64_t m_flNextPrimaryAttack 					= 0x3AC0;
+		uint64_t m_hOwner 								= 0x307C; // 0x3AB8; // 0x3AB0;
+		uint64_t m_iClip1 								= 0x3AEC; // 0x3AE4;
 		uint64_t m_bShouldGlow 							= 0x3060;
-		
-		uint64_t m_bInReload 							= 0x3B29;
-		uint64_t m_iState 							= 0x3B34;
 		
 		// m_dwEntityList - ...
 //		uint64_t m_iMaxPlayers							= 0xDC00;
