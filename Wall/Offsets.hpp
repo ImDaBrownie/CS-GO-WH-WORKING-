@@ -67,8 +67,8 @@ public:
 		uint64_t m_iEquipped 							= 0x3AD8;
 		uint64_t m_bHasMovedSinceSpawn					= 0x4245;
 		uint64_t m_iShotFired							= 0x10D00; // 0xACC0;
-		uint64_t m_flFlashMaxAlpha						= 0x10D90; // 0xAD4C; // 0xAD2C
-		uint64_t m_flFlashDuration						= 0x10D8C; // 0xAD50; // 0xAD30
+		uint64_t m_flFlashMaxAlpha						= 0x10D8C; // 0xAD4C; // 0xAD2C
+		uint64_t m_flFlashDuration						= 0x10D90; // 0xAD50; // 0xAD30
 		uint64_t m_iGlowIndex							= 0xAD68; // 0xAD48 // 0xAD2C
 		uint64_t m_dwCrosshairID               		 	= 0x11D88; // 0xBC08;
 		uint64_t m_iItemDefinitionIndex 				= 0x37BA;
