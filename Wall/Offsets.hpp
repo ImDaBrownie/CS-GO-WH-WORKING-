@@ -60,6 +60,7 @@ public:
 		uint64_t m_bSpotted								= 0xECD;
 		uint64_t m_bSpottedBy							= 0xF10;
 		uint64_t m_dwBoneMatrix							= 0x2C80;
+		uint64_t m_hMyWeapons							= 0x3538;
 		uint64_t m_hActiveWeapon						= 0x3638;
 //		uint64_t m_hLocalPlayer							= 0x3700;
 //		uint64_t m_hViewModelIndex						= 0x3AE4;
